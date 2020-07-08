@@ -51,7 +51,6 @@ vacuumWorld =
         , a = Dirty
         , b = Dirty
         }
-    , actions = \_ -> [ left, right, suck ]
-    , stepCost = \_ _ -> 1
+    , actions = \state -> List.map (\f -> ( 1, f state )) [ left, right, suck ]
     , goalTest = \state -> state.a == Clean && state.b == Clean
     }

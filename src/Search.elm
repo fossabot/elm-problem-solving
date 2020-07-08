@@ -3,20 +3,14 @@ module Search exposing (..)
 import List.Extra as List
 
 
+{-| 
+This deviates from the AIMA book, where there are distinct `actions`, `result` and `stepCost` functions. I find a pure graph model more suitable, so there is a single function (called `actions`) which for each state reveals a list of tuples containing adjacent states and their respective step costs.
+-}
 type alias SearchProblem a =
     { initialState : a
-    , actions : a -> List (a -> a)
-    , stepCost : a -> (a -> a) -> Float
+    , actions : a -> List ( Float, a )
     , goalTest : a -> Bool
     }
-
-
-
-{-
-   type Node a
-       = RootNode a
-       | Node a Float (Node a)
--}
 
 
 type alias Node a =
@@ -37,18 +31,16 @@ path node =
             path p ++ [ ( node.pathCost, node.state ) ]
 
         Nothing ->
-            []
+            [ ( node.pathCost, node.state ) ]
 
 
 expand : SearchProblem a -> Node a -> List (Node a)
 expand problem node =
     List.map
-        (\action ->
-            { state = action node.state
+        (\( stepCost, result ) ->
+            { state = result
             , parent = Just (Parent node)
-            , pathCost =
-                node.pathCost
-                    + problem.stepCost node.state action
+            , pathCost = node.pathCost + stepCost
             }
         )
         (problem.actions node.state)
@@ -180,9 +172,17 @@ pollUnexploredFrontier explored queue problem frontier =
         [] ->
             Nothing
 
+
 graphSearch : Queue (Node a) -> Search a
 graphSearch queue problem =
     search (pollUnexploredFrontier []) queue problem
 
+
 breadthFirstSearch : Search a
-breadthFirstSearch = graphSearch addFirst
+breadthFirstSearch =
+    graphSearch addLast
+
+
+depthFirstSearch : Search a
+depthFirstSearch =
+    graphSearch addFirst
