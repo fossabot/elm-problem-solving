@@ -14,11 +14,7 @@ type alias State =
 
 vertical : Int -> State -> Maybe State
 vertical d state =
-    let
-        free =
-            elemIndex 0 state
-    in
-    Maybe.map (\a -> swapAt a (a + d) state) free
+    elemIndex 0 state |> Maybe.map (\a -> swapAt a (a + d) state)
 
 
 up s =
@@ -31,11 +27,7 @@ down s =
 
 horizontal : Int -> State -> Maybe State
 horizontal d state =
-    let
-        free =
-            elemIndex 0 state
-    in
-    Maybe.map (\a -> swapAt a (a + d) state) free
+    elemIndex 0 state |> Maybe.map (\a -> swapAt a (a + d) state)
 
 
 left =
@@ -46,17 +38,17 @@ right =
     horizontal 1
 
 
-type EightPuzzleError
+type NPuzzleError
     = NotQuadratic
     | NoPermutationOfRange
 
 
-type alias EightPuzzle =
-    Result EightPuzzleError (SearchProblem State)
+type alias NPuzzle =
+    Result NPuzzleError (SearchProblem State)
 
 
-eightPuzzle : State -> EightPuzzle
-eightPuzzle initialState =
+nPuzzle : State -> NPuzzle
+nPuzzle initialState =
     let
         side =
             sqrt (toFloat (length initialState))
@@ -86,9 +78,9 @@ eightPuzzle initialState =
             }
 
 
-simpleEightPuzzle : EightPuzzle
+simpleEightPuzzle : NPuzzle
 simpleEightPuzzle =
-    eightPuzzle <|
+    nPuzzle <|
         concat
             [ [ 1, 4, 2 ]
             , [ 3, 0, 5 ]
@@ -96,9 +88,13 @@ simpleEightPuzzle =
             ]
 
 
-suite : () -> Test
+
+-- TESTING
+
+
+suite : List (() -> Test)
 suite =
-    \_ ->
+    [ \_ ->
         test "Breadth-first search solves simple EightPuzzle" <|
             \_ ->
                 Expect.equal
@@ -113,3 +109,4 @@ suite =
                             ]
                         )
                     )
+    ]
