@@ -38,24 +38,30 @@ Nesting unspecified domains is not possible.
     -- forall x in D: exists y: F(x, y)
     -- List.all (\x -> List.any (\y -> f (x, y))) d
     --> Syntax error!
-
     -- forall x in D: exists y **in {"one", "two", "three"}: F(x, y)
     -- List.all (\x -> List.any (\y -> f (x, y)) ["one", "two", "three"]) d
     --> True
 
+
+
+
 # Modal Logic
+
 
 ## Necessity
 
 @docs necessary, necessary2, necessary3, necessary4, necessary5
 
+
 ## Possibility
 
 @docs possible, possible2, possible3, possible4, possible5
 
+
 ## Contingency
 
 @docs contingent, contingent2, contingent3, contingent4, contingent5
+
 
 ## Forcing
 
@@ -203,6 +209,7 @@ contradicts a b =
 
 -- Modal Logic
 
+
 {-| Checks whether a logical expression with one open variable (`Bool -> Bool`) is true in all possible worlds.
 
     necessary (\a -> a || not a)
@@ -219,11 +226,11 @@ contradicts a b =
 
     necessary (\a -> not a)
     --> False
+
 -}
 necessary : (Bool -> Bool) -> Bool
 necessary a =
     List.all a [ True, False ]
-
 
 
 {-| Checks whether a logical expression with two open variables (`Bool -> Bool -> Bool`) is true in all possible worlds.
@@ -233,10 +240,11 @@ necessary a =
 
     necessary2 (\a b -> False || b)
     --> False
+
 -}
 necessary2 : (Bool -> Bool -> Bool) -> Bool
 necessary2 a =
-    necessary (\b -> necessary (a b))
+    necessary (necessary << a)
 
 
 {-| Checks whether a logical expression with three open variables (`Bool -> Bool -> Bool -> Bool`) is true in all possible worlds.
@@ -246,21 +254,21 @@ necessary2 a =
 
     necessary2 (\a b c -> implies a c)
     --> False
+
 -}
 necessary3 : (Bool -> Bool -> Bool -> Bool) -> Bool
 necessary3 a =
-    necessary (\b -> necessary2 (a b))
+    necessary (necessary2 << a)
 
 
 necessary4 : (Bool -> Bool -> Bool -> Bool -> Bool) -> Bool
 necessary4 a =
-    necessary (\b -> necessary3 (a b))
+    necessary (necessary3 << a)
 
 
 necessary5 : (Bool -> Bool -> Bool -> Bool -> Bool -> Bool) -> Bool
 necessary5 a =
-    necessary (\b -> necessary4 (a b))
-
+    necessary (necessary4 << a)
 
 
 {-| Checks whether a logical expression with one open variable (`Bool -> Bool`) is true in at least one possible world.
@@ -270,10 +278,12 @@ necessary5 a =
 
     possible (\a -> a && (not a))
     --> False
+
 -}
 possible : (Bool -> Bool) -> Bool
 possible a =
     List.any a [ True, False ]
+
 
 {-| Checks whether a logical expression with two open variables (`Bool -> Bool -> Bool`) is true in at least one possible world.
 
@@ -282,11 +292,11 @@ possible a =
 
     possible (\a b -> contradicts a b && equals a b)
     --> False
+
 -}
 possible2 : (Bool -> Bool -> Bool) -> Bool
 possible2 a =
-    possible (\b -> possible (a b))
-
+    possible (possible << a)
 
 
 {-| Checks whether a logical expression with three open variables (`Bool -> Bool -> Bool -> Bool`) is true in at least one possible world.
@@ -296,21 +306,21 @@ possible2 a =
 
     possible3 (\a b c -> equals a b && equals b c && equals c (not a))
     --> False
+
 -}
 possible3 : (Bool -> Bool -> Bool -> Bool) -> Bool
 possible3 a =
-    possible (\b -> possible2 (a b))
+    possible (possible2 << a)
 
 
 possible4 : (Bool -> Bool -> Bool -> Bool -> Bool) -> Bool
 possible4 a =
-    possible (\b -> possible3 (a b))
+    possible (possible3 << a)
 
 
 possible5 : (Bool -> Bool -> Bool -> Bool -> Bool -> Bool) -> Bool
 possible5 a =
-    possible (\b -> possible4 (a b))
-
+    possible (possible4 << a)
 
 
 {-| Checks whether a logical expression with one open variable (`Bool -> Bool`) is true in at least one possible world and false in at least one possible world.
@@ -323,10 +333,12 @@ possible5 a =
 
     contingent (\a -> contradicts a a)
     --> False
+
 -}
 contingent : (Bool -> Bool) -> Bool
 contingent a =
-    List.any a [ True, False ] && List.any (\b -> not (a b)) [ True, False ]
+    List.any a [ True, False ] && List.any (not << a) [ True, False ]
+
 
 {-| Checks whether a logical expression with two open variables (`Bool -> Bool -> Bool`) is true in at least one possible world and false in at least one possible world.
 
@@ -335,10 +347,11 @@ contingent a =
 
     contingent2 (\a b -> False)
     --> False
+
 -}
 contingent2 : (Bool -> Bool -> Bool) -> Bool
 contingent2 a =
-    contingent (\b -> contingent (a b))
+    contingent (contingent << a)
 
 
 {-| Checks whether a logical expression with three open variables (`Bool -> Bool -> Bool -> Bool`) is true in at least one possible world and false in at least one possible world.
@@ -348,20 +361,22 @@ contingent2 a =
 
     contingent3 (\a b c -> True)
     --> False
+
 -}
 contingent3 : (Bool -> Bool -> Bool -> Bool) -> Bool
 contingent3 a =
-    contingent (\b -> contingent2 (a b))
+    contingent (contingent2 << a)
 
 
 contingent4 : (Bool -> Bool -> Bool -> Bool -> Bool) -> Bool
 contingent4 a =
-    contingent (\b -> contingent3 (a b))
+    contingent (contingent3 << a)
 
 
 contingent5 : (Bool -> Bool -> Bool -> Bool -> Bool -> Bool) -> Bool
 contingent5 a =
-    contingent (\b -> contingent4 (a b))
+    contingent (contingent4 << a)
+
 
 {-| Evaluates a logical expression with one open variable (`Bool -> Bool`) as either necessarily true (`Just True`) or necessarily false (`Just False`) or contingent (`Nothing`).
 
@@ -383,7 +398,15 @@ contingent5 a =
 -}
 force : (Bool -> Bool) -> Maybe Bool
 force a =
-    if necessary a then Just True else if not (possible a) then Just False else Nothing
+    if necessary a then
+        Just True
+
+    else if not (possible a) then
+        Just False
+
+    else
+        Nothing
+
 
 {-| Evaluates a logical expression with two open variables (`Bool -> Bool -> Bool`) as either necessarily true (`Just True`) or necessarily false (`Just False`) or contingent (`Nothing`).
 
@@ -395,13 +418,21 @@ force a =
 
     force2 (\a b -> implieas a b)
     --> Nothing
+
 -}
 force2 : (Bool -> Bool -> Bool) -> Maybe Bool
 force2 a =
-    if necessary2 a then Just True else if not (possible2 a) then Just False else Nothing
+    if necessary2 a then
+        Just True
+
+    else if not (possible2 a) then
+        Just False
+
+    else
+        Nothing
 
 
-{-| Evaluates a logical expression with two open variables (`Bool -> Bool -> Bool -> Bool`)  as either necessarily true (`Just True`) or necessarily false (`Just False`) or contingent (`Nothing`).
+{-| Evaluates a logical expression with two open variables (`Bool -> Bool -> Bool -> Bool`) as either necessarily true (`Just True`) or necessarily false (`Just False`) or contingent (`Nothing`).
 
     force3 (\a b c -> c || True)
     --> Just True
@@ -411,17 +442,39 @@ force2 a =
 
     force 3 (\a b c -> b)
     --> Nothing
+
 -}
 force3 : (Bool -> Bool -> Bool -> Bool) -> Maybe Bool
 force3 a =
-    if necessary3 a then Just True else if not (possible3 a) then Just False else Nothing
+    if necessary3 a then
+        Just True
+
+    else if not (possible3 a) then
+        Just False
+
+    else
+        Nothing
 
 
 force4 : (Bool -> Bool -> Bool -> Bool -> Bool) -> Maybe Bool
 force4 a =
-    if necessary4 a then Just True else if not (possible4 a) then Just False else Nothing
+    if necessary4 a then
+        Just True
+
+    else if not (possible4 a) then
+        Just False
+
+    else
+        Nothing
 
 
 force5 : (Bool -> Bool -> Bool -> Bool -> Bool -> Bool) -> Maybe Bool
 force5 a =
-    if necessary5 a then Just True else if not (possible5 a) then Just False else Nothing
+    if necessary5 a then
+        Just True
+
+    else if not (possible5 a) then
+        Just False
+
+    else
+        Nothing
