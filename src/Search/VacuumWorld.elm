@@ -1,6 +1,6 @@
-module Search.VacuumWorld exposing (..)
+module Search.VacuumWorld exposing (vacuumWorld)
 
-import Search exposing (..)
+import Search exposing (SearchProblem)
 
 
 type Location
