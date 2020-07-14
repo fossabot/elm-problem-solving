@@ -1,17 +1,16 @@
 module Search exposing (..)
 
 import List.Extra as List
+import Set exposing (Set)
 
 
-{-| 
-This deviates from the AIMA book, where there are distinct `actions`, `result` and `stepCost` functions. I find a pure graph model more suitable, so there is a single function (called `actions`) which for each state reveals a list of tuples containing adjacent states and their respective step costs.
+{-| This deviates from the AIMA book, where there are distinct `actions`, `result` and `stepCost` functions. I find a pure graph model more suitable, so there is a single function (called `actions`) which for each state reveals a list of tuples containing adjacent states and their respective step costs.
 -}
 type alias SearchProblem a =
     { initialState : a
     , actions : a -> List ( Float, a )
     , goalTest : a -> Bool
     }
-
 
 type alias Node a =
     { state : a
@@ -75,12 +74,13 @@ addByPriority p a l =
 type alias FrontierWorker a =
     Queue (Node a)
     -> SearchProblem a
+    -> Set a
     -> List (Node a)
     -> Maybe (Node a)
 
 
-pollFrontier : FrontierWorker a
-pollFrontier queue problem frontier =
+pollFrontier : FrontierWorker comparable
+pollFrontier queue problem explored frontier =
     case frontier of
         h :: t ->
             if problem.goalTest h.state then
@@ -90,6 +90,7 @@ pollFrontier queue problem frontier =
                 pollFrontier
                     queue
                     problem
+                    (Set.insert h.state explored)
                     (List.foldl queue t (expand problem h))
 
         [] ->
@@ -102,8 +103,10 @@ type alias Search a =
 
 search : FrontierWorker a -> Queue (Node a) -> Search a
 search frontierWorker queue problem =
-    frontierWorker queue
+    frontierWorker
+        queue
         problem
+        Set.empty
         [ { state = problem.initialState
           , parent = Nothing
           , pathCost = 0.0
@@ -111,21 +114,23 @@ search frontierWorker queue problem =
         ]
 
 
-treeSearch : Queue (Node a) -> Search a
+treeSearch : Queue (Node comparable) -> Search comparable
 treeSearch queue problem =
     search pollFrontier queue problem
 
 
-breadthFirstTreeSearch : Search a
+breadthFirstTreeSearch : Search comparable
 breadthFirstTreeSearch =
     treeSearch addLast
 
 
-depthFirstTreeSearch : Search a
+depthFirstTreeSearch : Search comparable
 depthFirstTreeSearch =
     treeSearch addFirst
 
 
+{-| TODO optimize
+-}
 updatePathCosts : List (Node a) -> List (Node a) -> List (Node a)
 updatePathCosts l1 l2 =
     List.map
@@ -140,8 +145,34 @@ updatePathCosts l1 l2 =
         l2
 
 
-pollUnexploredFrontier : List a -> FrontierWorker a
-pollUnexploredFrontier explored queue problem frontier =
+newUnexploredFrontier :
+    Node comparable
+    -> List (Node comparable)
+    -> Set comparable
+    -> Queue (Node comparable)
+    -> SearchProblem comparable
+    -> List (Node comparable)
+newUnexploredFrontier h t explored queue problem =
+    let
+        childNodes =
+            expand problem h
+    in
+    childNodes
+        |> List.filter
+            (\a ->
+                not
+                    ((a.state == h.state)
+                        || Set.member a.state explored
+                        || List.any (\b -> a.state == b.state) t
+                    )
+            )
+        |> List.foldl
+            queue
+            (updatePathCosts childNodes t)
+
+
+pollUnexploredFrontier : FrontierWorker comparable
+pollUnexploredFrontier queue problem explored frontier =
     case frontier of
         h :: t ->
             if problem.goalTest h.state then
@@ -149,40 +180,25 @@ pollUnexploredFrontier explored queue problem frontier =
 
             else
                 pollUnexploredFrontier
-                    (h.state :: explored)
                     queue
                     problem
-                    (let
-                        childNodes =
-                            expand problem h
-                     in
-                     childNodes
-                        |> List.filter
-                            (\a ->
-                                not
-                                    (List.any (\b -> a.state == b) explored
-                                        || List.any (\b -> a.state == b.state) frontier
-                                    )
-                            )
-                        |> List.foldl
-                            queue
-                            (updatePathCosts childNodes t)
-                    )
+                    (Set.insert h.state explored)
+                    (newUnexploredFrontier h t explored queue problem)
 
         [] ->
             Nothing
 
 
-graphSearch : Queue (Node a) -> Search a
+graphSearch : Queue (Node comparable) -> Search comparable
 graphSearch queue problem =
-    search (pollUnexploredFrontier []) queue problem
+    search pollUnexploredFrontier queue problem
 
 
-breadthFirstSearch : Search a
+breadthFirstSearch : Search comparable
 breadthFirstSearch =
     graphSearch addLast
 
 
-depthFirstSearch : Search a
+depthFirstSearch : Search comparable
 depthFirstSearch =
     graphSearch addFirst
