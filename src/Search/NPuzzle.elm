@@ -1,9 +1,10 @@
-module Search.NPuzzle exposing (NPuzzleError(..), empty, fromList, nPuzzle, simpleEightPuzzle, suite)
+module Search.NPuzzle exposing (NPuzzleError(..), empty, fromList, nPuzzle, random, simpleEightPuzzle, suite)
 
 import Expect
 import List exposing (all, concat, length, map, member, range)
-import List.Extra exposing (elemIndex, swapAt)
+import List.Extra exposing (elemIndex, getAt, swapAt)
 import Maybe.Extra exposing (values)
+import Random exposing (initialSeed, step)
 import Search exposing (SearchProblem, breadthFirstSearch, path)
 import Test exposing (Test, test)
 
@@ -107,6 +108,35 @@ simpleEightPuzzle =
             , [ 3, 0, 5 ]
             , [ 6, 7, 8 ]
             ]
+
+
+
+-- RANDOM GENERATION
+
+
+randomLoop : Int -> Random.Seed -> Int -> State -> State
+randomLoop size seed n a =
+    if n > 0 then
+        let
+            ( r, newSeed ) =
+                step (Random.int 0 3) seed
+        in
+        case Maybe.map (\f -> f a) (getAt r [ up size, down size, left, right ]) of
+            Just (Just aa) ->
+                randomLoop size newSeed (n - 1) aa
+
+            _ ->
+                randomLoop size newSeed n a
+
+    else
+        a
+
+
+random : Int -> Int -> Int -> SearchProblem State
+random length steps seed =
+    List.Extra.initialize length identity
+        |> randomLoop (round (sqrt (toFloat length))) (initialSeed seed) steps
+        |> nPuzzle
 
 
 
