@@ -26,6 +26,7 @@ incrementalNQueens n =
 
             else
                 []
+    , heuristic = \_ -> 0
     , goalTest = \state -> List.length state == n
     }
 

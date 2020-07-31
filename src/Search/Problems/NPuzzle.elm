@@ -1,6 +1,6 @@
-module Search.Problems.NPuzzle exposing (NPuzzleError(..), empty, fromList, nPuzzle, random, simpleEightPuzzle)
+module Search.Problems.NPuzzle exposing (NPuzzleError(..), empty, fromList, nPuzzle, random, simpleEightPuzzle, complexEightPuzzle)
 
-import List exposing (all, concat, length, map, member, range)
+import List exposing (all, concat, length, map, member, range, sum)
 import List.Extra exposing (elemIndex, getAt, swapAt)
 import Maybe.Extra exposing (values)
 import Random exposing (initialSeed, step)
@@ -68,6 +68,16 @@ checkState s =
         Ok s
 
 
+manhattanDist : Int -> Int -> State -> Int
+manhattanDist p q state =
+    let
+        s =
+            round (sideLength state)
+    in
+    abs (modBy s p - modBy s q)
+        + abs ((p // s) - (q // s))
+
+
 nPuzzle : State -> Problem State
 nPuzzle validState =
     let
@@ -81,6 +91,18 @@ nPuzzle validState =
                 |> map (\f -> f state)
                 |> values
                 |> map (\a -> ( 1, a ))
+    , heuristic =
+        \state ->
+            state
+                |> List.indexedMap
+                    (\i n ->
+                        manhattanDist
+                            i
+                            (Maybe.withDefault 1000 (elemIndex n (goal state)))
+                            state
+                    )
+                |> sum
+                |> toFloat
     , goalTest = \state -> state == goal validState
     }
 
@@ -89,6 +111,7 @@ empty : Problem State
 empty =
     { initialState = []
     , actions = \_ -> []
+    , heuristic = \_ -> 0
     , goalTest = \_ -> False
     }
 
@@ -105,6 +128,14 @@ simpleEightPuzzle =
             [ [ 1, 4, 2 ]
             , [ 3, 0, 5 ]
             , [ 6, 7, 8 ]
+            ]
+complexEightPuzzle : Problem State
+complexEightPuzzle =
+    nPuzzle <|
+        concat
+            [ [ 7, 2, 4 ]
+            , [ 5, 0, 6 ]
+            , [ 8, 3, 1 ]
             ]
 
 

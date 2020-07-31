@@ -33,6 +33,7 @@ knuthConjecture goal =
                 [ ( 1, sqrt n )
                 , ( 1, toFloat (floor n) )
                 ]
+    , heuristic = \_ -> 0
     , goalTest = \n -> n == goal
     }
 

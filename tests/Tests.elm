@@ -113,16 +113,7 @@ suite =
                             )
                 ]
             , describe "uniform-cost search"
-                [ test "expands first node correctly in simple eight puzzle" <|
-                    \_ ->
-                        Expect.equal
-                            (List.map .state (graphSearchStep (init (insertBy .pathCost) simpleEightPuzzle)).frontier)
-                            [ [ 1, 4, 2, 3, 5, 0, 6, 7, 8 ]
-                            , [ 1, 4, 2, 0, 3, 5, 6, 7, 8 ]
-                            , [ 1, 4, 2, 3, 7, 5, 6, 0, 8 ]
-                            , [ 1, 0, 2, 3, 4, 5, 6, 7, 8 ]
-                            ]
-                , test "solves incremental eight-queens problem" <|
+                [ test "solves incremental eight-queens problem" <|
                     \_ ->
                         Expect.equal
                             (Maybe.map (\node -> visualize node.state)
@@ -150,6 +141,51 @@ suite =
                                 , ( 3, 1 )
                                 ]
                             )
+                ]
+            , describe "heuristic search"
+                [ test "solves simple eight puzzle" <|
+                    \_ ->
+                        Expect.equal
+                            (Maybe.map path (Tuple.first (heuristicSearch simpleEightPuzzle)))
+                            (Just
+                                [ ( 0, [ 1, 4, 2, 3, 0, 5, 6, 7, 8 ] )
+                                , ( 1, [ 1, 0, 2, 3, 4, 5, 6, 7, 8 ] )
+                                , ( 2, [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ] )
+                                ]
+                            )
+
+                -- this works, just takes 30 seconds or so, so will not be included in tests
+                {- , test "solves complex eight puzzle" <|
+                   \_ ->
+                       Expect.equal
+                           (Maybe.map path (Tuple.first (heuristicSearch complexEightPuzzle)))
+                           (Just
+                               [ ( 0, [ 7, 2, 4, 5, 0, 6, 8, 3, 1 ] )
+                               , ( 1, [ 7, 2, 4, 5, 3, 6, 8, 0, 1 ] )
+                               , ( 2, [ 7, 2, 4, 5, 3, 6, 0, 8, 1 ] )
+                               , ( 3, [ 7, 2, 4, 5, 3, 0, 6, 8, 1 ] )
+                               , ( 4, [ 7, 2, 4, 5, 3, 1, 6, 8, 0 ] )
+                               , ( 5, [ 7, 2, 4, 5, 3, 1, 6, 0, 8 ] )
+                               , ( 6, [ 7, 2, 4, 5, 3, 1, 0, 6, 8 ] )
+                               , ( 7, [ 7, 2, 4, 0, 3, 1, 5, 6, 8 ] )
+                               , ( 8, [ 7, 2, 0, 4, 3, 1, 5, 6, 8 ] )
+                               , ( 9, [ 7, 0, 2, 4, 3, 1, 5, 6, 8 ] )
+                               , ( 10, [ 7, 3, 2, 4, 0, 1, 5, 6, 8 ] )
+                               , ( 11, [ 7, 3, 2, 4, 1, 0, 5, 6, 8 ] )
+                               , ( 12, [ 7, 3, 2, 4, 1, 5, 0, 6, 8 ] )
+                               , ( 13, [ 7, 3, 2, 0, 1, 5, 4, 6, 8 ] )
+                               , ( 14, [ 0, 3, 2, 7, 1, 5, 4, 6, 8 ] )
+                               , ( 15, [ 3, 0, 2, 7, 1, 5, 4, 6, 8 ] )
+                               , ( 16, [ 3, 1, 2, 7, 0, 5, 4, 6, 8 ] )
+                               , ( 17, [ 3, 1, 2, 0, 7, 5, 4, 6, 8 ] )
+                               , ( 18, [ 3, 1, 2, 4, 7, 5, 0, 6, 8 ] )
+                               , ( 19, [ 3, 1, 2, 4, 7, 5, 6, 0, 8 ] )
+                               , ( 20, [ 3, 1, 2, 4, 0, 5, 6, 7, 8 ] )
+                               , ( 21, [ 3, 1, 2, 0, 4, 5, 6, 7, 8 ] )
+                               , ( 22, [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ] )
+                               ]
+                           )
+                -}
                 ]
             ]
         ]

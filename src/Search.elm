@@ -84,6 +84,7 @@ import Set exposing (Set)
 type alias Problem a =
     { initialState : a
     , actions : a -> List ( Float, a )
+    , heuristic : a -> Float
     , goalTest : a -> Bool
     }
 
@@ -310,6 +311,14 @@ uniformCostTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model c
 uniformCostTreeSearch problem =
     treeSearch (init (insertBy .pathCost) problem)
 
+greedyTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
+greedyTreeSearch problem =
+    treeSearch (init (insertBy (\node -> problem.heuristic node.state)) problem)
+
+{-| A* tree search. -}
+heuristicTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
+heuristicTreeSearch problem =
+    treeSearch (init (insertBy (\node -> node.pathCost + problem.heuristic node.state)) problem)
 
 graphSearch : Model comparable -> ( Maybe (Node comparable), Model comparable )
 graphSearch searchModel =
@@ -329,3 +338,13 @@ depthFirstSearch problem =
 uniformCostSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 uniformCostSearch problem =
     graphSearch (init (insertBy .pathCost) problem)
+
+
+greedySearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
+greedySearch problem =
+    graphSearch (init (insertBy (\node -> problem.heuristic node.state)) problem)
+
+{-| A* search. -}
+heuristicSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
+heuristicSearch problem =
+    graphSearch (init (insertBy (\node -> node.pathCost + problem.heuristic node.state)) problem)

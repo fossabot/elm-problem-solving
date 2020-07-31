@@ -52,5 +52,6 @@ vacuumWorld =
         , b = Dirty
         }
     , actions = \state -> List.map (\f -> ( 1, f state )) [ left, right, suck ]
+    , heuristic = \_ -> 0
     , goalTest = \state -> state.a == Clean && state.b == Clean
     }
