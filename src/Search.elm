@@ -1,16 +1,92 @@
 module Search exposing (..)
 
+{-| Intelligent search
+
+
+# Uninformed search
+
+@docs breadthFirstSearch, breadthFirstTreeSearch, depthFirstSearch, depthFirstTreeSearch
+
+
+# Informed search
+
+
+# Accessing progress while searching
+
+This is useful if you want to work with the internal model of the search algorithms from the `Search` module.
+
+For example:
+
+  - For making animations of how the algorithms work.
+  - For extensive logging. Or for just displaying the number of explored states.
+
+However, these algorithms are much slower than their equivalents from the `Search` module. In my opinion they should have the same time efficiency as the algorithms from the `Search` module, but I have to investigate this further, as the algorithms here seem to slow down pretty quickly.
+
+You can use the functions from this module to embed the inner structure of the search algorithm (the `SearchModel`) into the model of your web application.
+
+Here is a minimal example, which you can also find in the [`Search/ComponentMinimal`](../../../../examples/Search/ComponentMinimal/src/Main.elm) example. A logging use case can be found in the [`Search/Component`](../../../../examples/Search/Component/src/Main.elm) example.
+
+    module Main exposing (..)
+
+    import Browser
+    import Html exposing (text)
+    import Search.Component exposing (SearchModel, breadthFirstSearch, searchInit)
+    import Search.NPuzzle exposing (simpleEightPuzzle)
+
+    type alias State =
+        List Int
+
+    type Msg
+        = SearchOn ( SearchModel State, SearchModel State -> Cmd Msg )
+
+    main : Program () (SearchModel State) Msg
+    main =
+        let
+            searchModel =
+                searchInit simpleEightPuzzle
+        in
+        Browser.element
+            { view = \model -> text (Debug.toString model)
+            , init = \_ -> ( searchModel, breadthFirstSearch SearchOn searchModel )
+            , update =
+                \msg model ->
+                    case msg of
+                        SearchOn ( result, callback ) ->
+                            ( result, callback result )
+            , subscriptions = always Sub.none
+            }
+
+In this example, the model of the application _is_ the model of the search algorithm. In a real scenario, it would most likely reside as a sub-model within the application model. You can look that up in the [`Search/Component`](../../../../examples/Search/Component/src/Main.elm) example.
+
+@docs treeSearchStep, graphSearchStep
+
+    searchAsync :
+        (SearchModel comparable -> SearchModel comparable)
+        -> (( SearchModel comparable, SearchModel comparable -> Cmd msg ) -> msg)
+        -> SearchModel comparable
+        -> Cmd msg
+    searchAsync stepMethod msg searchModel =
+        Task.perform
+            msg
+            (Process.sleep 0
+                |> Task.andThen
+                    (\_ -> Task.succeed ( breadthFirstSearchStep searchModel, searchAsync stepMethod msg ))
+            )
+
+-}
+
 import List.Extra as List
 import Set exposing (Set)
 
 
 {-| This deviates from the AIMA book, where there are distinct `actions`, `result` and `stepCost` functions. I find a pure graph model more suitable, so there is a single function (called `actions`) which for each state reveals a list of tuples containing adjacent states and their respective step costs.
 -}
-type alias SearchProblem a =
+type alias Problem a =
     { initialState : a
     , actions : a -> List ( Float, a )
     , goalTest : a -> Bool
     }
+
 
 type alias Node a =
     { state : a
@@ -33,7 +109,7 @@ path node =
             [ ( node.pathCost, node.state ) ]
 
 
-expand : SearchProblem a -> Node a -> List (Node a)
+expand : Problem a -> Node a -> List (Node a)
 expand problem node =
     List.map
         (\( stepCost, result ) ->
@@ -45,91 +121,75 @@ expand problem node =
         (problem.actions node.state)
 
 
-type alias Queue a =
+type alias QueueInserter a =
     a -> List a -> List a
 
 
 {-| simulates a First-In-First-Out queue when using head for extraction
 -}
-addLast : Queue a
-addLast a l =
+insertLast : QueueInserter a
+insertLast a l =
     l ++ [ a ]
 
 
 {-| simulates a Last-In-First-Out queue when using head for extraction
 -}
-addFirst : Queue a
-addFirst a l =
+insertFirst : QueueInserter a
+insertFirst a l =
     a :: l
 
 
 {-| simulates a priority queue when using head for extraction
 -- TODO more efficient implementation / show this is most efficient
 -}
-addByPriority : (a -> comparable) -> Queue a
-addByPriority p a l =
+insertByPriority : (a -> comparable) -> QueueInserter a
+insertByPriority p a l =
     List.sortBy p (a :: l)
 
 
-type alias FrontierWorker a =
-    Queue (Node a)
-    -> SearchProblem a
-    -> Set a
-    -> List (Node a)
-    -> Maybe (Node a)
+type Solution state
+    = Pending
+    | Solution (Node state)
+    | NoSolution
 
 
-pollFrontier : FrontierWorker comparable
-pollFrontier queue problem explored frontier =
-    case frontier of
+{-| This record represents the inner state of the search algorithm. You can integrate it into the model of your web application.
+
+The `state` parameter refers to the `State` type of the search problem. For example, if you want to search an eight-puzzle, you can import it with `import Search.EightPuzzle exposing (State)`.
+
+Initialize your model with `searchInit` (see below).
+
+-}
+type alias Model state =
+    { problem : Problem state
+    , queue : QueueInserter (Node state)
+    , explored : Set state
+    , frontier : List (Node state)
+    , solution : Solution state
+    }
+
+
+type alias Step state =
+    Model state
+    -> Model state
+
+
+treeSearchStep : Step comparable
+treeSearchStep searchModel =
+    case searchModel.frontier of
         h :: t ->
-            if problem.goalTest h.state then
-                Just h
+            if searchModel.problem.goalTest h.state then
+                { searchModel | solution = Solution h }
 
             else
-                pollFrontier
-                    queue
-                    problem
-                    (Set.insert h.state explored)
-                    (List.foldl queue t (expand problem h))
+                { searchModel | frontier = List.foldl searchModel.queue t (expand searchModel.problem h) }
 
         [] ->
-            Nothing
+            { searchModel | solution = NoSolution }
 
 
-type alias Search a =
-    SearchProblem a -> Maybe (Node a)
-
-
-search : FrontierWorker a -> Queue (Node a) -> Search a
-search frontierWorker queue problem =
-    frontierWorker
-        queue
-        problem
-        Set.empty
-        [ { state = problem.initialState
-          , parent = Nothing
-          , pathCost = 0.0
-          }
-        ]
-
-
-treeSearch : Queue (Node comparable) -> Search comparable
-treeSearch queue problem =
-    search pollFrontier queue problem
-
-
-breadthFirstTreeSearch : Search comparable
-breadthFirstTreeSearch =
-    treeSearch addLast
-
-
-depthFirstTreeSearch : Search comparable
-depthFirstTreeSearch =
-    treeSearch addFirst
-
-
-{-| TODO optimize
+{-| Updates the 2nd list with path costs from the 1st list where the path costs are shorter.
+TODO optimize
 -}
 updatePathCosts : List (Node a) -> List (Node a) -> List (Node a)
 updatePathCosts l1 l2 =
@@ -148,57 +208,103 @@ updatePathCosts l1 l2 =
 newUnexploredFrontier :
     Node comparable
     -> List (Node comparable)
-    -> Set comparable
-    -> Queue (Node comparable)
-    -> SearchProblem comparable
+    -> Model comparable
     -> List (Node comparable)
-newUnexploredFrontier h t explored queue problem =
+newUnexploredFrontier h t searchModel =
     let
         childNodes =
-            expand problem h
+            expand searchModel.problem h
     in
     childNodes
         |> List.filter
             (\a ->
                 not
                     ((a.state == h.state)
-                        || Set.member a.state explored
+                        || Set.member a.state searchModel.explored
                         || List.any (\b -> a.state == b.state) t
                     )
             )
         |> List.foldl
-            queue
+            searchModel.queue
             (updatePathCosts childNodes t)
 
 
-pollUnexploredFrontier : FrontierWorker comparable
-pollUnexploredFrontier queue problem explored frontier =
-    case frontier of
+graphSearchStep : Model comparable -> Model comparable
+graphSearchStep searchModel =
+    case searchModel.frontier of
         h :: t ->
-            if problem.goalTest h.state then
-                Just h
+            if searchModel.problem.goalTest h.state then
+                { searchModel | frontier = t, solution = Solution h }
 
             else
-                pollUnexploredFrontier
-                    queue
-                    problem
-                    (Set.insert h.state explored)
-                    (newUnexploredFrontier h t explored queue problem)
+                { searchModel
+                    | explored = Set.insert h.state searchModel.explored
+                    , frontier = newUnexploredFrontier h t searchModel
+                }
 
         [] ->
-            Nothing
+            { searchModel | solution = NoSolution }
 
 
-graphSearch : Queue (Node comparable) -> Search comparable
-graphSearch queue problem =
-    search pollUnexploredFrontier queue problem
+{-| Initializes your model of the search algorithm. It takes a `Problem state` as parameter, because it needs to know the `initialState` of the search problem for initializing the frontier, and also the whole other information about the search problem for running the search algorithm later.
+-}
+init : QueueInserter (Node state) -> Problem state -> Model state
+init queue problem =
+    { problem = problem
+    , queue = queue
+    , explored = Set.empty
+    , frontier =
+        [ { parent = Nothing
+          , state = problem.initialState
+          , pathCost = 0
+          }
+        ]
+    , solution = Pending
+    }
 
 
-breadthFirstSearch : Search comparable
-breadthFirstSearch =
-    graphSearch addLast
+search : Step a -> Model a -> (Maybe (Node a), Model a)
+search searchStep searchModel =
+    let
+        newSearchModel =
+            searchStep searchModel
+    in
+    case newSearchModel.solution of
+        Solution a ->
+            (Just a, newSearchModel)
+
+        NoSolution ->
+            (Nothing, newSearchModel)
+
+        Pending ->
+            search searchStep newSearchModel
 
 
-depthFirstSearch : Search comparable
-depthFirstSearch =
-    graphSearch addFirst
+treeSearch : Model comparable -> (Maybe (Node comparable), Model comparable)
+treeSearch searchModel =
+    search treeSearchStep searchModel
+
+
+breadthFirstTreeSearch : Problem comparable -> (Maybe (Node comparable), Model comparable)
+breadthFirstTreeSearch problem =
+    treeSearch (init insertLast problem)
+
+
+depthFirstTreeSearch : Problem comparable -> (Maybe (Node comparable), Model comparable)
+depthFirstTreeSearch problem =
+    treeSearch (init insertFirst problem)
+
+
+graphSearch : Model comparable -> (Maybe (Node comparable), Model comparable)
+graphSearch searchModel =
+    search graphSearchStep searchModel
+
+
+breadthFirstSearch : Problem comparable -> (Maybe (Node comparable), Model comparable)
+breadthFirstSearch problem =
+    graphSearch (init insertLast problem)
+
+
+depthFirstSearch : Problem comparable -> (Maybe (Node comparable), Model comparable)
+depthFirstSearch problem =
+    graphSearch (init insertFirst problem)

@@ -1,12 +1,10 @@
-module Search.NPuzzle exposing (NPuzzleError(..), empty, fromList, nPuzzle, random, simpleEightPuzzle, suite)
+module Search.Problems.NPuzzle exposing (NPuzzleError(..), empty, fromList, nPuzzle, random, simpleEightPuzzle)
 
-import Expect
 import List exposing (all, concat, length, map, member, range)
 import List.Extra exposing (elemIndex, getAt, swapAt)
 import Maybe.Extra exposing (values)
 import Random exposing (initialSeed, step)
-import Search exposing (SearchProblem, breadthFirstSearch, path)
-import Test exposing (Test, test)
+import Search exposing (Problem, Solution(..))
 
 
 type alias State =
@@ -70,7 +68,7 @@ checkState s =
         Ok s
 
 
-nPuzzle : State -> SearchProblem State
+nPuzzle : State -> Problem State
 nPuzzle validState =
     let
         s =
@@ -87,7 +85,7 @@ nPuzzle validState =
     }
 
 
-empty : SearchProblem State
+empty : Problem State
 empty =
     { initialState = []
     , actions = \_ -> []
@@ -95,12 +93,12 @@ empty =
     }
 
 
-fromList : List Int -> Result NPuzzleError (SearchProblem State)
+fromList : List Int -> Result NPuzzleError (Problem State)
 fromList l =
     Result.map nPuzzle (checkState l)
 
 
-simpleEightPuzzle : SearchProblem State
+simpleEightPuzzle : Problem State
 simpleEightPuzzle =
     nPuzzle <|
         concat
@@ -132,31 +130,8 @@ randomLoop size seed n a =
         a
 
 
-random : Int -> Int -> Int -> SearchProblem State
+random : Int -> Int -> Int -> Problem State
 random length steps seed =
     List.Extra.initialize length identity
         |> randomLoop (round (sqrt (toFloat length))) (initialSeed seed) steps
         |> nPuzzle
-
-
-
--- TESTING
-
-
-suite : List (() -> Test)
-suite =
-    [ \_ ->
-        test "Breadth-first search solves simple EightPuzzle" <|
-            \_ ->
-                Expect.equal
-                    (simpleEightPuzzle
-                        |> breadthFirstSearch
-                        |> Maybe.map path
-                    )
-                    (Just
-                        [ ( 0, [ 1, 4, 2, 3, 0, 5, 6, 7, 8 ] )
-                        , ( 1, [ 1, 0, 2, 3, 4, 5, 6, 7, 8 ] )
-                        , ( 2, [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ] )
-                        ]
-                    )
-    ]

@@ -1,6 +1,6 @@
-module Search.VacuumWorld exposing (vacuumWorld)
+module Search.Problems.VacuumWorld exposing (vacuumWorld)
 
-import Search exposing (SearchProblem)
+import Search exposing (Problem)
 
 
 type Location
@@ -44,7 +44,7 @@ suck state =
             { state | b = Clean }
 
 
-vacuumWorld : SearchProblem State
+vacuumWorld : Problem State
 vacuumWorld =
     { initialState =
         { location = A
