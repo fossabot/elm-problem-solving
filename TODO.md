@@ -9,12 +9,19 @@
     - [x] A*
     - [ ] Depth-limited
     - [ ] Iterative deepening
+    - [x] Examples
   - [ ] Optimization
   - [ ] Games
     - [ ] MiniMax
     - [ ] Alpha-Beta
   - [ ] Constraint Satisfaction
-- [ ] Logic, Planning, Representation
-- [ ] Probabilistic stuff
+- [ ] Knowledge
+  - [ ] Logic
+    - [x] Propositional
+    - [ ] First-Order
+    - [ ] Inference
+  - [ ] Planning
+  - [ ] Representation
+- [ ] Uncertainty
 - [ ] Learning
 - [ ] Applications
