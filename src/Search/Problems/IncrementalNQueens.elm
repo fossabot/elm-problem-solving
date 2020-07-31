@@ -1,6 +1,5 @@
-module Search.Problems.IncrementalEightQueens exposing (..)
+module Search.Problems.IncrementalNQueens exposing (..)
 
-import Expect exposing (false)
 import List.Extra as List
 import Search exposing (Problem)
 
@@ -8,14 +7,11 @@ import Search exposing (Problem)
 type alias State =
     List ( Int, Int )
 
-
-positions : List Int
-positions =
-    [ 0, 1, 2, 3, 4, 5, 6, 7 ]
-
-
 incrementalEightQueens : Problem State
-incrementalEightQueens =
+incrementalEightQueens = incrementalNQueens 8
+
+incrementalNQueens : Int -> Problem State
+incrementalNQueens n =
     { initialState = []
     , actions =
         \state ->
@@ -23,14 +19,14 @@ incrementalEightQueens =
                 y =
                     List.length state
             in
-            if y < 8 then
-                positions
+            if y < n then
+                List.range 0 (n - 1)
                     |> List.filter (\x -> not (isAttacked y x state))
                     |> List.map (\x -> ( 1, ( y, x ) :: state ))
 
             else
                 []
-    , goalTest = \state -> List.length state == 8
+    , goalTest = \state -> List.length state == n
     }
 
 
@@ -50,4 +46,8 @@ isAttacked y x state =
 
 visualize : State -> List (List Int)
 visualize state =
-    List.map (\( y, x ) -> List.setAt x 1 [ 0, 0, 0, 0, 0, 0, 0, 0 ]) state
+    List.map
+        (\( y, x ) ->
+            List.setAt x 1 (List.repeat (List.length state) 0)
+        )
+        state
