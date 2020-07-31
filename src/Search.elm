@@ -193,7 +193,7 @@ treeSearchStep searchModel =
             { searchModel | solution = NoSolution }
 
 
-{-| Updates the 2nd list with path costs from the 1st list where the path costs are shorter.
+{-| Overwrites nodes from the 2nd list with nodes from the 1st list where states are identical and path costs are lower.
 TODO optimize
 -}
 updatePathCosts : List (Node a) -> List (Node a) -> List (Node a)
@@ -202,7 +202,11 @@ updatePathCosts l1 l2 =
         (\a ->
             case List.find (\b -> a.state == b.state) l1 of
                 Just b ->
-                    { a | pathCost = min a.pathCost b.pathCost }
+                    if a.pathCost < b.pathCost then
+                        a
+
+                    else
+                        b
 
                 Nothing ->
                     a
@@ -301,9 +305,11 @@ depthFirstTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model co
 depthFirstTreeSearch problem =
     treeSearch (init insertFirst problem)
 
+
 uniformCostTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 uniformCostTreeSearch problem =
     treeSearch (init (insertBy .pathCost) problem)
+
 
 graphSearch : Model comparable -> ( Maybe (Node comparable), Model comparable )
 graphSearch searchModel =
@@ -318,6 +324,7 @@ breadthFirstSearch problem =
 depthFirstSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 depthFirstSearch problem =
     graphSearch (init insertFirst problem)
+
 
 uniformCostSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 uniformCostSearch problem =
