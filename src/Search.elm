@@ -142,8 +142,8 @@ insertFirst a l =
 {-| simulates a priority queue when using head for extraction
 -- TODO more efficient implementation / show this is most efficient
 -}
-insertByPriority : (a -> comparable) -> QueueInserter a
-insertByPriority p a l =
+insertBy : (a -> comparable) -> QueueInserter a
+insertBy p a l =
     List.sortBy p (a :: l)
 
 
@@ -301,6 +301,9 @@ depthFirstTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model co
 depthFirstTreeSearch problem =
     treeSearch (init insertFirst problem)
 
+uniformCostTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
+uniformCostTreeSearch problem =
+    treeSearch (init (insertBy .pathCost) problem)
 
 graphSearch : Model comparable -> ( Maybe (Node comparable), Model comparable )
 graphSearch searchModel =
@@ -315,3 +318,7 @@ breadthFirstSearch problem =
 depthFirstSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 depthFirstSearch problem =
     graphSearch (init insertFirst problem)
+
+uniformCostSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
+uniformCostSearch problem =
+    graphSearch (init (insertBy .pathCost) problem)

@@ -112,5 +112,44 @@ suite =
                                 ]
                             )
                 ]
+            , describe "uniform-cost search"
+                [ test "expands first node correctly in simple eight puzzle" <|
+                    \_ ->
+                        Expect.equal
+                            (List.map .state (graphSearchStep (init (insertBy .pathCost) simpleEightPuzzle)).frontier)
+                            [ [ 1, 4, 2, 3, 5, 0, 6, 7, 8 ]
+                            , [ 1, 4, 2, 0, 3, 5, 6, 7, 8 ]
+                            , [ 1, 4, 2, 3, 7, 5, 6, 0, 8 ]
+                            , [ 1, 0, 2, 3, 4, 5, 6, 7, 8 ]
+                            ]
+                , test "solves incremental eight-queens problem" <|
+                    \_ ->
+                        Expect.equal
+                            (Maybe.map (\node -> visualize node.state)
+                                (Tuple.first (uniformCostSearch incrementalEightQueens))
+                            )
+                            (Just
+                                [ [ 0, 0, 0, 0, 0, 1, 0, 0 ]
+                                , [ 0, 0, 0, 1, 0, 0, 0, 0 ]
+                                , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
+                                , [ 1, 0, 0, 0, 0, 0, 0, 0 ]
+                                , [ 0, 0, 1, 0, 0, 0, 0, 0 ]
+                                , [ 0, 0, 0, 0, 1, 0, 0, 0 ]
+                                , [ 0, 1, 0, 0, 0, 0, 0, 0 ]
+                                , [ 0, 0, 0, 0, 0, 0, 0, 1 ]
+                                ]
+                            )
+                , test "solves simple Knuth conjecture" <|
+                    \_ ->
+                        Expect.equal
+                            (Maybe.map path (Tuple.first (uniformCostSearch simpleKnuthConjecture)))
+                            (Just
+                                [ ( 0, 4 )
+                                , ( 1, 2 )
+                                , ( 2, 1.4142135623730951 )
+                                , ( 3, 1 )
+                                ]
+                            )
+                ]
             ]
         ]
