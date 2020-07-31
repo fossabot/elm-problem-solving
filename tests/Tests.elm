@@ -3,6 +3,7 @@ module Tests exposing (..)
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
 import Search exposing (..)
+import Search.Problems.IncrementalEightQueens exposing (..)
 import Search.Problems.NPuzzle exposing (..)
 import Search.Problems.VacuumWorld exposing (..)
 import Test exposing (..)
@@ -32,6 +33,23 @@ suite =
                                 , ( 2, [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ] )
                                 ]
                             )
+                , test "solves incremental eight-queens problem" <|
+                    \_ ->
+                        Expect.equal
+                            (Maybe.map (\node -> visualize node.state)
+                                (Tuple.first (breadthFirstSearch incrementalEightQueens))
+                            )
+                            (Just
+                                [ [ 0, 0, 0, 1, 0, 0, 0, 0 ]
+                                , [ 0, 1, 0, 0, 0, 0, 0, 0 ]
+                                , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
+                                , [ 0, 0, 1, 0, 0, 0, 0, 0 ]
+                                , [ 0, 0, 0, 0, 0, 1, 0, 0 ]
+                                , [ 0, 0, 0, 0, 0, 0, 0, 1 ]
+                                , [ 0, 0, 0, 0, 1, 0, 0, 0 ]
+                                , [ 1, 0, 0, 0, 0, 0, 0, 0 ]
+                                ]
+                            )
                 ]
             , describe "depth-first search"
                 [ test "expands first node correctly in simple eight puzzle" <|
@@ -43,6 +61,23 @@ suite =
                             , [ 1, 4, 2, 3, 7, 5, 6, 0, 8 ]
                             , [ 1, 0, 2, 3, 4, 5, 6, 7, 8 ]
                             ]
+                , test "solves incremental eight-queens problem" <|
+                    \_ ->
+                        Expect.equal
+                            (Maybe.map (\node -> visualize node.state)
+                                (Tuple.first (depthFirstSearch incrementalEightQueens))
+                            )
+                            (Just
+                                [ [ 0, 0, 0, 0, 1, 0, 0, 0 ]
+                                , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
+                                , [ 0, 1, 0, 0, 0, 0, 0, 0 ]
+                                , [ 0, 0, 0, 0, 0, 1, 0, 0 ]
+                                , [ 0, 0, 1, 0, 0, 0, 0, 0 ]
+                                , [ 1, 0, 0, 0, 0, 0, 0, 0 ]
+                                , [ 0, 0, 0, 1, 0, 0, 0, 0 ]
+                                , [ 0, 0, 0, 0, 0, 0, 0, 1 ]
+                                ]
+                            )
                 ]
             ]
         ]
