@@ -178,11 +178,16 @@ treeSearchStep : Step comparable
 treeSearchStep searchModel =
     case searchModel.frontier of
         h :: t ->
-            if searchModel.problem.goalTest h.state then
-                { searchModel | solution = Solution h }
+            let
+                childNodes =
+                    expand searchModel.problem h
+            in
+            case List.find (\node -> searchModel.problem.goalTest node.state) childNodes of
+                Just a ->
+                    { searchModel | solution = Solution a }
 
-            else
-                { searchModel | frontier = List.foldl searchModel.queue t (expand searchModel.problem h) }
+                Nothing ->
+                    { searchModel | frontier = List.foldl searchModel.queue t childNodes }
 
         [] ->
             { searchModel | solution = NoSolution }
@@ -208,13 +213,10 @@ updatePathCosts l1 l2 =
 newUnexploredFrontier :
     Node comparable
     -> List (Node comparable)
+    -> List (Node comparable)
     -> Model comparable
     -> List (Node comparable)
-newUnexploredFrontier h t searchModel =
-    let
-        childNodes =
-            expand searchModel.problem h
-    in
+newUnexploredFrontier h t childNodes searchModel =
     childNodes
         |> List.filter
             (\a ->
@@ -233,14 +235,19 @@ graphSearchStep : Model comparable -> Model comparable
 graphSearchStep searchModel =
     case searchModel.frontier of
         h :: t ->
-            if searchModel.problem.goalTest h.state then
-                { searchModel | frontier = t, solution = Solution h }
+            let
+                childNodes =
+                    expand searchModel.problem h
+            in
+            case List.find (\node -> searchModel.problem.goalTest node.state) childNodes of
+                Just a ->
+                    { searchModel | frontier = t, solution = Solution a }
 
-            else
-                { searchModel
-                    | explored = Set.insert h.state searchModel.explored
-                    , frontier = newUnexploredFrontier h t searchModel
-                }
+                Nothing ->
+                    { searchModel
+                        | explored = Set.insert h.state searchModel.explored
+                        , frontier = newUnexploredFrontier h t childNodes searchModel
+                    }
 
         [] ->
             { searchModel | solution = NoSolution }
@@ -263,7 +270,7 @@ init queue problem =
     }
 
 
-search : Step a -> Model a -> (Maybe (Node a), Model a)
+search : Step a -> Model a -> ( Maybe (Node a), Model a )
 search searchStep searchModel =
     let
         newSearchModel =
@@ -271,40 +278,40 @@ search searchStep searchModel =
     in
     case newSearchModel.solution of
         Solution a ->
-            (Just a, newSearchModel)
+            ( Just a, newSearchModel )
 
         NoSolution ->
-            (Nothing, newSearchModel)
+            ( Nothing, newSearchModel )
 
         Pending ->
             search searchStep newSearchModel
 
 
-treeSearch : Model comparable -> (Maybe (Node comparable), Model comparable)
+treeSearch : Model comparable -> ( Maybe (Node comparable), Model comparable )
 treeSearch searchModel =
     search treeSearchStep searchModel
 
 
-breadthFirstTreeSearch : Problem comparable -> (Maybe (Node comparable), Model comparable)
+breadthFirstTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 breadthFirstTreeSearch problem =
     treeSearch (init insertLast problem)
 
 
-depthFirstTreeSearch : Problem comparable -> (Maybe (Node comparable), Model comparable)
+depthFirstTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 depthFirstTreeSearch problem =
     treeSearch (init insertFirst problem)
 
 
-graphSearch : Model comparable -> (Maybe (Node comparable), Model comparable)
+graphSearch : Model comparable -> ( Maybe (Node comparable), Model comparable )
 graphSearch searchModel =
     search graphSearchStep searchModel
 
 
-breadthFirstSearch : Problem comparable -> (Maybe (Node comparable), Model comparable)
+breadthFirstSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 breadthFirstSearch problem =
     graphSearch (init insertLast problem)
 
 
-depthFirstSearch : Problem comparable -> (Maybe (Node comparable), Model comparable)
+depthFirstSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 depthFirstSearch problem =
     graphSearch (init insertFirst problem)
