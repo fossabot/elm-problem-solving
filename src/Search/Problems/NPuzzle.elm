@@ -1,4 +1,13 @@
-module Search.Problems.NPuzzle exposing (NPuzzleError(..), empty, fromList, nPuzzle, random, simpleEightPuzzle, complexEightPuzzle)
+module Search.Problems.NPuzzle exposing
+    ( NPuzzleError(..)
+    , complexEightPuzzle
+    , empty
+    , fromList
+    , mediumEightPuzzle
+    , nPuzzle
+    , random
+    , simpleEightPuzzle
+    )
 
 import List exposing (all, concat, length, map, member, range, sum)
 import List.Extra exposing (elemIndex, getAt, swapAt)
@@ -129,6 +138,18 @@ simpleEightPuzzle =
             , [ 3, 0, 5 ]
             , [ 6, 7, 8 ]
             ]
+
+
+mediumEightPuzzle : Problem State
+mediumEightPuzzle =
+    nPuzzle <|
+        concat
+            [ [ 1, 4, 2 ]
+            , [ 3, 5, 8 ]
+            , [ 0, 6, 7 ]
+            ]
+
+
 complexEightPuzzle : Problem State
 complexEightPuzzle =
     nPuzzle <|
