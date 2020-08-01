@@ -2,6 +2,8 @@ module Tests exposing (..)
 
 import Expect exposing (Expectation)
 import Fuzz exposing (Fuzzer, int, list, string)
+import Games exposing (..)
+import Games.TicTacToe exposing (..)
 import Loop
 import Search exposing (..)
 import Search.Problems.IncrementalNQueens exposing (..)
@@ -186,6 +188,64 @@ suite =
                                ]
                            )
                 -}
+                ]
+            ]
+        , describe "games"
+            [ describe "maximin"
+                [ test "fills in, recognizes utility 0" <|
+                    \_ ->
+                        Expect.equal
+                            (minimaxDecision ticTacToe
+                                [ [ 'x', 'x', 'o' ]
+                                , [ 'o', 'o', 'x' ]
+                                , [ 'x', 'o', ' ' ]
+                                ]
+                                Nothing
+                            )
+                            (Just
+                                ( 0
+                                , [ [ 'x', 'x', 'o' ]
+                                  , [ 'o', 'o', 'x' ]
+                                  , [ 'x', 'o', 'x' ]
+                                  ]
+                                )
+                            )
+                , test "fills in, recognizes utility 1" <|
+                    \_ ->
+                        Expect.equal
+                            (minimaxDecision ticTacToe
+                                [ [ 'x', 'x', ' ' ]
+                                , [ 'o', 'o', ' ' ]
+                                , [ ' ', ' ', ' ' ]
+                                ]
+                                Nothing
+                            )
+                            (Just
+                                ( 1
+                                , [ [ 'x', 'x', 'x' ]
+                                  , [ 'o', 'o', ' ' ]
+                                  , [ ' ', ' ', ' ' ]
+                                  ]
+                                )
+                            )
+                , test "fills in, recognizes utility -1" <|
+                    \_ ->
+                        Expect.equal
+                            (minimaxDecision ticTacToe
+                                [ [ 'x', 'x', 'o' ]
+                                , [ 'o', 'o', ' ' ]
+                                , [ ' ', ' ', 'x' ]
+                                ]
+                                Nothing
+                            )
+                            (Just
+                                ( -1
+                                , [ [ 'x', 'x', 'o' ]
+                                  , [ 'o', 'o', 'x' ]
+                                  , [ ' ', ' ', 'x' ]
+                                  ]
+                                )
+                            )
                 ]
             ]
         ]
