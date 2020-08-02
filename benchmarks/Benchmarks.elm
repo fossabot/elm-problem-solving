@@ -3,8 +3,9 @@ module Benchmarks exposing (..)
 import Array
 import Benchmark exposing (..)
 import Benchmark.Runner exposing (BenchmarkProgram, program)
-import Search exposing (breadthFirstSearch, depthFirstSearch)
-import Search.NPuzzle exposing (simpleEightPuzzle)
+import Search exposing (breadthFirstSearch, depthFirstSearch, heuristicSearch)
+import Search.Problems.NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle)
+import Search2 exposing (breadthFirstSearch, depthFirstSearch, heuristicSearch)
 
 
 main : BenchmarkProgram
@@ -14,16 +15,23 @@ main =
 
 suite : Benchmark
 suite =
-    let
-        sampleArray =
-            Array.initialize 100 identity
-    in
-    describe "Search"
-        [ 
-          describe "NPuzzle"
-            [ benchmark "depth-first search" <|
-                \_ -> breadthFirstSearch simpleEightPuzzle
-            , benchmark "breadth-first search" <|
-                \_ -> breadthFirstSearch simpleEightPuzzle
+    describe "search"
+        [ describe "old"
+            [ benchmark "breadth-first search" <|
+                \_ -> Search.breadthFirstSearch simpleEightPuzzle
+            , benchmark "heuristic search simple" <|
+                \_ -> Search.heuristicSearch simpleEightPuzzle
+            , benchmark "heuristic search medium" <|
+                \_ -> Search.heuristicSearch mediumEightPuzzle
             ]
+
+        {- , describe "new"
+           [ benchmark "breadth-first search" <|
+               \_ -> Search2.breadthFirstSearch simpleEightPuzzle
+           , benchmark "heuristic search simple" <|
+               \_ -> Search2.heuristicSearch simpleEightPuzzle
+           , benchmark "heuristic search medium" <|
+               \_ -> Search2.heuristicSearch mediumEightPuzzle
+           ]
+        -}
         ]

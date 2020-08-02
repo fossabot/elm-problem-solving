@@ -76,7 +76,6 @@ In this example, the model of the application _is_ the model of the search algor
 -}
 
 import List.Extra as List
-import Set exposing (Set)
 
 
 {-| This deviates from the AIMA book, where there are distinct `actions`, `result` and `stepCost` functions. I find a pure graph model more suitable, so there is a single function (called `actions`) which for each state reveals a list of tuples containing adjacent states and their respective step costs.
@@ -164,7 +163,11 @@ Initialize your model with `searchInit` (see below).
 type alias Model state =
     { problem : Problem state
     , queue : QueueInserter (Node state)
-    , explored : Set state
+
+    -- technically it would suffice to store only explored states and not nodes
+    -- but there is no noticeable difference in performance (say the benchmarks)
+    -- and having the whole nodes is useful for visualization where we want to reconstruct the search tree
+    , explored : List (Node state)
     , frontier : List (Node state)
     , solution : Solution state
     }
@@ -227,7 +230,7 @@ newUnexploredFrontier h t childNodes searchModel =
             (\a ->
                 not
                     ((a.state == h.state)
-                        || Set.member a.state searchModel.explored
+                        || List.any (\b -> a.state == b.state) searchModel.explored
                         || List.any (\b -> a.state == b.state) t
                     )
             )
@@ -250,7 +253,7 @@ graphSearchStep searchModel =
 
                 Nothing ->
                     { searchModel
-                        | explored = Set.insert h.state searchModel.explored
+                        | explored = h :: searchModel.explored
                         , frontier = newUnexploredFrontier h t childNodes searchModel
                     }
 
@@ -264,7 +267,7 @@ init : QueueInserter (Node state) -> Problem state -> Model state
 init queue problem =
     { problem = problem
     , queue = queue
-    , explored = Set.empty
+    , explored = []
     , frontier =
         [ { parent = Nothing
           , state = problem.initialState
@@ -311,14 +314,18 @@ uniformCostTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model c
 uniformCostTreeSearch problem =
     treeSearch (init (insertBy .pathCost) problem)
 
+
 greedyTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 greedyTreeSearch problem =
     treeSearch (init (insertBy (\node -> problem.heuristic node.state)) problem)
 
-{-| A* tree search. -}
+
+{-| A\* tree search.
+-}
 heuristicTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 heuristicTreeSearch problem =
     treeSearch (init (insertBy (\node -> node.pathCost + problem.heuristic node.state)) problem)
+
 
 graphSearch : Model comparable -> ( Maybe (Node comparable), Model comparable )
 graphSearch searchModel =
@@ -344,7 +351,9 @@ greedySearch : Problem comparable -> ( Maybe (Node comparable), Model comparable
 greedySearch problem =
     graphSearch (init (insertBy (\node -> problem.heuristic node.state)) problem)
 
-{-| A* search. -}
+
+{-| A\* search.
+-}
 heuristicSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 heuristicSearch problem =
     graphSearch (init (insertBy (\node -> node.pathCost + problem.heuristic node.state)) problem)

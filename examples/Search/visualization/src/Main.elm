@@ -1,5 +1,10 @@
 module Main exposing (..)
 
+{- TODO
+   - create convenience aliases for heuristic search etc
+   - optimize search algorithms for visualiztion
+-}
+
 import Browser
 import Browser.Dom exposing (Element)
 import Element
@@ -49,7 +54,7 @@ main =
                 { title = "Breadth-first search of 8-Puzzle"
                 , body =
                     [ layout [ scale 0.95 ]
-                        (visualization (\_ -> none) model.exploredNodes)
+                        (visualization (\_ -> none) model)
                     ]
                 }
         , init = init
@@ -63,10 +68,10 @@ type alias State =
 
 
 type Msg
-    = NewModel (Search.Model State)
+    = NewModel (Model State)
 
 
-searchTask : Search.Model State -> Cmd Msg
+searchTask : Model State -> Cmd Msg
 searchTask model =
     case model.solution of
         Pending ->
@@ -81,35 +86,21 @@ searchTask model =
             Cmd.none
 
 
-type alias Model =
-    { searchModel : Search.Model State
-    , exploredNodes : List (Node State)
-    }
-
-
-init : () -> ( Model, Cmd Msg )
+init : () -> ( Model State, Cmd Msg )
 init =
     \_ ->
         let
-            searchModel =
-                Search.init insertLast mediumEightPuzzle
-
             initialModel =
-                { searchModel = searchModel, exploredNodes = searchModel.frontier }
+                Search.init insertLast mediumEightPuzzle
         in
-        ( initialModel, searchTask initialModel.searchModel )
+        ( initialModel, searchTask initialModel )
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model State -> ( Model State, Cmd Msg )
 update msg model =
     case msg of
         NewModel m ->
-            ( { model
-                | searchModel = m
-                , exploredNodes = List.uniqueBy .state (model.exploredNodes ++ m.frontier)
-              }
-            , searchTask m
-            )
+            ( m, searchTask m )
 
 
 emptyNode : Node State
@@ -209,6 +200,10 @@ visualizeNPuzzle state =
         )
 
 
-visualization : (State -> Element Msg) -> List (Node State) -> Element Msg
-visualization visualizeState l =
+visualization : (State -> Element Msg) -> Model State -> Element Msg
+visualization visualizeState model =
+    let
+        l =
+            model.explored ++ model.frontier
+    in
     listify visualizeState 0 (depth l) (descendants (root l) l)
