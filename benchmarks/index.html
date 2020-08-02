@@ -14841,20 +14841,6 @@ var $elm_community$list_extra$List$Extra$find = F2(
 			}
 		}
 	});
-var $elm$core$Dict$member = F2(
-	function (key, dict) {
-		var _v0 = A2($elm$core$Dict$get, key, dict);
-		if (_v0.$ === 'Just') {
-			return true;
-		} else {
-			return false;
-		}
-	});
-var $elm$core$Set$member = F2(
-	function (key, _v0) {
-		var dict = _v0.a;
-		return A2($elm$core$Dict$member, key, dict);
-	});
 var $author$project$Search$updatePathCosts = F2(
 	function (l1, l2) {
 		return A2(
@@ -14884,7 +14870,12 @@ var $author$project$Search$newUnexploredFrontier = F4(
 			A2(
 				$elm$core$List$filter,
 				function (a) {
-					return !(_Utils_eq(a.state, h.state) || (A2($elm$core$Set$member, a.state, searchModel.explored) || A2(
+					return !(_Utils_eq(a.state, h.state) || (A2(
+						$elm$core$List$any,
+						function (b) {
+							return _Utils_eq(a.state, b.state);
+						},
+						searchModel.explored) || A2(
 						$elm$core$List$any,
 						function (b) {
 							return _Utils_eq(a.state, b.state);
@@ -14917,7 +14908,7 @@ var $author$project$Search$graphSearchStep = function (searchModel) {
 			return _Utils_update(
 				searchModel,
 				{
-					explored: A2($elm$core$Set$insert, h.state, searchModel.explored),
+					explored: A2($elm$core$List$cons, h, searchModel.explored),
 					frontier: A4($author$project$Search$newUnexploredFrontier, h, t, childNodes, searchModel)
 				});
 		}
@@ -14957,7 +14948,7 @@ var $author$project$Search$Pending = {$: 'Pending'};
 var $author$project$Search$init = F2(
 	function (queue, problem) {
 		return {
-			explored: $elm$core$Set$empty,
+			explored: _List_Nil,
 			frontier: _List_fromArray(
 				[
 					{parent: $elm$core$Maybe$Nothing, pathCost: 0, state: problem.initialState}

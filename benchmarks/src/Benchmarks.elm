@@ -1,11 +1,9 @@
 module Benchmarks exposing (..)
 
-import Array
 import Benchmark exposing (..)
 import Benchmark.Runner exposing (BenchmarkProgram, program)
 import Search exposing (breadthFirstSearch, depthFirstSearch, heuristicSearch)
 import Search.Problems.NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle)
-import Search2 exposing (breadthFirstSearch, depthFirstSearch, heuristicSearch)
 
 
 main : BenchmarkProgram
