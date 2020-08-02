@@ -1,15 +1,12 @@
 module Main exposing (..)
 
-{- TODO
-   - create convenience aliases for heuristic search etc
-   - optimize search algorithms for visualiztion
--}
-
 import Browser
 import Browser.Dom exposing (Element)
+import Dict exposing (Dict)
 import Element
     exposing
-        ( Element
+        ( Attribute
+        , Element
         , centerX
         , centerY
         , column
@@ -54,7 +51,7 @@ main =
                 { title = "Breadth-first search of 8-Puzzle"
                 , body =
                     [ layout [ scale 0.95 ]
-                        (visualization (\_ -> none) model)
+                        (visualization (\_ -> none) model.searchModel)
                     ]
                 }
         , init = init
@@ -67,11 +64,21 @@ type alias State =
     List Int
 
 
+type alias Cache =
+    Dict State (List State)
+
+
+type alias Model =
+    { searchModel : Search.Model State
+    , visualizationCache : Cache
+    }
+
+
 type Msg
-    = NewModel (Model State)
+    = NewModel (Search.Model State)
 
 
-searchTask : Model State -> Cmd Msg
+searchTask : Search.Model State -> Cmd Msg
 searchTask model =
     case model.solution of
         Pending ->
@@ -86,21 +93,21 @@ searchTask model =
             Cmd.none
 
 
-init : () -> ( Model State, Cmd Msg )
+init : () -> ( Model, Cmd Msg )
 init =
     \_ ->
         let
             initialModel =
                 Search.init insertLast mediumEightPuzzle
         in
-        ( initialModel, searchTask initialModel )
+        ( { searchModel = initialModel, visualizationCache = Dict.empty }, searchTask initialModel )
 
 
-update : Msg -> Model State -> ( Model State, Cmd Msg )
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         NewModel m ->
-            ( m, searchTask m )
+            ( { model | searchModel = m }, searchTask m )
 
 
 emptyNode : Node State
@@ -127,6 +134,7 @@ descendants ancestor l =
     Hierarchy ( ancestor.state, children ancestor l |> List.map (\child -> descendants child l) )
 
 
+properties : Int -> Int -> List (Attribute Msg)
 properties level maxLevel =
     let
         s =
@@ -149,7 +157,8 @@ columnOrRow level maxLevel =
      else
         wrappedRow
     )
-        (properties level maxLevel)
+    <|
+        properties level maxLevel
 
 
 rowOrColumn : Int -> Int -> (List (Element Msg) -> Element Msg)
@@ -160,11 +169,12 @@ rowOrColumn level maxLevel =
      else
         column
     )
-        (properties level maxLevel)
+    <|
+        properties level maxLevel
 
 
-listify : (State -> Element Msg) -> Int -> Int -> Hierarchy State -> Element Msg
-listify visualizeState level maxDepth (Hierarchy ( a, h )) =
+boxify : (State -> Element Msg) -> Int -> Int -> Hierarchy State -> Element Msg
+boxify visualizeState level maxDepth (Hierarchy ( a, h )) =
     columnOrRow level
         maxDepth
         (el [ centerX, centerY ] (visualizeState a)
@@ -172,7 +182,7 @@ listify visualizeState level maxDepth (Hierarchy ( a, h )) =
                     [ rowOrColumn
                         level
                         maxDepth
-                        (List.map (listify visualizeState (level + 1) maxDepth) h)
+                        (List.map (boxify visualizeState (level + 1) maxDepth) h)
                     ]
 
                 else
@@ -200,10 +210,10 @@ visualizeNPuzzle state =
         )
 
 
-visualization : (State -> Element Msg) -> Model State -> Element Msg
+visualization : (State -> Element Msg) -> Search.Model State -> Element Msg
 visualization visualizeState model =
     let
         l =
             model.explored ++ model.frontier
     in
-    listify visualizeState 0 (depth l) (descendants (root l) l)
+    boxify visualizeState 0 (depth l) (descendants (root l) l)

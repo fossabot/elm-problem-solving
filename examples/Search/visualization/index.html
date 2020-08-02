@@ -5195,6 +5195,8 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$document = _Browser_document;
+var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
+var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $author$project$Search$Pending = {$: 'Pending'};
 var $author$project$Search$init = F2(
 	function (queue, problem) {
@@ -5791,7 +5793,7 @@ var $author$project$Main$searchTask = function (model) {
 var $author$project$Main$init = function (_v0) {
 	var initialModel = A2($author$project$Search$init, $author$project$Search$insertLast, $author$project$Search$Problems$NPuzzle$mediumEightPuzzle);
 	return _Utils_Tuple2(
-		initialModel,
+		{searchModel: initialModel, visualizationCache: $elm$core$Dict$empty},
 		$author$project$Main$searchTask(initialModel));
 };
 var $mdgriffith$elm_ui$Internal$Style$classes = {above: 'a', active: 'atv', alignBottom: 'ab', alignCenterX: 'cx', alignCenterY: 'cy', alignContainerBottom: 'acb', alignContainerCenterX: 'accx', alignContainerCenterY: 'accy', alignContainerRight: 'acr', alignLeft: 'al', alignRight: 'ar', alignTop: 'at', alignedHorizontally: 'ah', alignedVertically: 'av', any: 's', behind: 'bh', below: 'b', bold: 'w7', borderDashed: 'bd', borderDotted: 'bdt', borderNone: 'bn', borderSolid: 'bs', capturePointerEvents: 'cpe', clip: 'cp', clipX: 'cpx', clipY: 'cpy', column: 'c', container: 'ctr', contentBottom: 'cb', contentCenterX: 'ccx', contentCenterY: 'ccy', contentLeft: 'cl', contentRight: 'cr', contentTop: 'ct', cursorPointer: 'cptr', cursorText: 'ctxt', focus: 'fcs', focusedWithin: 'focus-within', fullSize: 'fs', grid: 'g', hasBehind: 'hbh', heightContent: 'hc', heightExact: 'he', heightFill: 'hf', heightFillPortion: 'hfp', hover: 'hv', imageContainer: 'ic', inFront: 'fr', inputLabel: 'lbl', inputMultiline: 'iml', inputMultilineFiller: 'imlf', inputMultilineParent: 'imlp', inputMultilineWrapper: 'implw', inputText: 'it', italic: 'i', link: 'lnk', nearby: 'nb', noTextSelection: 'notxt', onLeft: 'ol', onRight: 'or', opaque: 'oq', overflowHidden: 'oh', page: 'pg', paragraph: 'p', passPointerEvents: 'ppe', root: 'ui', row: 'r', scrollbars: 'sb', scrollbarsX: 'sbx', scrollbarsY: 'sby', seButton: 'sbt', single: 'e', sizeByCapital: 'cap', spaceEvenly: 'sev', strike: 'sk', text: 't', textCenter: 'tc', textExtraBold: 'w8', textExtraLight: 'w2', textHeavy: 'w9', textJustify: 'tj', textJustifyAll: 'tja', textLeft: 'tl', textLight: 'w3', textMedium: 'w5', textNormalWeight: 'w4', textRight: 'tr', textSemiBold: 'w6', textThin: 'w1', textUnitalicized: 'tun', transition: 'ts', transparent: 'clr', underline: 'u', widthContent: 'wc', widthExact: 'we', widthFill: 'wf', widthFillPortion: 'wfp', wrapped: 'wrp'};
@@ -5943,8 +5945,6 @@ var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
 };
-var $elm$core$Dict$RBEmpty_elm_builtin = {$: 'RBEmpty_elm_builtin'};
-var $elm$core$Dict$empty = $elm$core$Dict$RBEmpty_elm_builtin;
 var $elm$core$Set$empty = $elm$core$Set$Set_elm_builtin($elm$core$Dict$empty);
 var $mdgriffith$elm_ui$Internal$Model$lengthClassName = function (x) {
 	switch (x.$) {
@@ -11631,65 +11631,10 @@ var $author$project$Main$update = F2(
 	function (msg, model) {
 		var m = msg.a;
 		return _Utils_Tuple2(
-			m,
+			_Utils_update(
+				model,
+				{searchModel: m}),
 			$author$project$Main$searchTask(m));
-	});
-var $author$project$Search$path = function (node) {
-	var _v0 = node.parent;
-	if (_v0.$ === 'Just') {
-		var p = _v0.a.a;
-		return _Utils_ap(
-			$author$project$Search$path(p),
-			_List_fromArray(
-				[
-					_Utils_Tuple2(node.pathCost, node.state)
-				]));
-	} else {
-		return _List_fromArray(
-			[
-				_Utils_Tuple2(node.pathCost, node.state)
-			]);
-	}
-};
-var $author$project$Main$depth = function (l) {
-	return A3(
-		$elm$core$List$foldl,
-		$elm$core$Basics$max,
-		0,
-		A2(
-			$elm$core$List$map,
-			function (a) {
-				return $elm$core$List$length(
-					$author$project$Search$path(a));
-			},
-			l));
-};
-var $author$project$Main$Hierarchy = function (a) {
-	return {$: 'Hierarchy', a: a};
-};
-var $author$project$Main$children = F2(
-	function (parent, l) {
-		return A2(
-			$elm$core$List$filter,
-			function (a) {
-				return _Utils_eq(
-					a.parent,
-					$elm$core$Maybe$Just(
-						$author$project$Search$Parent(parent)));
-			},
-			l);
-	});
-var $author$project$Main$descendants = F2(
-	function (ancestor, l) {
-		return $author$project$Main$Hierarchy(
-			_Utils_Tuple2(
-				ancestor.state,
-				A2(
-					$elm$core$List$map,
-					function (child) {
-						return A2($author$project$Main$descendants, child, l);
-					},
-					A2($author$project$Main$children, ancestor, l))));
 	});
 var $mdgriffith$elm_ui$Internal$Model$AlignX = function (a) {
 	return {$: 'AlignX', a: a};
@@ -12030,7 +11975,7 @@ var $author$project$Main$rowOrColumn = F2(
 		return ((!A2($elm$core$Basics$modBy, 2, level)) ? $mdgriffith$elm_ui$Element$wrappedRow : $mdgriffith$elm_ui$Element$column)(
 			A2($author$project$Main$properties, level, maxLevel));
 	});
-var $author$project$Main$listify = F4(
+var $author$project$Main$boxify = F4(
 	function (visualizeState, level, maxDepth, _v0) {
 		var _v1 = _v0.a;
 		var a = _v1.a;
@@ -12054,9 +11999,66 @@ var $author$project$Main$listify = F4(
 						maxDepth,
 						A2(
 							$elm$core$List$map,
-							A3($author$project$Main$listify, visualizeState, level + 1, maxDepth),
+							A3($author$project$Main$boxify, visualizeState, level + 1, maxDepth),
 							h))
 					]) : _List_Nil));
+	});
+var $author$project$Search$path = function (node) {
+	var _v0 = node.parent;
+	if (_v0.$ === 'Just') {
+		var p = _v0.a.a;
+		return _Utils_ap(
+			$author$project$Search$path(p),
+			_List_fromArray(
+				[
+					_Utils_Tuple2(node.pathCost, node.state)
+				]));
+	} else {
+		return _List_fromArray(
+			[
+				_Utils_Tuple2(node.pathCost, node.state)
+			]);
+	}
+};
+var $author$project$Main$depth = function (l) {
+	return A3(
+		$elm$core$List$foldl,
+		$elm$core$Basics$max,
+		0,
+		A2(
+			$elm$core$List$map,
+			function (a) {
+				return $elm$core$List$length(
+					$author$project$Search$path(a));
+			},
+			l));
+};
+var $author$project$Main$Hierarchy = function (a) {
+	return {$: 'Hierarchy', a: a};
+};
+var $author$project$Main$children = F2(
+	function (parent, l) {
+		return A2(
+			$elm$core$List$filter,
+			function (a) {
+				return _Utils_eq(
+					a.parent,
+					$elm$core$Maybe$Just(
+						$author$project$Search$Parent(parent)));
+			},
+			l);
+	});
+var $author$project$Main$descendants = F2(
+	function (ancestor, l) {
+		return $author$project$Main$Hierarchy(
+			_Utils_Tuple2(
+				ancestor.state,
+				A2(
+					$elm$core$List$map,
+					function (child) {
+						return A2($author$project$Main$descendants, child, l);
+					},
+					A2($author$project$Main$children, ancestor, l))));
 	});
 var $author$project$Main$emptyNode = {parent: $elm$core$Maybe$Nothing, pathCost: 0, state: _List_Nil};
 var $author$project$Main$root = function (l) {
@@ -12074,7 +12076,7 @@ var $author$project$Main$visualization = F2(
 	function (visualizeState, model) {
 		var l = _Utils_ap(model.explored, model.frontier);
 		return A4(
-			$author$project$Main$listify,
+			$author$project$Main$boxify,
 			visualizeState,
 			0,
 			$author$project$Main$depth(l),
@@ -12105,7 +12107,7 @@ var $author$project$Main$main = $elm$browser$Browser$document(
 							function (_v1) {
 								return $mdgriffith$elm_ui$Element$none;
 							},
-							model))
+							model.searchModel))
 					]),
 				title: 'Breadth-first search of 8-Puzzle'
 			};
