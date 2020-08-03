@@ -1,7 +1,7 @@
 {
     "type": "package",
     "name": "davidpomerenke/elm-ai",
-    "summary": "Artificial intelligence: Problem-solving, ...",
+    "summary": "Fast algorithms for artificial intelligence, with visualizations.",
     "license": "MIT",
     "version": "0.0.1",
     "exposed-modules": [
