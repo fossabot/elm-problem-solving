@@ -75,6 +75,9 @@ In this example, the model of the application _is_ the model of the search algor
 
 -}
 
+-- TODO also check eack child node against the other child nodes
+
+import Dict exposing (Dict)
 import List.Extra as List
 
 
@@ -103,7 +106,7 @@ path : Node a -> List ( Float, a )
 path node =
     case node.parent of
         Just (Parent p) ->
-            path p ++ [ ( node.pathCost, node.state ) ]
+            ( node.pathCost, node.state ) :: path p
 
         Nothing ->
             [ ( node.pathCost, node.state ) ]
@@ -147,54 +150,17 @@ insertBy p a l =
     List.sortBy p (a :: l)
 
 
-type Solution state
-    = Pending
-    | Solution (Node state)
-    | NoSolution
+type alias FrontierWorker a =
+    Node a
+    -> List (Node a)
+    -> List (Node a)
+    -> Model a
+    -> List (Node a)
 
 
-{-| This record represents the inner state of the search algorithm. You can integrate it into the model of your web application.
-
-The `state` parameter refers to the `State` type of the search problem. For example, if you want to search an eight-puzzle, you can import it with `import Search.EightPuzzle exposing (State)`.
-
-Initialize your model with `searchInit` (see below).
-
--}
-type alias Model state =
-    { problem : Problem state
-    , queue : QueueInserter (Node state)
-
-    -- technically it would suffice to store only explored states and not nodes
-    -- but there is no noticeable difference in performance (say the benchmarks)
-    -- and having the whole nodes is useful for visualization where we want to reconstruct the search tree
-    , explored : List (Node state)
-    , frontier : List (Node state)
-    , solution : Solution state
-    }
-
-
-type alias Step state =
-    Model state
-    -> Model state
-
-
-treeSearchStep : Step comparable
-treeSearchStep searchModel =
-    case searchModel.frontier of
-        h :: t ->
-            let
-                childNodes =
-                    expand searchModel.problem h
-            in
-            case List.find (\node -> searchModel.problem.goalTest node.state) childNodes of
-                Just a ->
-                    { searchModel | solution = Solution a }
-
-                Nothing ->
-                    { searchModel | frontier = List.foldl searchModel.queue t childNodes }
-
-        [] ->
-            { searchModel | solution = NoSolution }
+newSimpleFrontier : FrontierWorker comparable
+newSimpleFrontier h t childNodes model =
+    List.foldl model.queue t childNodes
 
 
 {-| Overwrites nodes from the 2nd list with nodes from the 1st list where states are identical and path costs are lower.
@@ -218,47 +184,93 @@ updatePathCosts l1 l2 =
         l2
 
 
-newUnexploredFrontier :
-    Node comparable
-    -> List (Node comparable)
-    -> List (Node comparable)
-    -> Model comparable
-    -> List (Node comparable)
-newUnexploredFrontier h t childNodes searchModel =
+newUnexploredFrontier : FrontierWorker comparable
+newUnexploredFrontier h t childNodes model =
     childNodes
         |> List.filter
             (\a ->
                 not
                     ((a.state == h.state)
-                        || List.any (\b -> a.state == b.state) searchModel.explored
+                        || List.any (\b -> Just a.state == Maybe.map Tuple.second (List.head b)) (Dict.keys model.explored)
                         || List.any (\b -> a.state == b.state) t
                     )
             )
         |> List.foldl
-            searchModel.queue
+            model.queue
             (updatePathCosts childNodes t)
 
 
-graphSearchStep : Model comparable -> Model comparable
-graphSearchStep searchModel =
-    case searchModel.frontier of
+type Solution state
+    = Pending
+    | Solution (Node state)
+    | NoSolution
+
+
+{-| This record represents the inner state of the search algorithm. You can integrate it into the model of your web application.
+
+The `state` parameter refers to the `State` type of the search problem. For example, if you want to search an eight-puzzle, you can import it with `import Search.EightPuzzle exposing (State)`.
+
+Initialize your model with `searchInit` (see below).
+
+-}
+type alias Model state =
+    { problem : Problem state
+    , queue : QueueInserter (Node state)
+
+    -- technically it would suffice to store only explored states and not their children
+    -- but there is no noticeable difference in performance (TODO  benchmarks)
+    -- and having the children is useful for performant visualization, where we want to reconstruct the search tree
+    , explored : Dict (List ( Float, state )) (List ( Float, state ))
+    , frontier : List (Node state)
+    , solution : Solution state
+    , maxPathCost : Float
+    }
+
+
+type alias Step state =
+    Model state
+    -> Model state
+
+
+searchStep : FrontierWorker comparable -> Step comparable
+searchStep frontierWorker ({ explored } as model) =
+    case model.frontier of
         h :: t ->
             let
                 childNodes =
-                    expand searchModel.problem h
+                    expand model.problem h
             in
-            case List.find (\node -> searchModel.problem.goalTest node.state) childNodes of
+            case List.find (\node -> model.problem.goalTest node.state) childNodes of
                 Just a ->
-                    { searchModel | frontier = t, solution = Solution a }
+                    { model
+                        | solution = Solution a
+                        , frontier = t
+                        , explored = Dict.insert (path h) [ ( a.pathCost, a.state ) ] explored
+                        , maxPathCost = max model.maxPathCost a.pathCost
+                    }
 
                 Nothing ->
-                    { searchModel
-                        | explored = h :: searchModel.explored
-                        , frontier = newUnexploredFrontier h t childNodes searchModel
+                    { model
+                        | frontier = frontierWorker h t childNodes model
+                        , explored =
+                            Dict.insert (path h)
+                                (childNodes |> List.map (\node -> ( node.pathCost, node.state )))
+                                explored
+                        , maxPathCost = List.foldl max model.maxPathCost (List.map .pathCost childNodes)
                     }
 
         [] ->
-            { searchModel | solution = NoSolution }
+            { model | solution = NoSolution }
+
+
+treeSearchStep : Step comparable
+treeSearchStep =
+    searchStep newSimpleFrontier
+
+
+graphSearchStep : Step comparable
+graphSearchStep =
+    searchStep newUnexploredFrontier
 
 
 {-| Initializes your model of the search algorithm. It takes a `Problem state` as parameter, because it needs to know the `initialState` of the search problem for initializing the frontier, and also the whole other information about the search problem for running the search algorithm later.
@@ -267,32 +279,36 @@ init : QueueInserter (Node state) -> Problem state -> Model state
 init queue problem =
     { problem = problem
     , queue = queue
-    , explored = []
-    , frontier =
-        [ { parent = Nothing
-          , state = problem.initialState
-          , pathCost = 0
-          }
-        ]
+    , explored = Dict.empty
+    , frontier = [ makeRootNode problem.initialState ]
     , solution = Pending
+    , maxPathCost = 0
+    }
+
+
+makeRootNode : state -> Node state
+makeRootNode state =
+    { state = state
+    , parent = Nothing
+    , pathCost = 0
     }
 
 
 search : Step a -> Model a -> ( Maybe (Node a), Model a )
-search searchStep searchModel =
+search step model =
     let
-        newSearchModel =
-            searchStep searchModel
+        newModel =
+            step model
     in
-    case newSearchModel.solution of
+    case newModel.solution of
         Solution a ->
-            ( Just a, newSearchModel )
+            ( Just a, newModel )
 
         NoSolution ->
-            ( Nothing, newSearchModel )
+            ( Nothing, newModel )
 
         Pending ->
-            search searchStep newSearchModel
+            search step newModel
 
 
 treeSearch : Model comparable -> ( Maybe (Node comparable), Model comparable )
