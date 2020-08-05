@@ -38,14 +38,14 @@ boxify :
     -> Element msg
 boxify explored msg level maxPathCost path =
     case path of
-        (( pathCost, state ) as h) :: t ->
+        (( pathCost, _ ) as h) :: _ ->
             let
                 children =
                     Maybe.withDefault [] (Dict.get path explored)
             in
             columnOrRow
                 level
-                (properties pathCost 5)
+                (properties pathCost maxPathCost)
                 (el
                     [ width (fillPortion 20)
                     , height (fillPortion 20)
@@ -55,7 +55,11 @@ boxify explored msg level maxPathCost path =
                     :: (if List.length children > 0 then
                             [ rowOrColumn
                                 level
-                                (properties pathCost 5)
+                                [ width (fillPortion 80)
+                                , height (fillPortion 80)
+                                , spacing 2
+                                , padding 2
+                                ]
                                 (children
                                     |> List.map
                                         (\child ->
@@ -99,16 +103,23 @@ rowOrColumn level =
 properties : Float -> Float -> List (Attribute msg)
 properties pathCost maxPathCost =
     let
-        s =
-            1 - (pathCost / max maxPathCost 5 * 0.4)
+        c =
+            color pathCost maxPathCost
+        b = c - 0.2
+
     in
-    [ width (fillPortion 80)
-    , height (fillPortion 80)
-    , padding 2
-    , spacing 2
+    [ width fill
+    , height fill
     , Border.rounded 20
-    , Background.color (rgb s s s)
+    , Background.color (rgb c c c)
+    , Border.color (rgb b b b)
+    , Border.width 1
     ]
+
+
+color : Float -> Float -> Float
+color pathCost maxPathCost =
+    1 - (pathCost / max maxPathCost 5 * 0.8)
 
 
 tooltip :
@@ -135,7 +146,7 @@ tooltip problem visualizeState x y shown =
                            , padding 20
                            , spacing 20
                            , Border.rounded 20
-                           , Border.glow (rgb 0.5 0.5 0.5) 5
+                           , Border.glow (rgb 0.5 0.5 0.5) 2
                            ]
                     )
                     [ el [ centerX ] (html (visualizeState state))
