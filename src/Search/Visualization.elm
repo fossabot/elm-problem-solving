@@ -5,6 +5,7 @@ import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
+import Element.Font as Font
 import Html exposing (Html, div)
 import Html.Attributes exposing (style)
 import Search exposing (Model, Problem, Solution(..))
@@ -18,8 +19,8 @@ visualization :
     -> ( Float, Float )
     -> Html msg
 visualization model msg visualizeState shown ( x, y ) =
-    layoutWith { options = [ noStaticStyleSheet ] }
-        [ width fill, height fill, Events.onMouseLeave (msg Nothing) ]
+    layout
+        [ width fill, height fill, Events.onMouseLeave (msg Nothing), pointer ]
         (column
             [ width fill, height fill ]
             [ tooltip model.problem visualizeState x y shown
@@ -137,8 +138,8 @@ tooltip problem visualizeState x y shown =
                            , Border.glow (rgb 0.5 0.5 0.5) 5
                            ]
                     )
-                    [ html (visualizeState state)
-                    , column [ spacing 0 ]
+                    [ el [ centerX ] (html (visualizeState state))
+                    , column [ spacing 2, Font.size 12 ]
                         [ row [ width fill, spacing 20 ]
                             [ el [ alignLeft ] (text "Path cost")
                             , el [ alignRight ] (text <| String.fromFloat pathCost)

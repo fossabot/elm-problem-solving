@@ -2,8 +2,8 @@ module Main exposing (..)
 
 import Browser
 import Browser.Events
-import Element exposing (..)
-import Html exposing (Html)
+import Html exposing (..)
+import Html.Attributes exposing (..)
 import Json.Decode
 import List.Extra as List
 import Process
@@ -43,7 +43,7 @@ main =
         { view =
             \model ->
                 { title = "Breadth-first search of 8-Puzzle"
-                , body = [ layout [] (body model) ]
+                , body = [ body model ]
                 }
         , init = init
         , update = update
@@ -51,18 +51,14 @@ main =
         }
 
 
-body : Model -> Element Msg
+body : Model -> Html Msg
 body model =
-    column [ width fill, height fill, pointer ]
-        [ html
-            (visualization
-                model.searchModel
-                Show
-                visualizeNPuzzle
-                model.shown
-                model.pos
-            )
-        ]
+    visualization
+        model.searchModel
+        Show
+        visualizeNPuzzle
+        model.shown
+        model.pos
 
 
 decode : Json.Decode.Decoder ( Float, Float )
@@ -117,21 +113,23 @@ update msg model =
             ( { model | pos = ( x, y ) }, Cmd.none )
 
 
-
--- STAY HERE
-
-
 visualizeNPuzzle : State -> Html Msg
 visualizeNPuzzle state =
-    layout []
-        (column []
-            (state
-                |> List.groupsOf 3
-                |> List.map
-                    (\row ->
-                        row
-                            |> List.map (String.fromInt >> text >> el [])
+    table []
+        (state
+            |> List.groupsOf 3
+            |> List.map
+                (List.map
+                    (String.fromInt
+                        >> text
+                        >> List.singleton
+                        >> td
+                            [ style "height" "1em"
+                            , style "width" "1em"
+                            , style "background-color" "rgb(230, 230, 230)"
+                            , style "text-align" "center"
+                            ]
                     )
-                |> List.map (row [])
-            )
+                )
+            |> List.map (tr [])
         )
