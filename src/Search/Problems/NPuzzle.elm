@@ -10,9 +10,9 @@ module Search.Problems.NPuzzle exposing
     )
 
 import List exposing (all, concat, length, map, member, range, sum)
-import List.Extra exposing (elemIndex, getAt, swapAt)
-import Maybe.Extra exposing (values)
-import Random exposing (initialSeed, step)
+import List.Extra exposing (elemIndex, getAt, setAt)
+import Maybe.Extra as Maybe
+import Random
 import Search exposing (Problem, Solution(..))
 
 
@@ -20,9 +20,27 @@ type alias State =
     List Int
 
 
+swapAt : Int -> Int -> List a -> Maybe (List a)
+swapAt x y l =
+    let
+        a =
+            getAt x l
+
+        b =
+            getAt y l
+    in
+    Maybe.map2
+        (\a_ b_ -> l
+            |> setAt x b_
+            |> setAt y a_
+        )
+        a
+        b
+
+
 vertical : Int -> State -> Maybe State
 vertical d state =
-    elemIndex 0 state |> Maybe.map (\a -> swapAt a (a + d) state)
+    elemIndex 0 state |> Maybe.map (\a -> swapAt a (a + d) state) |> Maybe.join
 
 
 up : Int -> State -> Maybe State
@@ -37,7 +55,7 @@ down s =
 
 horizontal : Int -> State -> Maybe State
 horizontal d state =
-    elemIndex 0 state |> Maybe.map (\a -> swapAt a (a + d) state)
+    elemIndex 0 state |> Maybe.map (\a -> swapAt a (a + d) state) |> Maybe.join
 
 
 left : State -> Maybe State
@@ -98,7 +116,7 @@ nPuzzle validState =
         \state ->
             [ up s, down s, left, right ]
                 |> map (\f -> f state)
-                |> values
+                |> Maybe.values
                 |> map (\a -> ( 1, a ))
     , heuristic =
         \state ->
@@ -169,7 +187,7 @@ randomLoop size seed n a =
     if n > 0 then
         let
             ( r, newSeed ) =
-                step (Random.int 0 3) seed
+                Random.step (Random.int 0 3) seed
         in
         case Maybe.map (\f -> f a) (getAt r [ up size, down size, left, right ]) of
             Just (Just aa) ->
@@ -185,5 +203,5 @@ randomLoop size seed n a =
 random : Int -> Int -> Int -> Problem State
 random length steps seed =
     List.Extra.initialize length identity
-        |> randomLoop (round (sqrt (toFloat length))) (initialSeed seed) steps
+        |> randomLoop (round (sqrt (toFloat length))) (Random.initialSeed seed) steps
         |> nPuzzle
