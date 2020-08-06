@@ -17,7 +17,7 @@ import Search
         , insertLast
         )
 import Search.Problems.NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle)
-import Search.Visualization exposing (visualization)
+import Search.Visualization as Visualization
 import Task
 
 
@@ -25,17 +25,14 @@ type alias State =
     List Int
 
 
-type alias Model =
-    { searchModel : Search.Model State
-    , shown : Maybe ( Float, State )
-    , pos : ( Float, Float )
-    }
-
-
 type Msg
     = NewModel (Search.Model State)
     | Show (Maybe ( Float, State ))
     | Move ( Float, Float )
+
+
+type alias Model =
+    Visualization.Model State Msg
 
 
 main =
@@ -51,14 +48,40 @@ main =
         }
 
 
+init : () -> ( Model, Cmd Msg )
+init =
+    \_ ->
+        let
+            initialModel =
+                Search.init insertLast mediumEightPuzzle
+        in
+        ( { searchModel = initialModel
+          , msg = Show
+          , visualizeState = visualizeNPuzzle
+          , tooltip = Just { node = Nothing, position = ( 0, 0 ) }
+          }
+        , searchTask initialModel
+        )
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg ({ tooltip } as model) =
+    case msg of
+        NewModel m ->
+            ( { model | searchModel = m }
+            , searchTask m
+            )
+
+        Show s ->
+            ( { model | tooltip = tooltip |> Maybe.map (\t -> { t | node = s }) }, Cmd.none )
+
+        Move ( x, y ) ->
+            ( { model | tooltip = tooltip |> Maybe.map (\t -> { t | position = ( x, y ) }) }, Cmd.none )
+
+
 body : Model -> Html Msg
 body model =
-    visualization
-        model.searchModel
-        Show
-        visualizeNPuzzle
-        model.shown
-        model.pos
+    Visualization.html model
 
 
 decode : Json.Decode.Decoder ( Float, Float )
@@ -83,36 +106,6 @@ searchTask model =
             Cmd.none
 
 
-init : () -> ( Model, Cmd Msg )
-init =
-    \_ ->
-        let
-            initialModel =
-                Search.init insertLast mediumEightPuzzle
-        in
-        ( { searchModel = initialModel
-          , shown = Nothing
-          , pos = ( 0, 0 )
-          }
-        , searchTask initialModel
-        )
-
-
-update : Msg -> Model -> ( Model, Cmd Msg )
-update msg model =
-    case msg of
-        NewModel m ->
-            ( { model | searchModel = m }
-            , searchTask m
-            )
-
-        Show s ->
-            ( { model | shown = s }, Cmd.none )
-
-        Move ( x, y ) ->
-            ( { model | pos = ( x, y ) }, Cmd.none )
-
-
 visualizeNPuzzle : State -> Html Msg
 visualizeNPuzzle state =
     table []
@@ -120,15 +113,23 @@ visualizeNPuzzle state =
             |> List.groupsOf 3
             |> List.map
                 (List.map
-                    (String.fromInt
-                        >> text
-                        >> List.singleton
-                        >> td
-                            [ style "height" "1em"
-                            , style "width" "1em"
-                            , style "background-color" "rgb(230, 230, 230)"
-                            , style "text-align" "center"
-                            ]
+                    (\a ->
+                        a
+                            |> String.fromInt
+                            |> text
+                            |> List.singleton
+                            |> td
+                                [ style "height" "1em"
+                                , style "width" "1em"
+                                , style "background-color"
+                                    (if a == 0 then
+                                        "rgb(200, 200, 200)"
+
+                                     else
+                                        "rgb(230, 230, 230)"
+                                    )
+                                , style "text-align" "center"
+                                ]
                     )
                 )
             |> List.map (tr [])
