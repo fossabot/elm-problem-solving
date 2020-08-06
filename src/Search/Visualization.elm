@@ -31,6 +31,7 @@ el model =
         [ width fill
         , height fill
         , pointer
+        , Events.onMouseLeave (model.msg Nothing)
         ]
         [ model.tooltip |> Maybe.map (tooltip model) |> Maybe.withDefault none
         , column [ width fill, height fill ]
@@ -38,11 +39,16 @@ el model =
                 rootNode =
                     ( 0, model.searchModel.problem.initialState )
              in
-             [ Element.el [ centerX, padding 20 ] (info model rootNode)
+             [ Element.el
+                [ width fill
+                , Events.onMouseEnter (model.msg Nothing)
+                ]
+                (Element.el [ centerX, padding 20 ]
+                    (info model rootNode)
+                )
              , row
                 [ width fill
                 , height fill
-                , Events.onMouseLeave (model.msg Nothing)
                 ]
                 (childRow model True [ rootNode ])
              ]

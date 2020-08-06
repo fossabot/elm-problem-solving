@@ -11675,7 +11675,9 @@ var $author$project$Search$Visualization$el = function (model) {
 			[
 				$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 				$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
-				$mdgriffith$elm_ui$Element$pointer
+				$mdgriffith$elm_ui$Element$pointer,
+				$mdgriffith$elm_ui$Element$Events$onMouseLeave(
+				model.msg($elm$core$Maybe$Nothing))
 			]),
 		_List_fromArray(
 			[
@@ -11701,18 +11703,24 @@ var $author$project$Search$Visualization$el = function (model) {
 							$mdgriffith$elm_ui$Element$el,
 							_List_fromArray(
 								[
-									$mdgriffith$elm_ui$Element$centerX,
-									$mdgriffith$elm_ui$Element$padding(20)
+									$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
+									$mdgriffith$elm_ui$Element$Events$onMouseEnter(
+									model.msg($elm$core$Maybe$Nothing))
 								]),
-							A2($author$project$Search$Visualization$info, model, rootNode)),
+							A2(
+								$mdgriffith$elm_ui$Element$el,
+								_List_fromArray(
+									[
+										$mdgriffith$elm_ui$Element$centerX,
+										$mdgriffith$elm_ui$Element$padding(20)
+									]),
+								A2($author$project$Search$Visualization$info, model, rootNode))),
 							A2(
 							$mdgriffith$elm_ui$Element$row,
 							_List_fromArray(
 								[
 									$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
-									$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
-									$mdgriffith$elm_ui$Element$Events$onMouseLeave(
-									model.msg($elm$core$Maybe$Nothing))
+									$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill)
 								]),
 							A3(
 								$author$project$Search$Visualization$childRow,
