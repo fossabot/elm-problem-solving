@@ -30,7 +30,6 @@ el model =
     column
         [ width fill
         , height fill
-        , Events.onMouseLeave (model.msg Nothing)
         , pointer
         ]
         [ model.tooltip |> Maybe.map (tooltip model) |> Maybe.withDefault none
@@ -39,7 +38,14 @@ el model =
                 rootNode =
                     ( 0, model.searchModel.problem.initialState )
              in
-             info model rootNode :: childRow model True [ rootNode ]
+             [ Element.el [ centerX, padding 20 ] (info model rootNode)
+             , row
+                [ width fill
+                , height fill
+                , Events.onMouseLeave (model.msg Nothing)
+                ]
+                (childRow model True [ rootNode ])
+             ]
             )
         ]
 
@@ -62,22 +68,28 @@ boxify model flip path =
             columnOrRow
                 flip
                 (boxAttributes model.searchModel h)
-                (Element.el
-                    [ width (fillPortion 10)
-                    , height (fillPortion 10)
-                    , Events.onMouseEnter (model.msg (Just h))
-                    ]
-                    (case model.searchModel.solution of
-                        Search.Solution a ->
-                            if a.state == state then
-                                info model ( pathCost, state )
-
-                            else
-                                none
-
-                        _ ->
+                (let
+                    empty =
+                        Element.el
+                            [ width (fillPortion 10)
+                            , height (fillPortion 10)
+                            , Events.onMouseEnter (model.msg (Just h))
+                            ]
                             none
-                    )
+                 in
+                 (case model.searchModel.solution of
+                    Search.Solution a ->
+                        if a.state == state then
+                            Element.el
+                                [ Events.onMouseEnter (model.msg Nothing) ]
+                                (info model ( pathCost, state ))
+
+                        else
+                            empty
+
+                    _ ->
+                        empty
+                 )
                     :: childRow model flip path
                 )
 
@@ -168,12 +180,10 @@ color pathCost maxPathCost =
 info : Model state msg -> ( Float, state ) -> Element msg
 info model ( pathCost, state ) =
     column
-        [ centerX
-        , Background.color (rgb 1 1 1)
-        , padding 20
-        , spacing 20
-        ]
-        [ Element.el [ centerX ] (Element.html (model.visualizeState state))
+        [ spacing 20 ]
+        [ Element.el
+            [ centerX ]
+            (Element.html (model.visualizeState state))
         , column [ spacing 2, Font.size 12 ]
             [ infoRow "Path cost" pathCost
             , infoRow "Heuristic" (model.searchModel.problem.heuristic state)
@@ -199,11 +209,13 @@ tooltip model { node, position } =
     case node of
         Just n ->
             Element.el
-                [ width shrink
-                , height (maximum 0 shrink)
-                ]
+                (tooltipAttributes position)
                 (Element.el
-                    (tooltipAttributes position)
+                    [ Background.color (rgb 1 1 1)
+                    , Border.rounded 20
+                    , Border.glow (rgb 0.5 0.5 0.5) 2
+                    , padding 20
+                    ]
                     (info model n)
                 )
 
@@ -218,6 +230,6 @@ tooltipAttributes ( x, y ) =
         , style "top" (String.fromFloat (y + 10) ++ "px")
         , style "z-index" "1"
         ]
-        ++ [ Border.rounded 20
-           , Border.glow (rgb 0.5 0.5 0.5) 2
+        ++ [ width shrink
+           , height (maximum 0 shrink)
            ]
