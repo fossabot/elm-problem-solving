@@ -76,10 +76,18 @@ In this example, the model of the application _is_ the model of the search algor
 -}
 
 import Dict exposing (Dict)
+import Graph
 import List.Extra as List
 import Search.Problem as Problem exposing (Node, expand, path)
 
-type alias Problem a = Problem.Problem a
+
+type alias Problem a =
+    Problem.Problem a
+
+
+
+-- QUEUES
+
 
 type alias Queue a =
     { pop : List a -> Maybe ( a, List a ) }
@@ -108,6 +116,10 @@ priority f =
             List.minimumBy f l
                 |> Maybe.map (\a -> ( a, List.remove a l ))
     }
+
+
+
+-- STRATEGIES
 
 
 type alias Strategy a =
@@ -183,6 +195,10 @@ graphSearch =
     }
 
 
+
+-- MODEL
+
+
 type Result a
     = Pending
     | Solution (Node a)
@@ -208,6 +224,29 @@ type alias Model a =
     , frontier : List (Node a)
     , solution : Result a
     , maxPathCost : Float
+    }
+
+
+{-| Initializes your model of the search algorithm. It takes a `Problem state` as parameter, because it needs to know the `initialState` of the search problem for initializing the frontier, and also the whole other information about the search problem for running the search algorithm later.
+-}
+init :
+    Strategy comparable
+    -> Queue (Node comparable)
+    -> Problem comparable
+    -> Model comparable
+init strategy queue problem =
+    { strategy = strategy
+    , queue = queue
+    , problem = problem
+    , explored = Dict.empty
+    , frontier =
+        [ { state = problem.initialState
+          , parent = Nothing
+          , pathCost = 0
+          }
+        ]
+    , solution = Pending
+    , maxPathCost = 0
     }
 
 
@@ -246,32 +285,6 @@ searchStep strategy queue ({ explored } as model) =
             { model | solution = Failure }
 
 
-makeRootNode : a -> Node a
-makeRootNode state =
-    { state = state
-    , parent = Nothing
-    , pathCost = 0
-    }
-
-
-{-| Initializes your model of the search algorithm. It takes a `Problem state` as parameter, because it needs to know the `initialState` of the search problem for initializing the frontier, and also the whole other information about the search problem for running the search algorithm later.
--}
-init :
-    Strategy comparable
-    -> Queue (Node comparable)
-    -> Problem comparable
-    -> Model comparable
-init strategy queue problem =
-    { strategy = strategy
-    , queue = queue
-    , problem = problem
-    , explored = Dict.empty
-    , frontier = [ makeRootNode problem.initialState ]
-    , solution = Pending
-    , maxPathCost = 0
-    }
-
-
 
 -- STEPPERS
 
@@ -308,7 +321,7 @@ nextGoal model =
 
 
 
--- CONVENIENCE
+-- INTERFACE
 
 
 breadthFirst : Problem comparable -> Model comparable

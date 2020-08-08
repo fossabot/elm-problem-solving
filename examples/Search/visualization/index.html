@@ -16853,16 +16853,13 @@ var $author$project$Search$graphSearch = {
 		})
 };
 var $author$project$Search$Pending = {$: 'Pending'};
-var $author$project$Search$makeRootNode = function (state) {
-	return {parent: $elm$core$Maybe$Nothing, pathCost: 0, state: state};
-};
 var $author$project$Search$init = F3(
 	function (strategy, queue, problem) {
 		return {
 			explored: $elm$core$Dict$empty,
 			frontier: _List_fromArray(
 				[
-					$author$project$Search$makeRootNode(problem.initialState)
+					{parent: $elm$core$Maybe$Nothing, pathCost: 0, state: problem.initialState}
 				]),
 			maxPathCost: 0,
 			problem: problem,
