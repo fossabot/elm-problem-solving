@@ -1,4 +1,4 @@
-module Search.Problems.IncrementalNQueens exposing (..)
+module Search.Problem.IncrementalNQueens exposing (..)
 
 import List.Extra as List
 import Search exposing (Problem)

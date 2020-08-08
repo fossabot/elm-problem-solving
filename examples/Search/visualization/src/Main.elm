@@ -2,21 +2,24 @@ module Main exposing (..)
 
 import Browser
 import Browser.Events
+import Html exposing (p, text)
 import Json.Decode
 import Process
 import Search exposing (Result(..))
-import Search.Problems.NPuzzle as NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle, visualize)
+import Search.Problem.Graph exposing (routeFinding)
+import Search.Problem.NPuzzle as NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle, visualize)
+import Search.Problem.Romania as Romania
 import Search.Visualization as Visualization
 import Task
 
 
 type alias State =
-    List Int
+    String
 
 
 type Msg
     = NewModel (Search.Model State)
-    | Show (Maybe ( Float, State )) 
+    | Show (Maybe ( Float, State ))
     | Move ( Float, Float )
 
 
@@ -41,12 +44,15 @@ init : () -> ( Model, Cmd Msg )
 init =
     \_ ->
         let
+            m =
+                routeFinding "Lugoj" "Bucharest" Romania.distance
+
             initialModel =
-                Search.breadthFirst mediumEightPuzzle
+                Search.bestFirst { m | heuristic = Romania.bucharestHeuristic }
         in
         ( { searchModel = initialModel
           , msg = Show
-          , visualizeState = NPuzzle.visualize
+          , visualizeState = \a -> p [] [ text (Debug.toString a) ]
           , tooltip = Just { node = Nothing, position = ( 0, 0 ) }
           }
         , searchTask initialModel

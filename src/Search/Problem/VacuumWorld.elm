@@ -1,4 +1,4 @@
-module Search.Problems.VacuumWorld exposing (vacuumWorld)
+module Search.Problem.VacuumWorld exposing (vacuumWorld)
 
 import Search exposing (Problem)
 

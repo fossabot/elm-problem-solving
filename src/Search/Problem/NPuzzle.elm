@@ -1,4 +1,4 @@
-module Search.Problems.NPuzzle exposing
+module Search.Problem.NPuzzle exposing
     ( NPuzzleError(..)
     , complexEightPuzzle
     , empty

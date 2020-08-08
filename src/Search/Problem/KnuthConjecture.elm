@@ -1,4 +1,4 @@
-module Search.Problems.KnuthConjecture exposing (..)
+module Search.Problem.KnuthConjecture exposing (..)
 
 import Search exposing (Problem)
 
