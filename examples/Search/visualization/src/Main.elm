@@ -14,7 +14,7 @@ import Search
         , Solution(..)
         , graphSearchStep
         , init
-        , insertLast
+        , fifoFetch
         )
 import Search.Problems.NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle)
 import Search.Visualization as Visualization
@@ -53,7 +53,7 @@ init =
     \_ ->
         let
             initialModel =
-                Search.init insertLast mediumEightPuzzle
+                Search.init fifoFetch mediumEightPuzzle
         in
         ( { searchModel = initialModel
           , msg = Show

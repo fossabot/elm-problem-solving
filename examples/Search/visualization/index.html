@@ -16768,6 +16768,20 @@ var $elm$browser$Browser$document = _Browser_document;
 var $author$project$Main$Show = function (a) {
 	return {$: 'Show', a: a};
 };
+var $elm_community$list_extra$List$Extra$unconsLast = function (list) {
+	var _v0 = $elm$core$List$reverse(list);
+	if (!_v0.b) {
+		return $elm$core$Maybe$Nothing;
+	} else {
+		var last_ = _v0.a;
+		var rest = _v0.b;
+		return $elm$core$Maybe$Just(
+			_Utils_Tuple2(
+				last_,
+				$elm$core$List$reverse(rest)));
+	}
+};
+var $author$project$Search$fifoFetch = $elm_community$list_extra$List$Extra$unconsLast;
 var $author$project$Search$Pending = {$: 'Pending'};
 var $author$project$Search$makeRootNode = function (state) {
 	return {parent: $elm$core$Maybe$Nothing, pathCost: 0, state: state};
@@ -16782,16 +16796,9 @@ var $author$project$Search$init = F2(
 				]),
 			maxPathCost: 0,
 			problem: problem,
-			queue: queue,
+			queueFetch: queue,
 			solution: $author$project$Search$Pending
 		};
-	});
-var $author$project$Search$insertLast = F2(
-	function (a, l) {
-		return _Utils_ap(
-			l,
-			_List_fromArray(
-				[a]));
 	});
 var $elm_community$list_extra$List$Extra$findIndexHelp = F3(
 	function (index, predicate, list) {
@@ -17179,53 +17186,60 @@ var $elm_community$list_extra$List$Extra$find = F2(
 			}
 		}
 	});
-var $author$project$Search$updatePathCosts = F2(
-	function (l1, l2) {
-		return A2(
-			$elm$core$List$map,
-			function (a) {
-				var _v0 = A2(
-					$elm_community$list_extra$List$Extra$find,
-					function (b) {
-						return _Utils_eq(a.state, b.state);
-					},
-					l1);
-				if (_v0.$ === 'Just') {
-					var b = _v0.a;
-					return (_Utils_cmp(a.pathCost, b.pathCost) < 0) ? a : b;
-				} else {
-					return a;
-				}
-			},
-			l2);
-	});
 var $author$project$Search$newUnexploredFrontier = F4(
 	function (h, t, childNodes, model) {
-		return A3(
-			$elm$core$List$foldl,
-			model.queue,
-			A2($author$project$Search$updatePathCosts, childNodes, t),
+		return _Utils_ap(
 			A2(
 				$elm$core$List$filter,
-				function (a) {
-					return !(_Utils_eq(a.state, h.state) || (A2(
+				function (newNode) {
+					return (!_Utils_eq(newNode.state, h.state)) && ((!A2(
 						$elm$core$List$any,
-						function (b) {
+						function (otherNewNode) {
+							return _Utils_eq(newNode.state, otherNewNode.state) && (_Utils_cmp(newNode.pathCost, otherNewNode.pathCost) < 0);
+						},
+						childNodes)) && ((!A2(
+						$elm$core$List$any,
+						function (exploredNode) {
 							return _Utils_eq(
-								$elm$core$Maybe$Just(a.state),
+								$elm$core$Maybe$Just(newNode.state),
 								A2(
 									$elm$core$Maybe$map,
 									$elm$core$Tuple$second,
-									$elm$core$List$head(b)));
+									$elm$core$List$head(exploredNode)));
 						},
-						$elm$core$Dict$keys(model.explored)) || A2(
-						$elm$core$List$any,
-						function (b) {
-							return _Utils_eq(a.state, b.state);
-						},
-						t)));
+						$elm$core$Dict$keys(model.explored))) && function () {
+						var _v0 = A2(
+							$elm_community$list_extra$List$Extra$find,
+							function (node) {
+								return _Utils_eq(node.state, newNode.state);
+							},
+							t);
+						if (_v0.$ === 'Just') {
+							var node = _v0.a;
+							return _Utils_cmp(newNode.pathCost, node.pathCost) < 0;
+						} else {
+							return true;
+						}
+					}()));
 				},
-				childNodes));
+				childNodes),
+			A2(
+				$elm$core$List$filter,
+				function (node) {
+					var _v1 = A2(
+						$elm_community$list_extra$List$Extra$find,
+						function (newNode) {
+							return _Utils_eq(node.state, newNode.state);
+						},
+						childNodes);
+					if (_v1.$ === 'Just') {
+						var newNode = _v1.a;
+						return _Utils_cmp(newNode.pathCost, node.pathCost) > -1;
+					} else {
+						return true;
+					}
+				},
+				t));
 	});
 var $author$project$Search$NoSolution = {$: 'NoSolution'};
 var $author$project$Search$Solution = function (a) {
@@ -17268,19 +17282,20 @@ var $author$project$Search$path = function (node) {
 var $author$project$Search$searchStep = F2(
 	function (frontierWorker, model) {
 		var explored = model.explored;
-		var _v0 = model.frontier;
-		if (_v0.b) {
-			var h = _v0.a;
-			var t = _v0.b;
+		var _v0 = model.queueFetch(model.frontier);
+		if (_v0.$ === 'Just') {
+			var _v1 = _v0.a;
+			var h = _v1.a;
+			var t = _v1.b;
 			var childNodes = A2($author$project$Search$expand, model.problem, h);
-			var _v1 = A2(
+			var _v2 = A2(
 				$elm_community$list_extra$List$Extra$find,
 				function (node) {
 					return model.problem.goalTest(node.state);
 				},
 				childNodes);
-			if (_v1.$ === 'Just') {
-				var a = _v1.a;
+			if (_v2.$ === 'Just') {
+				var a = _v2.a;
 				return _Utils_update(
 					model,
 					{
@@ -17402,7 +17417,7 @@ var $author$project$Main$visualizeNPuzzle = function (state) {
 				A2($elm_community$list_extra$List$Extra$groupsOf, 3, state))));
 };
 var $author$project$Main$init = function (_v0) {
-	var initialModel = A2($author$project$Search$init, $author$project$Search$insertLast, $author$project$Search$Problems$NPuzzle$mediumEightPuzzle);
+	var initialModel = A2($author$project$Search$init, $author$project$Search$fifoFetch, $author$project$Search$Problems$NPuzzle$mediumEightPuzzle);
 	return _Utils_Tuple2(
 		{
 			msg: $author$project$Main$Show,
@@ -17658,7 +17673,7 @@ var $author$project$Main$main = $elm$browser$Browser$document(
 		}
 	});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Search.Model":{"args":["state"],"type":"{ problem : Search.Problem state, queue : Search.QueueInserter (Search.Node state), explored : Dict.Dict (List.List ( Basics.Float, state )) (List.List ( Basics.Float, state )), frontier : List.List (Search.Node state), solution : Search.Solution state, maxPathCost : Basics.Float }"},"Search.Node":{"args":["a"],"type":"{ state : a, parent : Maybe.Maybe (Search.Parent a), pathCost : Basics.Float }"},"Search.Problem":{"args":["a"],"type":"{ initialState : a, actions : a -> List.List ( Basics.Float, a ), heuristic : a -> Basics.Float, goalTest : a -> Basics.Bool }"},"Search.QueueInserter":{"args":["a"],"type":"a -> List.List a -> List.List a"},"Main.State":{"args":[],"type":"List.List Basics.Int"}},"unions":{"Main.Msg":{"args":[],"tags":{"NewModel":["Search.Model Main.State"],"Show":["Maybe.Maybe ( Basics.Float, Main.State )"],"Move":["( Basics.Float, Basics.Float )"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Search.Parent":{"args":["a"],"tags":{"Parent":["Search.Node a"]}},"Search.Solution":{"args":["state"],"tags":{"Pending":[],"Solution":["Search.Node state"],"NoSolution":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Search.Model":{"args":["state"],"type":"{ problem : Search.Problem state, queueFetch : Search.QueueFetcher (Search.Node state), explored : Dict.Dict (List.List ( Basics.Float, state )) (List.List ( Basics.Float, state )), frontier : List.List (Search.Node state), solution : Search.Solution state, maxPathCost : Basics.Float }"},"Search.Node":{"args":["a"],"type":"{ state : a, parent : Maybe.Maybe (Search.Parent a), pathCost : Basics.Float }"},"Search.Problem":{"args":["a"],"type":"{ initialState : a, actions : a -> List.List ( Basics.Float, a ), heuristic : a -> Basics.Float, goalTest : a -> Basics.Bool }"},"Search.QueueFetcher":{"args":["a"],"type":"List.List a -> Maybe.Maybe ( a, List.List a )"},"Main.State":{"args":[],"type":"List.List Basics.Int"}},"unions":{"Main.Msg":{"args":[],"tags":{"NewModel":["Search.Model Main.State"],"Show":["Maybe.Maybe ( Basics.Float, Main.State )"],"Move":["( Basics.Float, Basics.Float )"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Search.Parent":{"args":["a"],"tags":{"Parent":["Search.Node a"]}},"Search.Solution":{"args":["state"],"tags":{"Pending":[],"Solution":["Search.Node state"],"NoSolution":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
 
   var app = Elm.Main.init({ node: document.getElementById("elm") });
 }

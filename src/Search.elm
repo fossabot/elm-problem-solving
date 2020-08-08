@@ -78,6 +78,7 @@ In this example, the model of the application _is_ the model of the search algor
 -- TODO also check eack child node against the other child nodes
 
 import Dict exposing (Dict)
+import Html exposing (a)
 import List.Extra as List
 
 
@@ -124,30 +125,43 @@ expand problem node =
         (problem.actions node.state)
 
 
-type alias QueueInserter a =
-    a -> List a -> List a
+type alias QueueFetcher a =
+    List a -> Maybe ( a, List a )
 
 
-{-| simulates a First-In-First-Out queue when using head for extraction
+{-| simulates a First-In-First-Out queue when using `::` for insertion
 -}
-insertLast : QueueInserter a
-insertLast a l =
-    l ++ [ a ]
+fifoFetch : QueueFetcher a
+fifoFetch =
+    List.unconsLast
 
 
-{-| simulates a Last-In-First-Out queue when using head for extraction
+{-| simulates a Last-In-First-Out queue when using `::` for insertion
 -}
-insertFirst : QueueInserter a
-insertFirst a l =
-    a :: l
+lifoFetch : QueueFetcher a
+lifoFetch =
+    List.uncons
 
 
-{-| simulates a priority queue when using head for extraction
+{-| simulates a priority queue when using `::` for insertion
 -- TODO more efficient implementation / show this is most efficient
 -}
-insertBy : (a -> comparable) -> QueueInserter a
-insertBy p a l =
-    List.sortBy p (a :: l)
+priorityFetch : (a -> comparable) -> QueueFetcher a
+priorityFetch f l =
+    let
+        min =
+            List.minimumBy f l
+    in
+    Maybe.map (\m -> ( m, List.remove m l )) min
+
+
+argmin : (a -> comparable) -> a -> a -> a
+argmin f a b =
+    if f a < f b then
+        b
+
+    else
+        a
 
 
 type alias FrontierWorker a =
@@ -159,45 +173,64 @@ type alias FrontierWorker a =
 
 
 newSimpleFrontier : FrontierWorker comparable
-newSimpleFrontier h t childNodes model =
-    List.foldl model.queue t childNodes
+newSimpleFrontier _ t childNodes _ =
+    childNodes ++ t
 
 
-{-| Overwrites nodes from the 2nd list with nodes from the 1st list where states are identical and path costs are lower.
-TODO optimize
+{-| Ensures states are not explored twice and always at the lowest known path cost.
 -}
-updatePathCosts : List (Node a) -> List (Node a) -> List (Node a)
-updatePathCosts l1 l2 =
-    List.map
-        (\a ->
-            case List.find (\b -> a.state == b.state) l1 of
-                Just b ->
-                    if a.pathCost < b.pathCost then
-                        a
-
-                    else
-                        b
-
-                Nothing ->
-                    a
-        )
-        l2
-
-
 newUnexploredFrontier : FrontierWorker comparable
 newUnexploredFrontier h t childNodes model =
-    childNodes
+    -- only add child node if
+    -- a) their state is not the same as their parent's and
+    -- b) their state is not in a sibling node with a lower path cost
+    -- c) their state is not already explored and
+    -- d) their state is not already in the frontier with a lower path cost
+    
+    (childNodes
         |> List.filter
-            (\a ->
+            (\newNode ->
                 not
-                    ((a.state == h.state)
-                        || List.any (\b -> Just a.state == Maybe.map Tuple.second (List.head b)) (Dict.keys model.explored)
-                        || List.any (\b -> a.state == b.state) t
-                    )
+                    (newNode.state == h.state)
+                    && not
+                        (List.any
+                            (\otherNewNode ->
+                                newNode.state
+                                    == otherNewNode.state
+                                    && newNode.pathCost
+                                    < otherNewNode.pathCost
+                            )
+                            childNodes
+                        )
+                    && not
+                        (List.any
+                            (\exploredNode ->
+                                Just newNode.state
+                                    == Maybe.map Tuple.second (List.head exploredNode)
+                            )
+                            (Dict.keys model.explored)
+                        )
+                    && (case List.find (\node -> node.state == newNode.state) t of
+                            Just node ->
+                                newNode.pathCost < node.pathCost
+
+                            Nothing ->
+                                True
+                       )
             )
-        |> List.foldl
-            model.queue
-            (updatePathCosts childNodes t)
+    )
+        -- if a child node's state is already in the frontier but with a higher pathCost, remove it
+        ++ (t
+                |> List.filter
+                    (\node ->
+                        case List.find (\newNode -> node.state == newNode.state) childNodes of
+                            Just newNode ->
+                                newNode.pathCost >= node.pathCost
+
+                            Nothing ->
+                                True
+                    )
+           )
 
 
 type Solution state
@@ -215,7 +248,7 @@ Initialize your model with `searchInit` (see below).
 -}
 type alias Model state =
     { problem : Problem state
-    , queue : QueueInserter (Node state)
+    , queueFetch : QueueFetcher (Node state)
 
     -- technically it would suffice to store only explored states and not their children
     -- but there is no noticeable difference in performance (TODO  benchmarks)
@@ -234,8 +267,8 @@ type alias Step state =
 
 searchStep : FrontierWorker comparable -> Step comparable
 searchStep frontierWorker ({ explored } as model) =
-    case model.frontier of
-        h :: t ->
+    case model.queueFetch model.frontier of
+        Just ( h, t ) ->
             let
                 childNodes =
                     expand model.problem h
@@ -259,7 +292,7 @@ searchStep frontierWorker ({ explored } as model) =
                         , maxPathCost = List.foldl max model.maxPathCost (List.map .pathCost childNodes)
                     }
 
-        [] ->
+        Nothing ->
             { model | solution = NoSolution }
 
 
@@ -275,10 +308,10 @@ graphSearchStep =
 
 {-| Initializes your model of the search algorithm. It takes a `Problem state` as parameter, because it needs to know the `initialState` of the search problem for initializing the frontier, and also the whole other information about the search problem for running the search algorithm later.
 -}
-init : QueueInserter (Node state) -> Problem state -> Model state
+init : QueueFetcher (Node state) -> Problem state -> Model state
 init queue problem =
     { problem = problem
-    , queue = queue
+    , queueFetch = queue
     , explored = Dict.empty
     , frontier = [ makeRootNode problem.initialState ]
     , solution = Pending
@@ -318,29 +351,29 @@ treeSearch searchModel =
 
 breadthFirstTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 breadthFirstTreeSearch problem =
-    treeSearch (init insertLast problem)
+    treeSearch (init fifoFetch problem)
 
 
 depthFirstTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 depthFirstTreeSearch problem =
-    treeSearch (init insertFirst problem)
+    treeSearch (init lifoFetch problem)
 
 
 uniformCostTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 uniformCostTreeSearch problem =
-    treeSearch (init (insertBy .pathCost) problem)
+    treeSearch (init (priorityFetch .pathCost) problem)
 
 
 greedyTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 greedyTreeSearch problem =
-    treeSearch (init (insertBy (\node -> problem.heuristic node.state)) problem)
+    treeSearch (init (priorityFetch (\node -> problem.heuristic node.state)) problem)
 
 
 {-| A\* tree search.
 -}
 heuristicTreeSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 heuristicTreeSearch problem =
-    treeSearch (init (insertBy (\node -> node.pathCost + problem.heuristic node.state)) problem)
+    treeSearch (init (priorityFetch (\node -> node.pathCost + problem.heuristic node.state)) problem)
 
 
 graphSearch : Model comparable -> ( Maybe (Node comparable), Model comparable )
@@ -350,26 +383,26 @@ graphSearch searchModel =
 
 breadthFirstSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 breadthFirstSearch problem =
-    graphSearch (init insertLast problem)
+    graphSearch (init fifoFetch problem)
 
 
 depthFirstSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 depthFirstSearch problem =
-    graphSearch (init insertFirst problem)
+    graphSearch (init lifoFetch problem)
 
 
 uniformCostSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 uniformCostSearch problem =
-    graphSearch (init (insertBy .pathCost) problem)
+    graphSearch (init (priorityFetch .pathCost) problem)
 
 
 greedySearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 greedySearch problem =
-    graphSearch (init (insertBy (\node -> problem.heuristic node.state)) problem)
+    graphSearch (init (priorityFetch (\node -> problem.heuristic node.state)) problem)
 
 
 {-| A\* search.
 -}
 heuristicSearch : Problem comparable -> ( Maybe (Node comparable), Model comparable )
 heuristicSearch problem =
-    graphSearch (init (insertBy (\node -> node.pathCost + problem.heuristic node.state)) problem)
+    graphSearch (init (priorityFetch (\node -> node.pathCost + problem.heuristic node.state)) problem)
