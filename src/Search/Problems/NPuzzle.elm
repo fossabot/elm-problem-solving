@@ -7,13 +7,16 @@ module Search.Problems.NPuzzle exposing
     , nPuzzle
     , random
     , simpleEightPuzzle
+    , visualize
     )
 
+import Html exposing (Html, table, td, text, tr)
+import Html.Attributes exposing (style)
 import List exposing (all, concat, length, map, member, range, sum)
-import List.Extra exposing (elemIndex, getAt, setAt)
+import List.Extra exposing (elemIndex, getAt, groupsOf, setAt)
 import Maybe.Extra as Maybe
 import Random
-import Search exposing (Problem, Solution(..))
+import Search exposing (Problem)
 
 
 type alias State =
@@ -30,9 +33,10 @@ swapAt x y l =
             getAt y l
     in
     Maybe.map2
-        (\a_ b_ -> l
-            |> setAt x b_
-            |> setAt y a_
+        (\a_ b_ ->
+            l
+                |> setAt x b_
+                |> setAt y a_
         )
         a
         b
@@ -73,9 +77,9 @@ type NPuzzleError
     | NoPermutationOfRange
 
 
-sideLength : State -> Float
+sideLength : State -> Int
 sideLength state =
-    sqrt (toFloat (length state))
+    round (sqrt (toFloat (length state)))
 
 
 goal : State -> List Int
@@ -85,7 +89,7 @@ goal state =
 
 checkState : State -> Result NPuzzleError State
 checkState s =
-    if sideLength s /= toFloat (round (sideLength s)) then
+    if sqrt (toFloat (length s)) /= toFloat (sideLength s) then
         Err NotQuadratic
 
     else if not (all (\a -> member a s) (goal s)) then
@@ -99,17 +103,19 @@ manhattanDist : Int -> Int -> State -> Int
 manhattanDist p q state =
     let
         s =
-            round (sideLength state)
+            sideLength state
     in
     abs (modBy s p - modBy s q)
         + abs ((p // s) - (q // s))
 
 
+{-| Unsafe generation from list.
+-}
 nPuzzle : State -> Problem State
 nPuzzle validState =
     let
         s =
-            round (sideLength validState)
+            sideLength validState
     in
     { initialState = validState
     , actions =
@@ -143,9 +149,15 @@ empty =
     }
 
 
+{-| Safe generation from list.
+-}
 fromList : List Int -> Result NPuzzleError (Problem State)
 fromList l =
     Result.map nPuzzle (checkState l)
+
+
+
+-- EXAMPLES
 
 
 simpleEightPuzzle : Problem State
@@ -205,3 +217,37 @@ random length steps seed =
     List.Extra.initialize length identity
         |> randomLoop (round (sqrt (toFloat length))) (Random.initialSeed seed) steps
         |> nPuzzle
+
+
+
+-- VISUALIZATION
+
+
+visualize : State -> Html msg
+visualize state =
+    table []
+        (state
+            |> groupsOf (sideLength state)
+            |> map
+                (map
+                    (\a ->
+                        a
+                            |> String.fromInt
+                            |> text
+                            |> List.singleton
+                            |> td
+                                [ style "height" "1em"
+                                , style "width" "1em"
+                                , style "background-color"
+                                    (if a == 0 then
+                                        "rgb(200, 200, 200)"
+
+                                     else
+                                        "rgb(230, 230, 230)"
+                                    )
+                                , style "text-align" "center"
+                                ]
+                    )
+                )
+            |> List.map (tr [])
+        )
