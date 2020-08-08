@@ -9,7 +9,7 @@ import Search exposing (Result(..))
 import Search.Problem.Graph exposing (routeFinding)
 import Search.Problem.NPuzzle as NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle, visualize)
 import Search.Problem.Romania as Romania
-import Search.Visualization as Visualization
+import Search.Visualization.TreeMap as TreeMap
 import Task
 
 
@@ -24,7 +24,7 @@ type Msg
 
 
 type alias Model =
-    Visualization.Model State Msg
+    TreeMap.Model State Msg
 
 
 main =
@@ -32,7 +32,7 @@ main =
         { view =
             \model ->
                 { title = "Breadth-first search of 8-Puzzle"
-                , body = [ Visualization.html model ]
+                , body = [ TreeMap.html model ]
                 }
         , init = init
         , update = update

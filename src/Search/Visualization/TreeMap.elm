@@ -1,4 +1,4 @@
-module Search.Visualization exposing (..)
+module Search.Visualization.TreeMap exposing (..)
 
 import Dict
 import Element exposing (..)
