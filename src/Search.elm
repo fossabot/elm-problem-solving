@@ -20,63 +20,19 @@ For example:
   - For making animations of how the algorithms work.
   - For extensive logging. Or for just displaying the number of explored states.
 
-However, these algorithms are much slower than their equivalents from the `Search` module. In my opinion they should have the same time efficiency as the algorithms from the `Search` module, but I have to investigate this further, as the algorithms here seem to slow down pretty quickly.
-
 You can use the functions from this module to embed the inner structure of the search algorithm (the `SearchModel`) into the model of your web application.
 
 Here is a minimal example, which you can also find in the [`Search/ComponentMinimal`](../../../../examples/Search/ComponentMinimal/src/Main.elm) example. A logging use case can be found in the [`Search/Component`](../../../../examples/Search/Component/src/Main.elm) example.
 
-    module Main exposing (..)
-
-    import Browser
-    import Html exposing (text)
-    import Search.Component exposing (SearchModel, breadthFirstSearch, searchInit)
-    import Search.NPuzzle exposing (simpleEightPuzzle)
-
-    type alias State =
-        List Int
-
-    type Msg
-        = SearchOn ( SearchModel State, SearchModel State -> Cmd Msg )
-
-    main : Program () (SearchModel State) Msg
-    main =
-        let
-            searchModel =
-                searchInit simpleEightPuzzle
-        in
-        Browser.element
-            { view = \model -> text (Debug.toString model)
-            , init = \_ -> ( searchModel, breadthFirstSearch SearchOn searchModel )
-            , update =
-                \msg model ->
-                    case msg of
-                        SearchOn ( result, callback ) ->
-                            ( result, callback result )
-            , subscriptions = always Sub.none
-            }
+    ...
 
 In this example, the model of the application _is_ the model of the search algorithm. In a real scenario, it would most likely reside as a sub-model within the application model. You can look that up in the [`Search/Component`](../../../../examples/Search/Component/src/Main.elm) example.
 
 @docs treeSearchStep, graphSearchStep
 
-    searchAsync :
-        (SearchModel comparable -> SearchModel comparable)
-        -> (( SearchModel comparable, SearchModel comparable -> Cmd msg ) -> msg)
-        -> SearchModel comparable
-        -> Cmd msg
-    searchAsync stepMethod msg searchModel =
-        Task.perform
-            msg
-            (Process.sleep 0
-                |> Task.andThen
-                    (\_ -> Task.succeed ( breadthFirstSearchStep searchModel, searchAsync stepMethod msg ))
-            )
-
 -}
 
 import Dict exposing (Dict)
-import Graph
 import List.Extra as List
 import Search.Problem as Problem exposing (Node, expand, path)
 
@@ -151,8 +107,10 @@ graphSearch =
             (childNodes
                 |> List.filter
                     (\newNode ->
+                        -- check parent
                         not
                             (newNode.state == h.state)
+                            -- check sibling
                             && not
                                 (List.any
                                     (\otherNewNode ->
@@ -163,6 +121,7 @@ graphSearch =
                                     )
                                     childNodes
                                 )
+                            -- check explored
                             && not
                                 (List.any
                                     (\exploredNode ->
@@ -171,6 +130,7 @@ graphSearch =
                                     )
                                     (Dict.keys explored)
                                 )
+                            -- check frontier
                             && (case List.find (\node -> node.state == newNode.state) t of
                                     Just node ->
                                         newNode.pathCost < node.pathCost

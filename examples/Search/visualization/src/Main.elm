@@ -14,7 +14,7 @@ import Task
 
 
 type alias State =
-    String
+    List Int
 
 
 type Msg
@@ -36,7 +36,10 @@ main =
                 }
         , init = init
         , update = update
-        , subscriptions = \_ -> Browser.Events.onMouseMove (Json.Decode.map Move decode)
+        , subscriptions =
+            \_ -> Sub.none
+
+        -- \_ -> Browser.Events.onMouseMove (Json.Decode.map Move decode)
         }
 
 
@@ -44,15 +47,12 @@ init : () -> ( Model, Cmd Msg )
 init =
     \_ ->
         let
-            m =
-                routeFinding "Lugoj" "Bucharest" Romania.distance
-
             initialModel =
-                Search.bestFirst { m | heuristic = Romania.bucharestHeuristic }
+                Search.breadthFirst complexEightPuzzle
         in
         ( { searchModel = initialModel
           , msg = Show
-          , visualizeState = \a -> p [] [ text (Debug.toString a) ]
+          , visualizeState = NPuzzle.visualize
           , tooltip = Just { node = Nothing, position = ( 0, 0 ) }
           }
         , searchTask initialModel
@@ -89,7 +89,7 @@ searchTask model =
                 NewModel
                 (Process.sleep 0
                     |> Task.andThen
-                        (\_ -> Task.succeed (Search.next model))
+                        (\_ -> Task.succeed (Search.nextN 100 model))
                 )
 
         _ ->
