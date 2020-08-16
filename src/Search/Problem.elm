@@ -4,11 +4,12 @@ module Search.Problem exposing (..)
 -}
 
 
-type alias Problem a =
+type alias Problem a comparable =
     { initialState : a
     , actions : a -> List ( Float, a )
     , heuristic : a -> Float
     , goalTest : a -> Bool
+    , stateToComparable : a -> comparable
     }
 
 
@@ -33,7 +34,7 @@ path node =
             [ ( node.pathCost, node.state ) ]
 
 
-expand : Problem a -> Node a -> List (Node a)
+expand : Problem a b -> Node a -> List (Node a)
 expand problem node =
     List.map
         (\( stepCost, result ) ->

@@ -20,6 +20,39 @@ type alias State =
     }
 
 
+type alias ComparableState =
+    { location : Char
+    , a : String
+    , b : String
+    }
+
+
+stateToComparable : State -> ComparableState
+stateToComparable state =
+    { location =
+        case state.location of
+            A ->
+                'A'
+
+            B ->
+                'B'
+    , a =
+        case state.a of
+            Clean ->
+                "Clean"
+
+            Dirty ->
+                "Dirty"
+    , b =
+        case state.b of
+            Clean ->
+                "Clean"
+
+            Dirty ->
+                "Dirty"
+    }
+
+
 type alias Action =
     State -> State
 
@@ -44,7 +77,7 @@ suck state =
             { state | b = Clean }
 
 
-vacuumWorld : Problem State
+vacuumWorld : Problem State ComparableState
 vacuumWorld =
     { initialState =
         { location = A
@@ -54,4 +87,5 @@ vacuumWorld =
     , actions = \state -> List.map (\f -> ( 1, f state )) [ left, right, suck ]
     , heuristic = \_ -> 0
     , goalTest = \state -> state.a == Clean && state.b == Clean
+    , stateToComparable = stateToComparable
     }

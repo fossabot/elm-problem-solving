@@ -12,7 +12,7 @@ distance =
          , { from = "Zerind", to = "Oradea", data = 71 }
          , { from = "Oradea", to = "Sibiu", data = 151 }
          , { from = "Sibiu", to = "Fagaras", data = 99 }
-         , { from = "Sibiu", to = "RimnicuVilcea", data = 80 }
+         , { from = "Sibiu", to = "Rimnicu Vilcea", data = 80 }
          , { from = "Fagaras", to = "Bucharest", data = 211 }
          , { from = "Bucharest", to = "Urziceni", data = 85 }
          , { from = "Bucharest", to = "Giurgiu", data = 90 }
@@ -23,13 +23,16 @@ distance =
          , { from = "Iasi", to = "Neamt", data = 87 }
          , { from = "Hirsova", to = "Eforie", data = 86 }
          , { from = "Pitesti", to = "Craiova", data = 138 }
-         , { from = "Pitesti", to = "RimnicuVilcea", data = 97 }
+         , { from = "Pitesti", to = "Rimnicu Vilcea", data = 97 }
          , { from = "Craiova", to = "Drobeta", data = 120 }
-         , { from = "Craiova", to = "RimnicuVilcea", data = 146 }
+         , { from = "Craiova", to = "Rimnicu Vilcea", data = 146 }
          , { from = "Drobeta", to = "Mehadia", data = 75 }
          , { from = "Mehadia", to = "Lugoj", data = 70 }
          , { from = "Lugoj", to = "Timisoara", data = 111 }
          ]
+            -- reverse because `Graph.Graph` works last-in-first-out
+            |> List.reverse
+            -- also add opposite direction for each edge
             |> List.map (\({ from, to, data } as a) -> [ a, { from = to, to = from, data = data } ])
             |> List.concat
         )
@@ -47,7 +50,7 @@ straightLineDistance =
         , { from = "Bucharest", to = "Drobeta", data = 242 }
         , { from = "Bucharest", to = "Pitesti", data = 100 }
         , { from = "Bucharest", to = "Eforie", data = 161 }
-        , { from = "Bucharest", to = "RimnicuVilcea", data = 193 }
+        , { from = "Bucharest", to = "Rimnicu Vilcea", data = 193 }
         , { from = "Bucharest", to = "Fagaras", data = 176 }
         , { from = "Bucharest", to = "Sibiu", data = 253 }
         , { from = "Bucharest", to = "Giurgiu", data = 77 }

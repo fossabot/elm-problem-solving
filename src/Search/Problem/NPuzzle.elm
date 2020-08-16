@@ -111,7 +111,7 @@ manhattanDist p q state =
 
 {-| Unsafe generation from list.
 -}
-nPuzzle : State -> Problem State
+nPuzzle : State -> Problem State State
 nPuzzle validState =
     let
         s =
@@ -137,21 +137,23 @@ nPuzzle validState =
                 |> sum
                 |> toFloat
     , goalTest = \state -> state == goal validState
+    , stateToComparable = identity
     }
 
 
-empty : Problem State
+empty : Problem State State
 empty =
     { initialState = []
     , actions = \_ -> []
     , heuristic = \_ -> 0
     , goalTest = \_ -> False
+    , stateToComparable = identity
     }
 
 
 {-| Safe generation from list.
 -}
-fromList : List Int -> Result NPuzzleError (Problem State)
+fromList : List Int -> Result NPuzzleError (Problem State State)
 fromList l =
     Result.map nPuzzle (checkState l)
 
@@ -160,7 +162,7 @@ fromList l =
 -- EXAMPLES
 
 
-simpleEightPuzzle : Problem State
+simpleEightPuzzle : Problem State State
 simpleEightPuzzle =
     nPuzzle <|
         concat
@@ -170,7 +172,7 @@ simpleEightPuzzle =
             ]
 
 
-mediumEightPuzzle : Problem State
+mediumEightPuzzle : Problem State State
 mediumEightPuzzle =
     nPuzzle <|
         concat
@@ -180,7 +182,7 @@ mediumEightPuzzle =
             ]
 
 
-complexEightPuzzle : Problem State
+complexEightPuzzle : Problem State State
 complexEightPuzzle =
     nPuzzle <|
         concat
@@ -212,7 +214,7 @@ randomLoop size seed n a =
         a
 
 
-random : Int -> Int -> Int -> Problem State
+random : Int -> Int -> Int -> Problem State State
 random length steps seed =
     List.Extra.initialize length identity
         |> randomLoop (round (sqrt (toFloat length))) (Random.initialSeed seed) steps

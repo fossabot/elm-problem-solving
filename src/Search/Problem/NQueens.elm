@@ -7,10 +7,10 @@ import Search exposing (Problem)
 type alias State =
     List ( Int, Int )
 
-incrementalEightQueens : Problem State
+incrementalEightQueens : Problem State State
 incrementalEightQueens = incrementalNQueens 8
 
-incrementalNQueens : Int -> Problem State
+incrementalNQueens : Int -> Problem State State
 incrementalNQueens n =
     { initialState = []
     , actions =
@@ -28,6 +28,7 @@ incrementalNQueens n =
                 []
     , heuristic = \_ -> 0
     , goalTest = \state -> List.length state == n
+    , stateToComparable = identity
     }
 
 

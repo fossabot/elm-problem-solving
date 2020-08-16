@@ -4,7 +4,7 @@ import Graph exposing (..)
 import Search exposing (Problem)
 
 
-routeFinding : a -> a -> Graph a Float -> Problem a
+routeFinding : a -> a -> Graph a Float -> Problem a a
 routeFinding root goal graph =
     { initialState = root
     , actions =
@@ -13,4 +13,5 @@ routeFinding root goal graph =
                 |> List.map (\( vertex, data ) -> ( data, vertex ))
     , heuristic = \_ -> 0
     , goalTest = (==) goal
+    , stateToComparable = identity
     }

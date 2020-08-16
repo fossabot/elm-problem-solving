@@ -37,8 +37,8 @@ import List.Extra as List
 import Search.Problem as Problem exposing (Node, expand, path)
 
 
-type alias Problem a =
-    Problem.Problem a
+type alias Problem a b =
+    Problem.Problem a b
 
 
 
@@ -78,9 +78,10 @@ priority f =
 -- STRATEGIES
 
 
-type alias Strategy a =
+type alias Strategy a b =
     { frontier :
-        Dict (List ( Float, a )) (List ( Float, a ))
+        Problem a b
+        -> Dict (List ( Float, b )) (List ( Float, b ))
         -> Node a
         -> List (Node a)
         -> List (Node a)
@@ -88,17 +89,17 @@ type alias Strategy a =
     }
 
 
-treeSearch : Strategy a
+treeSearch : Strategy a b
 treeSearch =
-    { frontier = \_ _ t childNodes -> childNodes ++ t }
+    { frontier = \_ _ _ t childNodes -> List.reverse childNodes ++ t }
 
 
 {-| Ensures states are not explored twice and always at the lowest known path cost.
 -}
-graphSearch : Strategy a
+graphSearch : Strategy a b
 graphSearch =
     { frontier =
-        \explored h t childNodes ->
+        \problem explored h t childNodes ->
             -- only add child node if
             -- a) their state is not the same as their parent's and
             -- b) their state is not in a sibling node with a lower path cost
@@ -125,7 +126,7 @@ graphSearch =
                             && not
                                 (List.any
                                     (\exploredNode ->
-                                        Just newNode.state
+                                        Just (problem.stateToComparable newNode.state)
                                             == Maybe.map Tuple.second (List.head exploredNode)
                                     )
                                     (Dict.keys explored)
@@ -139,6 +140,7 @@ graphSearch =
                                         True
                                )
                     )
+                |> List.reverse
             )
                 -- if a child node's state is already in the frontier but with a higher pathCost, remove it
                 ++ (t
@@ -176,11 +178,11 @@ Initialize your model with `searchInit` (see below).
 -- and having the children is useful for performant visualization, where we want to reconstruct the search tree
 
 -}
-type alias Model a =
-    { strategy : Strategy a
+type alias Model a b =
+    { strategy : Strategy a b
     , queue : Queue (Node a)
-    , problem : Problem a
-    , explored : Dict (List ( Float, a )) (List ( Float, a ))
+    , problem : Problem a b
+    , explored : Dict (List ( Float, b )) (List ( Float, b ))
     , frontier : List (Node a)
     , solution : Result a
     , maxPathCost : Float
@@ -190,10 +192,10 @@ type alias Model a =
 {-| Initializes your model of the search algorithm. It takes a `Problem state` as parameter, because it needs to know the `initialState` of the search problem for initializing the frontier, and also the whole other information about the search problem for running the search algorithm later.
 -}
 init :
-    Strategy comparable
-    -> Queue (Node comparable)
-    -> Problem comparable
-    -> Model comparable
+    Strategy a b
+    -> Queue (Node a)
+    -> Problem a b
+    -> Model a b
 init strategy queue problem =
     { strategy = strategy
     , queue = queue
@@ -211,35 +213,33 @@ init strategy queue problem =
 
 
 searchStep :
-    Strategy comparable
-    -> Queue (Node comparable)
-    -> Model comparable
-    -> Model comparable
-searchStep strategy queue ({ explored } as model) =
+    Strategy a comparable
+    -> Queue (Node a)
+    -> Model a comparable
+    -> Model a comparable
+searchStep strategy queue ({ problem, explored } as model) =
     case queue.pop model.frontier of
         Just ( h, t ) ->
             let
                 childNodes =
-                    expand model.problem h
+                    expand problem h
             in
-            case List.find (\node -> model.problem.goalTest node.state) childNodes of
-                Just a ->
-                    { model
-                        | solution = Solution a
-                        , frontier = t
-                        , explored = Dict.insert (path h) [ ( a.pathCost, a.state ) ] explored
-                        , maxPathCost = max model.maxPathCost a.pathCost
-                    }
+            { model
+                | solution =
+                    case List.find (\node -> problem.goalTest node.state) childNodes of
+                        Just a ->
+                            Solution a
 
-                Nothing ->
-                    { model
-                        | frontier = strategy.frontier explored h t childNodes
-                        , explored =
-                            Dict.insert (path h)
-                                (childNodes |> List.map (\node -> ( node.pathCost, node.state )))
-                                explored
-                        , maxPathCost = List.foldl max model.maxPathCost (List.map .pathCost childNodes)
-                    }
+                        Nothing ->
+                            model.solution
+                , frontier = strategy.frontier problem explored h t childNodes
+                , explored =
+                    Dict.insert
+                        (path h |> List.map (\( pathCost, state ) -> ( pathCost, problem.stateToComparable state )))
+                        (childNodes |> List.map (\node -> ( node.pathCost, problem.stateToComparable node.state )))
+                        explored
+                , maxPathCost = List.foldl max model.maxPathCost (List.map .pathCost childNodes)
+            }
 
         Nothing ->
             { model | solution = Failure }
@@ -249,12 +249,12 @@ searchStep strategy queue ({ explored } as model) =
 -- STEPPERS
 
 
-next : Model comparable -> Model comparable
+next : Model a comparable -> Model a comparable
 next model =
     searchStep model.strategy model.queue model
 
 
-nextN : Int -> Model comparable -> Model comparable
+nextN : Int -> Model a comparable -> Model a comparable
 nextN n model =
     if n > 0 then
         searchStep model.strategy model.queue model |> nextN (n - 1)
@@ -263,7 +263,7 @@ nextN n model =
         model
 
 
-nextGoal : Model comparable -> ( Maybe (Node comparable), Model comparable )
+nextGoal : Model a comparable -> ( Maybe (Node a), Model a comparable )
 nextGoal model =
     let
         newModel =
@@ -284,24 +284,24 @@ nextGoal model =
 -- INTERFACE
 
 
-breadthFirst : Problem comparable -> Model comparable
+breadthFirst : Problem a comparable -> Model a comparable
 breadthFirst =
     init graphSearch fifo
 
 
-depthFirst : Problem comparable -> Model comparable
+depthFirst : Problem a comparable -> Model a comparable
 depthFirst =
     init graphSearch lifo
 
 
 {-| Dijkstra's algorithm.
 -}
-uniformCost : Problem comparable -> Model comparable
+uniformCost : Problem a comparable -> Model a comparable
 uniformCost =
     init graphSearch (priority (\node -> node.pathCost))
 
 
-greedy : Problem comparable -> Model comparable
+greedy : Problem a comparable -> Model a comparable
 greedy problem =
     init graphSearch
         (priority (\node -> problem.heuristic node.state))
@@ -310,7 +310,7 @@ greedy problem =
 
 {-| A\* search.
 -}
-bestFirst : Problem comparable -> Model comparable
+bestFirst : Problem a comparable -> Model a comparable
 bestFirst problem =
     init
         graphSearch

@@ -19,7 +19,7 @@ factorial n =
     List.product (List.range 1 n)
 
 
-knuthConjecture : Float -> Problem State
+knuthConjecture : Float -> Problem State State
 knuthConjecture goal =
     { initialState = 4
     , actions =
@@ -30,19 +30,20 @@ knuthConjecture goal =
                 ]
 
             else
-                [ ( 1, sqrt n )
-                , ( 1, toFloat (floor n) )
+                [ ( 1, toFloat (floor n) )
+                , ( 1, sqrt n )
                 ]
     , heuristic = \_ -> 0
     , goalTest = \n -> n == goal
+    , stateToComparable = identity
     }
 
 
-simpleKnuthConjecture : Problem State
+simpleKnuthConjecture : Problem State State
 simpleKnuthConjecture =
     knuthConjecture 1
 
 
-complexKnuthConjecture : Problem State
+complexKnuthConjecture : Problem State State
 complexKnuthConjecture =
     knuthConjecture 5
