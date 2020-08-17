@@ -12,7 +12,7 @@ import Search
 
 
 type alias Model comparable msg =
-    { searchModel : Search.Model comparable
+    { searchModel : Search.Model comparable comparable
     , msg : Maybe ( Float, comparable ) -> msg
     , visualizeState : comparable -> Html msg
     , tooltip : Maybe (Tooltip comparable)
@@ -103,7 +103,7 @@ boxify model flip path =
             none
 
 
-boxAttributes : Search.Model state -> ( Float, state ) -> List (Attribute msg)
+boxAttributes : Search.Model state state -> ( Float, state ) -> List (Attribute msg)
 boxAttributes model ( pathCost, state ) =
     let
         c =

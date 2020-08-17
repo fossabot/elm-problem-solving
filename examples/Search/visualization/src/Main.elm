@@ -18,7 +18,7 @@ type alias State =
 
 
 type Msg
-    = NewModel (Search.Model State)
+    = NewModel (Search.Model State State)
     | Show (Maybe ( Float, State ))
     | Move ( Float, Float )
 
@@ -37,9 +37,7 @@ main =
         , init = init
         , update = update
         , subscriptions =
-            \_ -> Sub.none
-
-        -- \_ -> Browser.Events.onMouseMove (Json.Decode.map Move decode)
+            \_ -> Browser.Events.onMouseMove (Json.Decode.map Move decode)
         }
 
 
@@ -48,7 +46,7 @@ init =
     \_ ->
         let
             initialModel =
-                Search.breadthFirst complexEightPuzzle
+                Search.breadthFirst mediumEightPuzzle
         in
         ( { searchModel = initialModel
           , msg = Show
@@ -81,7 +79,7 @@ decode =
         (Json.Decode.field "pageY" Json.Decode.float)
 
 
-searchTask : Search.Model State -> Cmd Msg
+searchTask : Search.Model State State -> Cmd Msg
 searchTask model =
     case model.solution of
         Pending ->
@@ -89,7 +87,7 @@ searchTask model =
                 NewModel
                 (Process.sleep 0
                     |> Task.andThen
-                        (\_ -> Task.succeed (Search.nextN 100 model))
+                        (\_ -> Task.succeed (Search.next model))
                 )
 
         _ ->

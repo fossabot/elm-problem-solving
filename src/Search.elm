@@ -163,7 +163,7 @@ graphSearch =
 
 type Result a
     = Pending
-    | Solution (Node a)
+    | Solution a
     | Failure
 
 
@@ -184,7 +184,7 @@ type alias Model a b =
     , problem : Problem a b
     , explored : Dict (List ( Float, b )) (List ( Float, a ))
     , frontier : List (Node a)
-    , solution : Result a
+    , solution : Result (Node a)
     , maxPathCost : Float
     }
 
