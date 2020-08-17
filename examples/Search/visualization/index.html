@@ -5254,17 +5254,6 @@ var $mdgriffith$elm_ui$Element$Background$color = function (clr) {
 			'background-color',
 			clr));
 };
-var $mdgriffith$elm_ui$Internal$Flag$borderColor = $mdgriffith$elm_ui$Internal$Flag$flag(28);
-var $mdgriffith$elm_ui$Element$Border$color = function (clr) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$borderColor,
-		A3(
-			$mdgriffith$elm_ui$Internal$Model$Colored,
-			'bc-' + $mdgriffith$elm_ui$Internal$Model$formatColorClass(clr),
-			'border-color',
-			clr));
-};
 var $author$project$Search$Visualization$TreeMap$color = F2(
 	function (pathCost, maxPathCost) {
 		return 1 - ((pathCost / A2($elm$core$Basics$max, maxPathCost, 5)) * 0.8);
@@ -5322,23 +5311,6 @@ var $mdgriffith$elm_ui$Internal$Model$Width = function (a) {
 	return {$: 'Width', a: a};
 };
 var $mdgriffith$elm_ui$Element$width = $mdgriffith$elm_ui$Internal$Model$Width;
-var $mdgriffith$elm_ui$Internal$Model$BorderWidth = F5(
-	function (a, b, c, d, e) {
-		return {$: 'BorderWidth', a: a, b: b, c: c, d: d, e: e};
-	});
-var $mdgriffith$elm_ui$Internal$Flag$borderWidth = $mdgriffith$elm_ui$Internal$Flag$flag(27);
-var $mdgriffith$elm_ui$Element$Border$width = function (v) {
-	return A2(
-		$mdgriffith$elm_ui$Internal$Model$StyleClass,
-		$mdgriffith$elm_ui$Internal$Flag$borderWidth,
-		A5(
-			$mdgriffith$elm_ui$Internal$Model$BorderWidth,
-			'b-' + $elm$core$String$fromInt(v),
-			v,
-			v,
-			v,
-			v));
-};
 var $author$project$Search$Visualization$TreeMap$boxAttributes = F2(
 	function (model, _v0) {
 		var pathCost = _v0.a;
@@ -5350,12 +5322,10 @@ var $author$project$Search$Visualization$TreeMap$boxAttributes = F2(
 				[
 					$mdgriffith$elm_ui$Element$width($mdgriffith$elm_ui$Element$fill),
 					$mdgriffith$elm_ui$Element$height($mdgriffith$elm_ui$Element$fill),
-					$mdgriffith$elm_ui$Element$Border$rounded(20),
 					$mdgriffith$elm_ui$Element$Background$color(
 					A3($mdgriffith$elm_ui$Element$rgb, c, c, c)),
-					$mdgriffith$elm_ui$Element$Border$color(
-					A3($mdgriffith$elm_ui$Element$rgb, b, b, b)),
-					$mdgriffith$elm_ui$Element$Border$width(1)
+					$mdgriffith$elm_ui$Element$Border$rounded(
+					$elm$core$Basics$round(20 * c))
 				]),
 			function () {
 				var _v1 = model.solution;
@@ -10030,6 +10000,7 @@ var $mdgriffith$elm_ui$Internal$Model$renderWidth = function (w) {
 				A2($elm$core$List$cons, style, newStyle));
 	}
 };
+var $mdgriffith$elm_ui$Internal$Flag$borderWidth = $mdgriffith$elm_ui$Internal$Flag$flag(27);
 var $elm$core$Basics$ge = _Utils_ge;
 var $mdgriffith$elm_ui$Internal$Model$skippable = F2(
 	function (flag, style) {
@@ -11347,12 +11318,12 @@ var $author$project$Search$Visualization$TreeMap$tooltip = F2(
 						[
 							$mdgriffith$elm_ui$Element$Background$color(
 							A3($mdgriffith$elm_ui$Element$rgb, 1, 1, 1)),
-							$mdgriffith$elm_ui$Element$Border$rounded(20),
+							$mdgriffith$elm_ui$Element$Border$rounded(5),
 							A2(
 							$mdgriffith$elm_ui$Element$Border$glow,
-							A3($mdgriffith$elm_ui$Element$rgb, 0.5, 0.5, 0.5),
+							A3($mdgriffith$elm_ui$Element$rgb, 0.4, 0.4, 0.4),
 							2),
-							$mdgriffith$elm_ui$Element$padding(20)
+							$mdgriffith$elm_ui$Element$padding(10)
 						]),
 					A2($author$project$Search$Visualization$TreeMap$info, model, n)));
 		} else {

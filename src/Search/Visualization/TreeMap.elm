@@ -114,10 +114,11 @@ boxAttributes model ( pathCost, state ) =
     in
     [ width fill
     , height fill
-    , Border.rounded 20
     , Background.color (rgb c c c)
-    , Border.color (rgb b b b)
-    , Border.width 1
+    , Border.rounded (round (20 * c))
+
+    --, Border.color (rgb b b b)
+    --, Border.width 1
     ]
         ++ (case model.solution of
                 Search.Solution a ->
@@ -218,9 +219,9 @@ tooltip model { node, position } =
                 (tooltipAttributes position)
                 (Element.el
                     [ Background.color (rgb 1 1 1)
-                    , Border.rounded 20
-                    , Border.glow (rgb 0.5 0.5 0.5) 2
-                    , padding 20
+                    , Border.rounded 5
+                    , Border.glow (rgb 0.4 0.4 0.4) 2
+                    , padding 10
                     ]
                     (info model n)
                 )
