@@ -1,4 +1,4 @@
-module Search.Problem.VacuumWorld exposing (vacuumWorld)
+module Search.Problem.VacuumWorld exposing (vacuumWorld, Location(..), Condition(..))
 
 import Search exposing (Problem)
 
@@ -21,36 +21,33 @@ type alias State =
 
 
 type alias ComparableState =
-    { location : Char
-    , a : String
-    , b : String
-    }
+    (Char, String, String)
 
 
 stateToComparable : State -> ComparableState
 stateToComparable state =
-    { location =
+   (
         case state.location of
             A ->
                 'A'
 
             B ->
                 'B'
-    , a =
+    , 
         case state.a of
             Clean ->
                 "Clean"
 
             Dirty ->
                 "Dirty"
-    , b =
+    , 
         case state.b of
             Clean ->
                 "Clean"
 
             Dirty ->
                 "Dirty"
-    }
+   )
 
 
 type alias Action =

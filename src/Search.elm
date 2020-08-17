@@ -81,7 +81,7 @@ priority f =
 type alias Strategy a b =
     { frontier :
         Problem a b
-        -> Dict (List ( Float, b )) (List ( Float, b ))
+        -> Dict (List ( Float, b )) (List ( Float, a ))
         -> Node a
         -> List (Node a)
         -> List (Node a)
@@ -182,7 +182,7 @@ type alias Model a b =
     { strategy : Strategy a b
     , queue : Queue (Node a)
     , problem : Problem a b
-    , explored : Dict (List ( Float, b )) (List ( Float, b ))
+    , explored : Dict (List ( Float, b )) (List ( Float, a ))
     , frontier : List (Node a)
     , solution : Result a
     , maxPathCost : Float
@@ -236,7 +236,7 @@ searchStep strategy queue ({ problem, explored } as model) =
                 , explored =
                     Dict.insert
                         (path h |> List.map (\( pathCost, state ) -> ( pathCost, problem.stateToComparable state )))
-                        (childNodes |> List.map (\node -> ( node.pathCost, problem.stateToComparable node.state )))
+                        (childNodes |> List.map (\node -> ( node.pathCost, node.state )))
                         explored
                 , maxPathCost = List.foldl max model.maxPathCost (List.map .pathCost childNodes)
             }
@@ -284,24 +284,24 @@ nextGoal model =
 -- INTERFACE
 
 
-breadthFirst : Problem a comparable -> Model a comparable
+breadthFirst : Problem a b -> Model a b
 breadthFirst =
     init graphSearch fifo
 
 
-depthFirst : Problem a comparable -> Model a comparable
+depthFirst : Problem a b -> Model a b
 depthFirst =
     init graphSearch lifo
 
 
 {-| Dijkstra's algorithm.
 -}
-uniformCost : Problem a comparable -> Model a comparable
+uniformCost : Problem a b -> Model a b
 uniformCost =
     init graphSearch (priority (\node -> node.pathCost))
 
 
-greedy : Problem a comparable -> Model a comparable
+greedy : Problem a b -> Model a b
 greedy problem =
     init graphSearch
         (priority (\node -> problem.heuristic node.state))
@@ -310,7 +310,7 @@ greedy problem =
 
 {-| A\* search.
 -}
-bestFirst : Problem a comparable -> Model a comparable
+bestFirst : Problem a b -> Model a b
 bestFirst problem =
     init
         graphSearch
