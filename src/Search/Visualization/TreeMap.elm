@@ -8,6 +8,7 @@ import Element.Events as Events
 import Element.Font as Font
 import Html exposing (Html)
 import Html.Attributes exposing (style)
+import Maybe.Extra as Maybe
 import Search
 
 
@@ -36,21 +37,21 @@ el model =
         [ model.tooltip |> Maybe.map (tooltip model) |> Maybe.withDefault none
         , column [ width fill, height fill ]
             (let
-                rootNode =
-                    ( 0, model.searchModel.problem.initialState )
+                s =
+                    model.searchModel.problem.initialState
              in
              [ Element.el
                 [ width fill
                 , Events.onMouseEnter (model.msg Nothing)
                 ]
                 (Element.el [ centerX, padding 20 ]
-                    (info model rootNode)
+                    (info model ( 0, s ))
                 )
              , row
                 [ width fill
                 , height fill
                 ]
-                (childRow model True [ rootNode ])
+                (childRow model True s)
              ]
             )
         ]
@@ -66,41 +67,36 @@ html model =
 boxify :
     Model comparable msg
     -> Bool
-    -> List ( Float, comparable )
+    -> (Float, comparable)
     -> Element msg
-boxify model flip path =
-    case path of
-        (( pathCost, state ) as h) :: _ ->
-            columnOrRow
-                flip
-                (boxAttributes model.searchModel h)
-                (let
-                    empty =
-                        Element.el
-                            [ width (fillPortion 10)
-                            , height (fillPortion 10)
-                            , Events.onMouseEnter (model.msg (Just h))
-                            ]
-                            none
-                 in
-                 (case model.searchModel.solution of
-                    Search.Solution a ->
-                        if a.state == state then
-                            Element.el
-                                [ Events.onMouseEnter (model.msg Nothing) ]
-                                (info model ( pathCost, state ))
+boxify model flip (pathCost, state) =
+    columnOrRow
+        flip
+        (boxAttributes model.searchModel (pathCost, state))
+        (let
+            empty =
+                Element.el
+                    [ width (fillPortion 10)
+                    , height (fillPortion 10)
+                    , Events.onMouseEnter (model.msg (Just (pathCost, state)))
+                    ]
+                    none
+         in
+         (case model.searchModel.solution of
+            Search.Solution ( s, _ ) ->
+                if s == state then
+                    Element.el
+                        [ Events.onMouseEnter (model.msg Nothing) ]
+                        (info model ( pathCost, state ))
 
-                        else
-                            empty
+                else
+                    empty
 
-                    _ ->
-                        empty
-                 )
-                    :: childRow model flip path
-                )
-
-        _ ->
-            none
+            _ ->
+                empty
+         )
+            :: childRow model flip state
+        )
 
 
 boxAttributes : Search.Model state state -> ( Float, state ) -> List (Attribute msg)
@@ -121,8 +117,8 @@ boxAttributes model ( pathCost, state ) =
     --, Border.width 1
     ]
         ++ (case model.solution of
-                Search.Solution a ->
-                    if a.state == state then
+                Search.Solution ( s, _ ) ->
+                    if s == state then
                         [ Background.color (rgb 1 1 1), padding 20 ]
 
                     else
@@ -136,12 +132,15 @@ boxAttributes model ( pathCost, state ) =
 childRow :
     Model comparable msg
     -> Bool
-    -> List ( Float, comparable )
+    -> comparable
     -> List (Element msg)
-childRow model flip path =
+childRow model flip state =
     let
         children =
-            Maybe.withDefault [] (Dict.get path model.searchModel.explored)
+            Dict.get state model.searchModel.explored
+                |> Maybe.map .children
+                |> Maybe.join
+                |> Maybe.withDefault []
     in
     if List.length children > 0 then
         [ columnOrRow
@@ -157,7 +156,7 @@ childRow model flip path =
                         boxify
                             model
                             (not flip)
-                            (child :: path)
+                            child
                     )
             )
         ]
