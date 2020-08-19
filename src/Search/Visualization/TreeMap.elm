@@ -10,6 +10,7 @@ import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Maybe.Extra as Maybe
 import Search
+import Search.Result exposing (Result(..))
 
 
 type alias Model comparable msg =
@@ -22,7 +23,10 @@ type alias Model comparable msg =
 
 type alias Tooltip a =
     { node : Maybe ( Float, a )
-    , position : ( Float, Float )
+    , position :
+        { x : Float
+        , y : Float
+        }
     }
 
 
@@ -34,26 +38,12 @@ el model =
         , pointer
         , Events.onMouseLeave (model.msg Nothing)
         ]
-        [ model.tooltip |> Maybe.map (tooltip model) |> Maybe.withDefault none
-        , column [ width fill, height fill ]
-            (let
-                s =
-                    model.searchModel.problem.initialState
-             in
-             [ Element.el
-                [ width fill
-                , Events.onMouseEnter (model.msg Nothing)
-                ]
-                (Element.el [ centerX, padding 20 ]
-                    (info model ( 0, s ))
-                )
-             , row
-                [ width fill
-                , height fill
-                ]
-                (childRow model True s)
-             ]
-            )
+        [ -- tooltip
+          model.tooltip
+            |> Maybe.map (tooltip model)
+            |> Maybe.withDefault none
+        , -- diagram
+          box model True True ( 0, model.searchModel.problem.initialState )
         ]
 
 
@@ -64,105 +54,93 @@ html model =
         (el model)
 
 
-boxify :
+box :
     Model comparable msg
     -> Bool
-    -> (Float, comparable)
+    -> Bool
+    -> ( Float, comparable )
     -> Element msg
-boxify model flip (pathCost, state) =
-    columnOrRow
-        flip
-        (boxAttributes model.searchModel (pathCost, state))
-        (let
-            empty =
-                Element.el
-                    [ width (fillPortion 10)
-                    , height (fillPortion 10)
-                    , Events.onMouseEnter (model.msg (Just (pathCost, state)))
-                    ]
-                    none
-         in
-         (case model.searchModel.solution of
-            Search.Solution ( s, _ ) ->
-                if s == state then
-                    Element.el
-                        [ Events.onMouseEnter (model.msg Nothing) ]
-                        (info model ( pathCost, state ))
-
-                else
-                    empty
-
-            _ ->
-                empty
-         )
-            :: childRow model flip state
-        )
-
-
-boxAttributes : Search.Model state state -> ( Float, state ) -> List (Attribute msg)
-boxAttributes model ( pathCost, state ) =
-    let
-        c =
-            color pathCost model.maxPathCost
-
-        b =
-            c - 0.2
-    in
-    [ width fill
-    , height fill
-    , Background.color (rgb c c c)
-    , Border.rounded (round (20 * c))
-
-    --, Border.color (rgb b b b)
-    --, Border.width 1
-    ]
-        ++ (case model.solution of
-                Search.Solution ( s, _ ) ->
-                    if s == state then
-                        [ Background.color (rgb 1 1 1), padding 20 ]
-
-                    else
-                        []
-
-                _ ->
-                    []
-           )
-
-
-childRow :
-    Model comparable msg
-    -> Bool
-    -> comparable
-    -> List (Element msg)
-childRow model flip state =
+box model withInfo flip ( pathCost, state ) =
     let
         children =
             Dict.get state model.searchModel.explored
                 |> Maybe.map .children
                 |> Maybe.join
+                |> Maybe.map
+                    (List.filter
+                        (\( pathCost_, state_ ) ->
+                            (model.searchModel.explored
+                                |> Dict.get state_
+                                |> Maybe.map .pathCost
+                            )
+                                == Just pathCost_
+                        )
+                    )
                 |> Maybe.withDefault []
+
+        c =
+            1 - (pathCost / max model.searchModel.maxPathCost 5 * 0.8)
+
+        isInSolutionPath =
+            model.searchModel.solution
+                |> Search.Result.map (Search.path model.searchModel >> List.map Tuple.second)
+                |> Search.Result.withDefault []
+                |> List.member state
+
+        minimum_ =
+            if isInSolutionPath then
+                minimum 20
+
+            else
+                identity
     in
-    if List.length children > 0 then
-        [ columnOrRow
+    columnOrRow flip
+        ([ Background.color (rgb c c c)
+         , Border.rounded (round (20 * c))
+         , width (fillPortion 10)
+         , height (fillPortion 10)
+         ]
+            ++ (if withInfo then
+                    [ Background.color (rgb 1 1 1)
+                    , Events.onMouseEnter (model.msg Nothing)
+                    ]
+
+                else
+                    []
+               )
+        )
+        [ if withInfo then
+            info model ( pathCost, state )
+
+          else
+            Element.el
+                [ width (fillPortion 10 |> minimum_)
+                , height (fillPortion 10 |> minimum_)
+                , Events.onMouseEnter (model.msg (Just ( pathCost, state )))
+                ]
+                none
+        , columnOrRow
             (not flip)
             [ width (fillPortion 90)
             , height (fillPortion 90)
-            , spacing 2
-            , padding 2
+            , spacing (round (5 * c))
             ]
             (children
                 |> List.map
-                    (\child ->
-                        boxify
+                    (\( pathCost_, state_ ) ->
+                        box
                             model
+                            ((model.searchModel.solution
+                                |> Search.Result.map (\( s, _ ) -> s == state_)
+                                |> Search.Result.withDefault False
+                             )
+                                == True
+                            )
                             (not flip)
-                            child
+                            ( pathCost_, state_ )
                     )
             )
         ]
-
-    else
-        []
 
 
 columnOrRow : Bool -> (List (Attribute msg) -> List (Element msg) -> Element msg)
@@ -174,19 +152,17 @@ columnOrRow flip =
         row
 
 
-color : Float -> Float -> Float
-color pathCost maxPathCost =
-    1 - (pathCost / max maxPathCost 5 * 0.8)
 
-
-
--- STATE INFO BOX
+-- INFO BOX ABOUT SEARCH STATE
 
 
 info : Model state msg -> ( Float, state ) -> Element msg
 info model ( pathCost, state ) =
     column
-        [ spacing 20 ]
+        [ spacing 20
+        , centerX
+        , padding 10
+        ]
         [ Element.el
             [ centerX ]
             (Element.html (model.visualizeState state))
@@ -215,7 +191,15 @@ tooltip model { node, position } =
     case node of
         Just n ->
             Element.el
-                (tooltipAttributes position)
+                (List.map htmlAttribute
+                    [ style "left" (String.fromFloat (position.x + 10) ++ "px")
+                    , style "top" (String.fromFloat (position.y + 10) ++ "px")
+                    , style "z-index" "1"
+                    ]
+                    ++ [ width shrink
+                       , height (maximum 0 shrink)
+                       ]
+                )
                 (Element.el
                     [ Background.color (rgb 1 1 1)
                     , Border.rounded 5
@@ -227,15 +211,3 @@ tooltip model { node, position } =
 
         Nothing ->
             none
-
-
-tooltipAttributes : ( Float, Float ) -> List (Attribute msg)
-tooltipAttributes ( x, y ) =
-    List.map htmlAttribute
-        [ style "left" (String.fromFloat (x + 10) ++ "px")
-        , style "top" (String.fromFloat (y + 10) ++ "px")
-        , style "z-index" "1"
-        ]
-        ++ [ width shrink
-           , height (maximum 0 shrink)
-           ]
