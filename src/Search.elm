@@ -171,15 +171,7 @@ init strategy queue problem =
     { strategy = strategy
     , queue = queue
     , problem = problem
-    , explored =
-        Dict.fromList
-            [ ( problem.stateToComparable problem.initialState
-              , { parent = Nothing
-                , pathCost = 0
-                , children = Nothing
-                }
-              )
-            ]
+    , explored = Dict.empty
     , frontier = [ problem.initialState ]
     , solution = Pending
     , maxPathCost = 0
