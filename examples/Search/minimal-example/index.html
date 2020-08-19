@@ -5158,6 +5158,55 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$document = _Browser_document;
+var $author$project$Search$Problem$emptyNode = {children: $elm$core$Maybe$Nothing, parent: $elm$core$Maybe$Nothing, pathCost: 0};
+var $elm$core$Basics$compare = _Utils_compare;
+var $elm$core$Dict$get = F2(
+	function (targetKey, dict) {
+		get:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var _v1 = A2($elm$core$Basics$compare, targetKey, key);
+				switch (_v1.$) {
+					case 'LT':
+						var $temp$targetKey = targetKey,
+							$temp$dict = left;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+					case 'EQ':
+						return $elm$core$Maybe$Just(value);
+					default:
+						var $temp$targetKey = targetKey,
+							$temp$dict = right;
+						targetKey = $temp$targetKey;
+						dict = $temp$dict;
+						continue get;
+				}
+			}
+		}
+	});
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $author$project$Search$getUnsafe = F2(
+	function (el, dict) {
+		return A2(
+			$elm$core$Maybe$withDefault,
+			$author$project$Search$Problem$emptyNode,
+			A2($elm$core$Dict$get, el, dict));
+	});
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
 		any:
@@ -5190,109 +5239,37 @@ var $elm$core$List$filter = F2(
 			_List_Nil,
 			list);
 	});
-var $elm_community$list_extra$List$Extra$find = F2(
-	function (predicate, list) {
-		find:
-		while (true) {
-			if (!list.b) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var first = list.a;
-				var rest = list.b;
-				if (predicate(first)) {
-					return $elm$core$Maybe$Just(first);
-				} else {
-					var $temp$predicate = predicate,
-						$temp$list = rest;
-					predicate = $temp$predicate;
-					list = $temp$list;
-					continue find;
-				}
-			}
-		}
-	});
-var $elm$core$Basics$ge = _Utils_ge;
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $elm$core$Maybe$map = F2(
-	function (f, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return $elm$core$Maybe$Just(
-				f(value));
+var $elm$core$Dict$member = F2(
+	function (key, dict) {
+		var _v0 = A2($elm$core$Dict$get, key, dict);
+		if (_v0.$ === 'Just') {
+			return true;
 		} else {
-			return $elm$core$Maybe$Nothing;
+			return false;
 		}
 	});
 var $elm$core$Basics$not = _Basics_not;
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
 var $author$project$Search$graphSearch = {
 	frontier: F5(
-		function (problem, explored, h, t, childNodes) {
-			return _Utils_ap(
-				$elm$core$List$reverse(
-					A2(
-						$elm$core$List$filter,
-						function (newNode) {
-							return (!_Utils_eq(newNode.state, h.state)) && ((!A2(
-								$elm$core$List$any,
-								function (otherNewNode) {
-									return _Utils_eq(newNode.state, otherNewNode.state) && (_Utils_cmp(newNode.pathCost, otherNewNode.pathCost) < 0);
-								},
-								childNodes)) && ((!A2(
-								$elm$core$List$any,
-								function (exploredNode) {
-									return _Utils_eq(
-										$elm$core$Maybe$Just(
-											problem.stateToComparable(newNode.state)),
-										A2(
-											$elm$core$Maybe$map,
-											$elm$core$Tuple$second,
-											$elm$core$List$head(exploredNode)));
-								},
-								$elm$core$Dict$keys(explored))) && function () {
-								var _v0 = A2(
-									$elm_community$list_extra$List$Extra$find,
-									function (node) {
-										return _Utils_eq(node.state, newNode.state);
-									},
-									t);
-								if (_v0.$ === 'Just') {
-									var node = _v0.a;
-									return _Utils_cmp(newNode.pathCost, node.pathCost) < 0;
-								} else {
-									return true;
-								}
-							}()));
+		function (problem, explored, childNodes, h, t) {
+			return A2(
+				$elm$core$List$filter,
+				function (_v0) {
+					var state = _v0.a;
+					var pathCost = _v0.b.pathCost;
+					return (!_Utils_eq(state, h)) && ((!A2(
+						$elm$core$List$any,
+						function (_v1) {
+							var state_ = _v1.a;
+							var sibling = _v1.b;
+							return _Utils_eq(state, state_) && (_Utils_cmp(pathCost, sibling.pathCost) < 0);
 						},
-						childNodes)),
-				A2(
-					$elm$core$List$filter,
-					function (node) {
-						var _v1 = A2(
-							$elm_community$list_extra$List$Extra$find,
-							function (newNode) {
-								return _Utils_eq(node.state, newNode.state);
-							},
-							childNodes);
-						if (_v1.$ === 'Just') {
-							var newNode = _v1.a;
-							return _Utils_cmp(newNode.pathCost, node.pathCost) > -1;
-						} else {
-							return true;
-						}
-					},
-					t));
+						childNodes)) && (!A2(
+						$elm$core$Dict$member,
+						problem.stateToComparable(state),
+						explored)));
+				},
+				childNodes);
 		})
 };
 var $author$project$Search$Pending = {$: 'Pending'};
@@ -5303,15 +5280,23 @@ var $author$project$Search$init = F3(
 		return {
 			explored: $elm$core$Dict$empty,
 			frontier: _List_fromArray(
-				[
-					{parent: $elm$core$Maybe$Nothing, pathCost: 0, state: problem.initialState}
-				]),
+				[problem.initialState]),
 			maxPathCost: 0,
 			problem: problem,
 			queue: queue,
 			solution: $author$project$Search$Pending,
 			strategy: strategy
 		};
+	});
+var $elm$core$Maybe$map = F2(
+	function (f, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return $elm$core$Maybe$Just(
+				f(value));
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
 	});
 var $elm_community$list_extra$List$Extra$minimumBy = F2(
 	function (f, ls) {
@@ -5357,16 +5342,20 @@ var $elm_community$list_extra$List$Extra$remove = F2(
 	});
 var $author$project$Search$priority = function (f) {
 	return {
-		pop: function (l) {
-			return A2(
-				$elm$core$Maybe$map,
-				function (a) {
-					return _Utils_Tuple2(
-						a,
-						A2($elm_community$list_extra$List$Extra$remove, a, l));
-				},
-				A2($elm_community$list_extra$List$Extra$minimumBy, f, l));
-		}
+		pop: F2(
+			function (d, l) {
+				return A2(
+					$elm$core$Maybe$map,
+					function (a) {
+						return _Utils_Tuple2(
+							a,
+							A2($elm_community$list_extra$List$Extra$remove, a, l));
+					},
+					A2(
+						$elm_community$list_extra$List$Extra$minimumBy,
+						f(d),
+						l));
+			})
 	};
 };
 var $author$project$Search$bestFirst = function (problem) {
@@ -5374,9 +5363,13 @@ var $author$project$Search$bestFirst = function (problem) {
 		$author$project$Search$init,
 		$author$project$Search$graphSearch,
 		$author$project$Search$priority(
-			function (node) {
-				return node.pathCost + problem.heuristic(node.state);
-			}),
+			F2(
+				function (explored, state) {
+					return A2(
+						$author$project$Search$getUnsafe,
+						problem.stateToComparable(state),
+						explored).pathCost + problem.heuristic(state);
+				})),
 		problem);
 };
 var $elm$core$List$append = F2(
@@ -5447,6 +5440,15 @@ var $elm$core$List$drop = F2(
 			}
 		}
 	});
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
 var $elm_community$list_extra$List$Extra$getAt = F2(
 	function (idx, xs) {
 		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
@@ -5709,15 +5711,6 @@ var $elm_community$maybe_extra$Maybe$Extra$cons = F2(
 		}
 	});
 var $elm_community$maybe_extra$Maybe$Extra$values = A2($elm$core$List$foldr, $elm_community$maybe_extra$Maybe$Extra$cons, _List_Nil);
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Search$Problem$NPuzzle$nPuzzle = function (validState) {
 	var s = $author$project$Search$Problem$NPuzzle$sideLength(validState);
 	return {
@@ -5770,16 +5763,16 @@ var $author$project$Search$Problem$NPuzzle$nPuzzle = function (validState) {
 		stateToComparable: $elm$core$Basics$identity
 	};
 };
-var $author$project$Search$Problem$NPuzzle$mediumEightPuzzle = $author$project$Search$Problem$NPuzzle$nPuzzle(
+var $author$project$Search$Problem$NPuzzle$complexEightPuzzle = $author$project$Search$Problem$NPuzzle$nPuzzle(
 	$elm$core$List$concat(
 		_List_fromArray(
 			[
 				_List_fromArray(
-				[1, 4, 2]),
+				[7, 2, 4]),
 				_List_fromArray(
-				[3, 5, 8]),
+				[5, 0, 6]),
 				_List_fromArray(
-				[0, 6, 7])
+				[8, 3, 1])
 			])));
 var $author$project$Main$NewModel = function (a) {
 	return {$: 'NewModel', a: a};
@@ -5788,24 +5781,64 @@ var $author$project$Search$Failure = {$: 'Failure'};
 var $author$project$Search$Solution = function (a) {
 	return {$: 'Solution', a: a};
 };
-var $author$project$Search$Problem$Parent = function (a) {
-	return {$: 'Parent', a: a};
-};
+var $elm$core$Basics$composeR = F3(
+	function (f, g, x) {
+		return g(
+			f(x));
+	});
 var $author$project$Search$Problem$expand = F2(
-	function (problem, node) {
-		return A2(
+	function (problem, _v0) {
+		var state = _v0.a;
+		var node = _v0.b;
+		var children = A2(
 			$elm$core$List$map,
-			function (_v0) {
-				var stepCost = _v0.a;
-				var result = _v0.b;
-				return {
-					parent: $elm$core$Maybe$Just(
-						$author$project$Search$Problem$Parent(node)),
-					pathCost: node.pathCost + stepCost,
-					state: result
-				};
+			function (_v2) {
+				var stepCost = _v2.a;
+				var result = _v2.b;
+				return _Utils_Tuple2(
+					result,
+					{
+						children: $elm$core$Maybe$Nothing,
+						parent: $elm$core$Maybe$Just(state),
+						pathCost: node.pathCost + stepCost
+					});
 			},
-			problem.actions(node.state));
+			problem.actions(state));
+		var updatedParent = _Utils_update(
+			node,
+			{
+				children: $elm$core$Maybe$Just(
+					A2(
+						$elm$core$List$map,
+						function (_v1) {
+							var state_ = _v1.a;
+							var node_ = _v1.b;
+							return _Utils_Tuple2(node_.pathCost, state_);
+						},
+						children))
+			});
+		return _Utils_Tuple2(updatedParent, children);
+	});
+var $elm_community$list_extra$List$Extra$find = F2(
+	function (predicate, list) {
+		find:
+		while (true) {
+			if (!list.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var first = list.a;
+				var rest = list.b;
+				if (predicate(first)) {
+					return $elm$core$Maybe$Just(first);
+				} else {
+					var $temp$predicate = predicate,
+						$temp$list = rest;
+					predicate = $temp$predicate;
+					list = $temp$list;
+					continue find;
+				}
+			}
+		}
 	});
 var $elm$core$Dict$Black = {$: 'Black'};
 var $elm$core$Dict$RBNode_elm_builtin = F5(
@@ -5867,7 +5900,6 @@ var $elm$core$Dict$balance = F5(
 			}
 		}
 	});
-var $elm$core$Basics$compare = _Utils_compare;
 var $elm$core$Dict$insertHelp = F3(
 	function (key, value, dict) {
 		if (dict.$ === 'RBEmpty_elm_builtin') {
@@ -5916,73 +5948,123 @@ var $elm$core$Dict$insert = F3(
 			return x;
 		}
 	});
-var $author$project$Search$Problem$path = function (node) {
-	var _v0 = node.parent;
-	if (_v0.$ === 'Just') {
-		var p = _v0.a.a;
-		return A2(
-			$elm$core$List$cons,
-			_Utils_Tuple2(node.pathCost, node.state),
-			$author$project$Search$Problem$path(p));
-	} else {
-		return _List_fromArray(
-			[
-				_Utils_Tuple2(node.pathCost, node.state)
-			]);
-	}
+var $elm$core$Dict$fromList = function (assocs) {
+	return A3(
+		$elm$core$List$foldl,
+		F2(
+			function (_v0, dict) {
+				var key = _v0.a;
+				var value = _v0.b;
+				return A3($elm$core$Dict$insert, key, value, dict);
+			}),
+		$elm$core$Dict$empty,
+		assocs);
 };
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
+var $elm$core$Dict$foldl = F3(
+	function (func, acc, dict) {
+		foldl:
+		while (true) {
+			if (dict.$ === 'RBEmpty_elm_builtin') {
+				return acc;
+			} else {
+				var key = dict.b;
+				var value = dict.c;
+				var left = dict.d;
+				var right = dict.e;
+				var $temp$func = func,
+					$temp$acc = A3(
+					func,
+					key,
+					value,
+					A3($elm$core$Dict$foldl, func, acc, left)),
+					$temp$dict = right;
+				func = $temp$func;
+				acc = $temp$acc;
+				dict = $temp$dict;
+				continue foldl;
+			}
+		}
+	});
+var $elm$core$Dict$union = F2(
+	function (t1, t2) {
+		return A3($elm$core$Dict$foldl, $elm$core$Dict$insert, t2, t1);
+	});
 var $author$project$Search$searchStep = F3(
 	function (strategy, queue, model) {
 		var problem = model.problem;
 		var explored = model.explored;
-		var _v0 = queue.pop(model.frontier);
+		var _v0 = A2(queue.pop, explored, model.frontier);
 		if (_v0.$ === 'Just') {
 			var _v1 = _v0.a;
 			var h = _v1.a;
 			var t = _v1.b;
-			var childNodes = A2($author$project$Search$Problem$expand, problem, h);
+			var _v2 = A2(
+				$author$project$Search$Problem$expand,
+				problem,
+				_Utils_Tuple2(
+					h,
+					A2(
+						$elm$core$Maybe$withDefault,
+						$author$project$Search$Problem$emptyNode,
+						A2(
+							$elm$core$Dict$get,
+							problem.stateToComparable(h),
+							explored))));
+			var updatedParent = _v2.a;
+			var childNodes = _v2.b;
+			var filteredChildNodes = A5(strategy.frontier, problem, explored, childNodes, h, t);
 			return _Utils_update(
 				model,
 				{
-					explored: A3(
-						$elm$core$Dict$insert,
-						A2(
-							$elm$core$List$map,
-							function (_v2) {
-								var pathCost = _v2.a;
-								var state = _v2.b;
-								return _Utils_Tuple2(
-									pathCost,
-									problem.stateToComparable(state));
-							},
-							$author$project$Search$Problem$path(h)),
-						A2(
-							$elm$core$List$map,
-							function (node) {
-								return _Utils_Tuple2(node.pathCost, node.state);
-							},
-							childNodes),
-						explored),
-					frontier: A5(strategy.frontier, problem, explored, h, t, childNodes),
+					explored: A2(
+						$elm$core$Dict$union,
+						$elm$core$Dict$fromList(
+							A2(
+								$elm$core$List$map,
+								function (_v3) {
+									var a = _v3.a;
+									var node = _v3.b;
+									return _Utils_Tuple2(
+										problem.stateToComparable(a),
+										node);
+								},
+								filteredChildNodes)),
+						A3(
+							$elm$core$Dict$insert,
+							problem.stateToComparable(h),
+							updatedParent,
+							explored)),
+					frontier: _Utils_ap(
+						$elm$core$List$reverse(
+							A2($elm$core$List$map, $elm$core$Tuple$first, filteredChildNodes)),
+						t),
 					maxPathCost: A3(
 						$elm$core$List$foldl,
 						$elm$core$Basics$max,
 						model.maxPathCost,
 						A2(
 							$elm$core$List$map,
-							function ($) {
-								return $.pathCost;
-							},
+							A2(
+								$elm$core$Basics$composeR,
+								$elm$core$Tuple$second,
+								function ($) {
+									return $.pathCost;
+								}),
 							childNodes)),
 					solution: function () {
-						var _v3 = A2(
+						var _v4 = A2(
 							$elm_community$list_extra$List$Extra$find,
-							function (node) {
-								return problem.goalTest(node.state);
+							function (_v5) {
+								var a = _v5.a;
+								return problem.goalTest(a);
 							},
 							childNodes);
-						if (_v3.$ === 'Just') {
-							var a = _v3.a;
+						if (_v4.$ === 'Just') {
+							var a = _v4.a;
 							return $author$project$Search$Solution(a);
 						} else {
 							return model.solution;
@@ -6019,7 +6101,7 @@ var $author$project$Main$searchTask = function (model) {
 	}
 };
 var $author$project$Main$init = function (_v0) {
-	var initialModel = $author$project$Search$bestFirst($author$project$Search$Problem$NPuzzle$mediumEightPuzzle);
+	var initialModel = $author$project$Search$bestFirst($author$project$Search$Problem$NPuzzle$complexEightPuzzle);
 	return _Utils_Tuple2(
 		initialModel,
 		$author$project$Main$searchTask(initialModel));
@@ -6087,12 +6169,7 @@ var $author$project$Main$main = $elm$browser$Browser$document(
 							[
 								$elm$html$Html$text(
 								$elm$core$Debug$toString(
-									A2(
-										$author$project$Search$Result$map,
-										function ($) {
-											return $.state;
-										},
-										model.solution)))
+									A2($author$project$Search$Result$map, $elm$core$Tuple$first, model.solution)))
 							])),
 						A2(
 						$elm$html$Html$p,

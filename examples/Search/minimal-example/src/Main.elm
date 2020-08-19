@@ -37,18 +37,18 @@ init =
     \_ ->
         let
             initialModel =
-                Search.bestFirst mediumEightPuzzle
+                Search.bestFirst complexEightPuzzle
         in
         ( initialModel, searchTask initialModel )
 
-
+ 
 main =
     Browser.document
         { view =
             \model ->
                 { title = "Breadth-first search of 8-Puzzle"
                 , body =
-                    [ p [] [ text (model.solution |> Search.Result.map .state |> Debug.toString) ]
+                    [ p [] [ text (model.solution |> Search.Result.map Tuple.first |> Debug.toString) ]
                     , p [] [ text (model.explored |> Dict.size |> String.fromInt) ]
                     ]
                 }

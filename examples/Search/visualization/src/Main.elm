@@ -5,14 +5,15 @@ import Browser.Events
 import Html exposing (p, text)
 import Json.Decode
 import Process
-import Search exposing (Result(..))
+import Search
+import Search.Result exposing (Result(..))
 import Search.Problem.Graph exposing (routeFinding)
 import Search.Problem.NPuzzle as NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle, visualize)
 import Search.Problem.Romania as Romania
 import Search.Visualization.TreeMap as TreeMap
 import Task
 
-
+ 
 type alias State =
     List Int
 
@@ -20,7 +21,7 @@ type alias State =
 type Msg
     = NewModel (Search.Model State State)
     | Show (Maybe ( Float, State ))
-    | Move ( Float, Float )
+    | Move { x : Float, y : Float }
 
 
 type alias Model =
@@ -37,7 +38,7 @@ main =
         , init = init
         , update = update
         , subscriptions =
-            \_ -> Browser.Events.onMouseMove (Json.Decode.map Move decode)
+            \_ -> Browser.Events.onMouseMove (Json.Decode.map Move decodeMove)
         }
 
 
@@ -51,7 +52,7 @@ init =
         ( { searchModel = initialModel
           , msg = Show
           , visualizeState = NPuzzle.visualize
-          , tooltip = Just { node = Nothing, position = ( 0, 0 ) }
+          , tooltip = Just { node = Nothing, position = { x = 0, y = 0 } }
           }
         , searchTask initialModel
         )
@@ -68,13 +69,13 @@ update msg ({ tooltip } as model) =
         Show s ->
             ( { model | tooltip = tooltip |> Maybe.map (\t -> { t | node = s }) }, Cmd.none )
 
-        Move ( x, y ) ->
-            ( { model | tooltip = tooltip |> Maybe.map (\t -> { t | position = ( x, y ) }) }, Cmd.none )
+        Move p ->
+            ( { model | tooltip = tooltip |> Maybe.map (\t -> { t | position = p }) }, Cmd.none )
 
 
-decode : Json.Decode.Decoder ( Float, Float )
-decode =
-    Json.Decode.map2 (\a b -> ( a, b ))
+decodeMove : Json.Decode.Decoder { x : Float, y : Float }
+decodeMove =
+    Json.Decode.map2 (\a b -> { x = a, y = b })
         (Json.Decode.field "pageX" Json.Decode.float)
         (Json.Decode.field "pageY" Json.Decode.float)
 
@@ -83,6 +84,9 @@ searchTask : Search.Model State State -> Cmd Msg
 searchTask model =
     case model.solution of
         Pending ->
+            --Cmd.none
+
+        {--}
             Task.perform
                 NewModel
                 (Process.sleep 0
@@ -90,5 +94,6 @@ searchTask model =
                         (\_ -> Task.succeed (Search.next model))
                 )
 
+        --}
         _ ->
             Cmd.none
