@@ -35,6 +35,7 @@ In this example, the model of the application _is_ the model of the search algor
 import Dict exposing (Dict)
 import List.Extra as List
 import Search.Problem as Problem exposing (Node, emptyNode, expand)
+import Search.Result exposing (Result(..))
 
 
 type alias Problem a b =
@@ -102,9 +103,9 @@ graphSearch =
         \problem explored childNodes h t ->
             -- only add child node if
             -- a) their state is not the same as their parent's and
-            -- b) their state is not in a sibling node with a lower path cost TODO
+            -- b) their state is not in a sibling node with a lower path cost TODO other criteria
             -- c) their state is not already explored and
-            -- d) their state is not already in the frontier with a lower path cost TODO
+            -- d) their state is not already in the frontier with a lower path cost TODO other criteria
             childNodes
                 |> List.filter
                     (\( state, { pathCost } ) ->
@@ -132,10 +133,6 @@ graphSearch =
 -- MODEL
 
 
-type Result a
-    = Pending
-    | Solution a
-    | Failure
 
 
 {-| This record represents the inner state of the search algorithm. You can integrate it into the model of your web application.

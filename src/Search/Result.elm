@@ -1,16 +1,33 @@
-module Search.Result exposing (map)
-
-import Search
+module Search.Result exposing (Result(..), map, withDefault)
 
 
-map : (a -> b) -> Search.Result a -> Search.Result b
-map f r =
-    case r of
-        Search.Solution a ->
-            Search.Solution (f a)
+type Result a
+    = Pending
+    | Solution a
+    | Failure
 
-        Search.Pending ->
-            Search.Pending
 
-        Search.Failure ->
-            Search.Failure
+map : (a -> b) -> Result a -> Result b
+map f result =
+    case result of
+        Solution a ->
+            Solution (f a)
+
+        Pending ->
+            Pending
+
+        Failure ->
+            Failure
+
+
+withDefault : a -> Result a -> a
+withDefault default result =
+    case result of
+        Solution a ->
+            a
+
+        Pending ->
+            default
+
+        Failure ->
+            default
