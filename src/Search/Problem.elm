@@ -3,8 +3,6 @@ module Search.Problem exposing (..)
 {-| This deviates from the AIMA book, where there are distinct `actions`, `result` and `stepCost` functions. I find a pure graph model more suitable, so there is a single function (called `actions`) which for each state reveals a list of tuples containing adjacent states and their respective step costs.
 -}
 
-import Dict exposing (Dict)
-
 
 type alias Problem a comparable =
     { initialState : a
@@ -18,19 +16,16 @@ type alias Problem a comparable =
 type alias Node a =
     { parent : Maybe a
     , pathCost : Float
-    , children : Maybe (List a)
+    , children : Maybe (List ( Float, a ))
     }
 
 
+emptyNode : Node a
 emptyNode =
     { parent = Nothing
     , pathCost = 0
     , children = Nothing
     }
-
-
-type Parent a
-    = Parent (Node a)
 
 
 expand : Problem a b -> ( a, Node a ) -> ( Node a, List ( a, Node a ) )
@@ -47,5 +42,13 @@ expand problem ( state, node ) =
                     )
                 )
                 (problem.actions state)
+
+        updatedParent =
+            { node
+                | children =
+                    children
+                        |> List.map (\( state_, node_ ) -> ( node_.pathCost, state_ ))
+                        |> Just
+            }
     in
-    ( { node | children = Just (List.map Tuple.first children) }, children )
+    ( updatedParent, children )
