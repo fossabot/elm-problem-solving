@@ -6,14 +6,14 @@ import Html exposing (p, text)
 import Json.Decode
 import Process
 import Search
-import Search.Result exposing (Result(..))
 import Search.Problem.Graph exposing (routeFinding)
 import Search.Problem.NPuzzle as NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle, visualize)
 import Search.Problem.Romania as Romania
+import Search.Result exposing (Result(..))
 import Search.Visualization.TreeMap as TreeMap
 import Task
 
- 
+
 type alias State =
     List Int
 
@@ -25,15 +25,17 @@ type Msg
 
 
 type alias Model =
-    TreeMap.Model State Msg
+    { searchModel : Search.Model State State
+    , tooltip : TreeMap.Tooltip State
+    }
 
 
 main =
     Browser.document
         { view =
-            \model ->
+            \{ tooltip, searchModel } ->
                 { title = "Breadth-first search of 8-Puzzle"
-                , body = [ TreeMap.html model ]
+                , body = [ TreeMap.html Show NPuzzle.visualize (Just tooltip) searchModel ]
                 }
         , init = init
         , update = update
@@ -47,12 +49,10 @@ init =
     \_ ->
         let
             initialModel =
-                Search.breadthFirst mediumEightPuzzle
+                Search.bestFirst complexEightPuzzle
         in
         ( { searchModel = initialModel
-          , msg = Show
-          , visualizeState = NPuzzle.visualize
-          , tooltip = Just { node = Nothing, position = { x = 0, y = 0 } }
+          , tooltip = { node = Nothing, position = { x = 0, y = 0 } }
           }
         , searchTask initialModel
         )
@@ -67,10 +67,10 @@ update msg ({ tooltip } as model) =
             )
 
         Show s ->
-            ( { model | tooltip = tooltip |> Maybe.map (\t -> { t | node = s }) }, Cmd.none )
+            ( { model | tooltip = { tooltip | node = s } }, Cmd.none )
 
         Move p ->
-            ( { model | tooltip = tooltip |> Maybe.map (\t -> { t | position = p }) }, Cmd.none )
+            ( { model | tooltip = { tooltip | position = p } }, Cmd.none )
 
 
 decodeMove : Json.Decode.Decoder { x : Float, y : Float }
@@ -84,16 +84,12 @@ searchTask : Search.Model State State -> Cmd Msg
 searchTask model =
     case model.solution of
         Pending ->
-            --Cmd.none
-
-        {--}
             Task.perform
                 NewModel
                 (Process.sleep 0
                     |> Task.andThen
-                        (\_ -> Task.succeed (Search.next model))
+                        (\_ -> Task.succeed (Search.nextN 50 model))
                 )
 
-        --}
         _ ->
             Cmd.none

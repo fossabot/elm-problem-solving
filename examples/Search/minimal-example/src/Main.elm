@@ -11,7 +11,7 @@ import Task
 
 
 type alias State =
-    List Int
+    List Int 
 
 
 type Msg
@@ -20,12 +20,12 @@ type Msg
 
 searchTask model =
     case model.solution of
-        Search.Pending ->
+        Search.Result.Pending ->
             Task.perform
                 NewModel
                 (Process.sleep 0
                     |> Task.andThen
-                        (\_ -> Task.succeed (Search.next model))
+                        (\_ -> Task.succeed (Search.nextN 500 model))
                 )
 
         _ ->

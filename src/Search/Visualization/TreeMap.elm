@@ -6,19 +6,12 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
+import Element.Lazy exposing (lazy, lazy2)
 import Html exposing (Html)
 import Html.Attributes exposing (style)
 import Maybe.Extra as Maybe
 import Search
 import Search.Result exposing (Result(..))
-
-
-type alias Model comparable msg =
-    { searchModel : Search.Model comparable comparable
-    , msg : Maybe ( Float, comparable ) -> msg
-    , visualizeState : comparable -> Html msg
-    , tooltip : Maybe (Tooltip comparable)
-    }
 
 
 type alias Tooltip a =
@@ -30,47 +23,59 @@ type alias Tooltip a =
     }
 
 
-el : Model comparable msg -> Element msg
-el model =
+el :
+    (Maybe ( Float, a ) -> msg)
+    -> (a -> Html msg)
+    -> Maybe (Tooltip a)
+    -> Search.Model a comparable
+    -> Element msg
+el msg visualizeState tooltip_ model =
     column
         [ width fill
         , height fill
         , pointer
-        , Events.onMouseLeave (model.msg Nothing)
         ]
         [ -- tooltip
-          model.tooltip
-            |> Maybe.map (tooltip model)
+          tooltip_
+            |> Maybe.map (lazy (tooltip model visualizeState))
             |> Maybe.withDefault none
         , -- diagram
-          box model True True ( 0, model.searchModel.problem.initialState )
+          lazy2 (box msg visualizeState True True ( 0, model.problem.initialState )) (Maybe.map .node tooltip_ |> Maybe.join) model
         ]
 
 
-html : Model comparable msg -> Html msg
-html model =
+html :
+    (Maybe ( Float, a ) -> msg)
+    -> (a -> Html msg)
+    -> Maybe (Tooltip a)
+    -> Search.Model a comparable
+    -> Html msg
+html msg visualizeState tooltip_ model =
     layout
         [ width fill, height fill ]
-        (el model)
+        (el msg visualizeState tooltip_ model)
 
 
 box :
-    Model comparable msg
+    (Maybe ( Float, a ) -> msg)
+    -> (a -> Html msg)
     -> Bool
     -> Bool
-    -> ( Float, comparable )
+    -> ( Float, a )
+    -> Maybe ( Float, a )
+    -> Search.Model a comparable
     -> Element msg
-box model withInfo flip ( pathCost, state ) =
+box msg visualizeState withInfo flip ( pathCost, state ) tooltipNode model =
     let
         children =
-            Dict.get state model.searchModel.explored
+            Dict.get (model.problem.stateToComparable state) model.explored
                 |> Maybe.map .children
                 |> Maybe.join
                 |> Maybe.map
                     (List.filter
                         (\( pathCost_, state_ ) ->
-                            (model.searchModel.explored
-                                |> Dict.get state_
+                            (model.explored
+                                |> Dict.get (model.problem.stateToComparable state_)
                                 |> Maybe.map .pathCost
                             )
                                 == Just pathCost_
@@ -79,11 +84,11 @@ box model withInfo flip ( pathCost, state ) =
                 |> Maybe.withDefault []
 
         c =
-            1 - (pathCost / max model.searchModel.maxPathCost 5 * 0.8)
+            1 - (pathCost / max model.maxPathCost 5 * 0.8)
 
         isInSolutionPath =
-            model.searchModel.solution
-                |> Search.Result.map (Search.path model.searchModel >> List.map Tuple.second)
+            model.solution
+                |> Search.Result.map (Search.path model >> List.map Tuple.second)
                 |> Search.Result.withDefault []
                 |> List.member state
 
@@ -97,49 +102,63 @@ box model withInfo flip ( pathCost, state ) =
     columnOrRow flip
         ([ Background.color (rgb c c c)
          , Border.rounded (round (20 * c))
-         , width (fillPortion 10)
-         , height (fillPortion 10)
+         , width fill
+         , height fill
          ]
             ++ (if withInfo then
-                    [ Background.color (rgb 1 1 1)
-                    , Events.onMouseEnter (model.msg Nothing)
-                    ]
+                    [ Background.color (rgb 1 1 1) ]
 
                 else
-                    []
+                    let
+                        t =
+                            if tooltipNode == Just ( pathCost, state ) then
+                                1
+
+                            else
+                                0
+                    in
+                    [ Background.color (rgb (c + t * 0.5) (c - t * 0.2) (c - t * 0.2)) ]
                )
         )
         [ if withInfo then
-            info model ( pathCost, state )
+            info model visualizeState ( pathCost, state )
 
           else
             Element.el
                 [ width (fillPortion 10 |> minimum_)
                 , height (fillPortion 10 |> minimum_)
-                , Events.onMouseEnter (model.msg (Just ( pathCost, state )))
+                , Events.onMouseEnter (msg (Just ( pathCost, state )))
+                , Events.onMouseLeave (msg Nothing)
                 ]
                 none
-        , columnOrRow
-            (not flip)
-            [ width (fillPortion 90)
-            , height (fillPortion 90)
-            , spacing (round (5 * c))
-            ]
-            (children
-                |> List.map
-                    (\( pathCost_, state_ ) ->
-                        box
-                            model
-                            ((model.searchModel.solution
-                                |> Search.Result.map (\( s, _ ) -> s == state_)
-                                |> Search.Result.withDefault False
-                             )
-                                == True
-                            )
-                            (not flip)
-                            ( pathCost_, state_ )
-                    )
-            )
+        , if List.length children > 0 then
+            columnOrRow
+                (not flip)
+                [ width (fillPortion 90)
+                , height (fillPortion 90)
+                , spacing (round (5 * c))
+                ]
+                (children
+                    |> List.map
+                        (\( pathCost_, state_ ) ->
+                            box
+                                msg
+                                visualizeState
+                                ((model.solution
+                                    |> Search.Result.map (\( s, _ ) -> s == state_)
+                                    |> Search.Result.withDefault False
+                                 )
+                                    == True
+                                )
+                                (not flip)
+                                ( pathCost_, state_ )
+                                tooltipNode
+                                model
+                        )
+                )
+
+          else
+            none
         ]
 
 
@@ -153,11 +172,15 @@ columnOrRow flip =
 
 
 
--- INFO BOX ABOUT SEARCH STATE
+-- INFO BOX ABOUT THE SEARCH STATE
 
 
-info : Model state msg -> ( Float, state ) -> Element msg
-info model ( pathCost, state ) =
+info :
+    Search.Model a b
+    -> (a -> Html msg)
+    -> ( Float, a )
+    -> Element msg
+info searchModel visualizeState ( pathCost, state ) =
     column
         [ spacing 20
         , centerX
@@ -165,11 +188,11 @@ info model ( pathCost, state ) =
         ]
         [ Element.el
             [ centerX ]
-            (Element.html (model.visualizeState state))
+            (Element.html (visualizeState state))
         , column [ spacing 2, Font.size 12 ]
             [ infoRow "Path cost" pathCost
-            , infoRow "Heuristic" (model.searchModel.problem.heuristic state)
-            , infoRow "Sum" (pathCost + model.searchModel.problem.heuristic state)
+            , infoRow "Heuristic" (searchModel.problem.heuristic state)
+            , infoRow "Sum" (pathCost + searchModel.problem.heuristic state)
             ]
         ]
 
@@ -186,8 +209,8 @@ infoRow description number =
 -- TOOLTIP
 
 
-tooltip : Model state msg -> Tooltip state -> Element msg
-tooltip model { node, position } =
+tooltip : Search.Model a b -> (a -> Html msg) -> Tooltip a -> Element msg
+tooltip model visualizeState { node, position } =
     case node of
         Just n ->
             Element.el
@@ -206,7 +229,7 @@ tooltip model { node, position } =
                     , Border.glow (rgb 0.4 0.4 0.4) 2
                     , padding 10
                     ]
-                    (info model n)
+                    (info model visualizeState n)
                 )
 
         Nothing ->
