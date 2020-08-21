@@ -14,17 +14,10 @@ type alias Problem a comparable =
 
 
 type alias Node a =
-    { parent : Maybe a
+    { state : a
+    , parent : Maybe a
     , pathCost : Float
     , children : Maybe (List ( Float, a ))
-    }
-
-
-emptyNode : Node a
-emptyNode =
-    { parent = Nothing
-    , pathCost = 0
-    , children = Nothing
     }
 
 
@@ -35,7 +28,8 @@ expand problem ( state, node ) =
             List.map
                 (\( stepCost, result ) ->
                     ( result
-                    , { parent = Just state
+                    , { state = state
+                      , parent = Just state
                       , pathCost = node.pathCost + stepCost
                       , children = Nothing
                       }

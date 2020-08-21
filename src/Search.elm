@@ -34,7 +34,7 @@ In this example, the model of the application _is_ the model of the search algor
 
 import Dict exposing (Dict)
 import List.Extra as List
-import Search.Problem as Problem exposing (Node, emptyNode, expand)
+import Search.Problem as Problem exposing (Node, expand)
 import Search.Result exposing (Result(..))
 
 
@@ -133,8 +133,6 @@ graphSearch =
 -- MODEL
 
 
-
-
 {-| This record represents the inner state of the search algorithm. You can integrate it into the model of your web application.
 
 The `state` parameter refers to the `State` type of the search problem. For example, if you want to search an eight-puzzle, you can import it with `import Search.EightPuzzle exposing (State)`.
@@ -168,7 +166,16 @@ init strategy queue problem =
     { strategy = strategy
     , queue = queue
     , problem = problem
-    , explored = Dict.empty
+    , explored =
+        Dict.fromList
+            [ ( problem.stateToComparable problem.initialState
+              , { state = problem.initialState
+                , pathCost = 0
+                , parent = Nothing
+                , children = Nothing
+                }
+              )
+            ]
     , frontier = [ problem.initialState ]
     , solution = Pending
     , maxPathCost = 0
@@ -183,43 +190,45 @@ searchStep :
 searchStep strategy queue ({ problem, explored } as model) =
     case queue.pop explored model.frontier of
         Just ( h, t ) ->
-            let
-                ( updatedParent, childNodes ) =
-                    expand problem
-                        ( h
-                        , Dict.get (problem.stateToComparable h) explored
-                            |> Maybe.withDefault emptyNode
-                        )
+            case Dict.get (problem.stateToComparable h) explored of
+                Just node ->
+                    let
+                        ( updatedParent, childNodes ) =
+                            expand problem ( h, node )
 
-                filteredChildNodes =
-                    strategy.frontier problem explored childNodes h t
-            in
-            { model
-                | solution =
-                    case List.find (\( a, _ ) -> problem.goalTest a) childNodes of
-                        Just a ->
-                            Solution a
+                        filteredChildNodes =
+                            strategy.frontier problem explored childNodes h t
+                    in
+                    { model
+                        | solution =
+                            case List.find (\( a, _ ) -> problem.goalTest a) childNodes of
+                                Just a ->
+                                    Solution a
 
-                        Nothing ->
-                            model.solution
-                , frontier =
-                    (filteredChildNodes
-                        |> List.map Tuple.first
-                        |> List.reverse
-                    )
-                        ++ t
-                , explored =
-                    explored
-                        |> Dict.insert
-                            (problem.stateToComparable h)
-                            updatedParent
-                        |> Dict.union
+                                Nothing ->
+                                    model.solution
+                        , frontier =
                             (filteredChildNodes
-                                |> List.map (\( a, node ) -> ( problem.stateToComparable a, node ))
-                                |> Dict.fromList
+                                |> List.map Tuple.first
+                                |> List.reverse
                             )
-                , maxPathCost = List.foldl max model.maxPathCost (List.map (Tuple.second >> .pathCost) childNodes)
-            }
+                                ++ t
+                        , explored =
+                            explored
+                                |> Dict.insert
+                                    (problem.stateToComparable h)
+                                    updatedParent
+                                |> Dict.union
+                                    (filteredChildNodes
+                                        |> List.map (\( a, node_ ) -> ( problem.stateToComparable a, node_ ))
+                                        |> Dict.fromList
+                                    )
+                        , maxPathCost = List.foldl max model.maxPathCost (List.map (Tuple.second >> .pathCost) childNodes)
+                    }
+
+                -- will never occur, since the `h` state _must_ be in the `explored` dictionary
+                Nothing ->
+                    { model | solution = Failure }
 
         Nothing ->
             { model | solution = Failure }
@@ -259,12 +268,13 @@ nextGoal model =
         Pending ->
             nextGoal newModel
 
+
+
 {--
 TODO
 nextBoundary : ((a, Node a) -> Bool) -> Model a comparable -> Model a comparable
 nextBoundary boundary model = 
 --}
-
 -- INTERFACE
 
 
@@ -286,8 +296,10 @@ uniformCost problem =
         (priority
             (\explored state ->
                 explored
-                    |> getUnsafe (problem.stateToComparable state)
-                    |> .pathCost
+                    |> Dict.get (problem.stateToComparable state)
+                    |> Maybe.map .pathCost
+                    -- default will never be used, since the state _must_ be in the `explored` dictionary
+                    |> Maybe.withDefault 0
             )
         )
         problem
@@ -309,8 +321,10 @@ bestFirst problem =
         (priority
             (\explored state ->
                 (explored
-                    |> getUnsafe (problem.stateToComparable state)
-                    |> .pathCost
+                    |> Dict.get (problem.stateToComparable state)
+                    |> Maybe.map .pathCost
+                    -- default will never be used, since the state _must_ be in the `explored` dictionary
+                    |> Maybe.withDefault 0
                 )
                     + problem.heuristic state
             )
@@ -322,20 +336,21 @@ bestFirst problem =
 --
 
 
--- TODO
-getUnsafe : comparable -> Dict comparable (Node b) -> Node b
-getUnsafe el dict =
-    dict |> Dict.get el |> Maybe.withDefault emptyNode
-
-
 path : Model a comparable -> ( a, Node a ) -> List ( Float, a )
 path ({ problem, explored } as model) ( state, { pathCost, parent } ) =
+    -- TODO stack safety
     ( pathCost, state )
         :: (case parent of
-                Just state_ ->
-                    path
-                        model
-                        ( state_, getUnsafe (problem.stateToComparable state_) explored )
+                Just parentState ->
+                    case Dict.get (problem.stateToComparable parentState) explored of
+                        Just parentNode ->
+                            path
+                                model
+                                ( parentState, parentNode )
+
+                        -- never occurs, since the state _must_ be in the `explored` dictionary
+                        Nothing ->
+                            []
 
                 Nothing ->
                     []
