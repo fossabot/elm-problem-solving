@@ -11495,10 +11495,59 @@ var $author$project$Main$update = F2(
 					$elm$core$Platform$Cmd$none);
 		}
 	});
-var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
-var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
-var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
-var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
+var $elm_community$typed_svg$TypedSvg$Types$Translate = F2(
+	function (a, b) {
+		return {$: 'Translate', a: a, b: b};
+	});
+var $elm_community$typed_svg$TypedSvg$Core$node = $elm$virtual_dom$VirtualDom$nodeNS('http://www.w3.org/2000/svg');
+var $elm_community$typed_svg$TypedSvg$circle = $elm_community$typed_svg$TypedSvg$Core$node('circle');
+var $elm_community$typed_svg$TypedSvg$Core$attribute = $elm$virtual_dom$VirtualDom$attribute;
+var $elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString = function (length) {
+	switch (length.$) {
+		case 'Cm':
+			var x = length.a;
+			return $elm$core$String$fromFloat(x) + 'cm';
+		case 'Em':
+			var x = length.a;
+			return $elm$core$String$fromFloat(x) + 'em';
+		case 'Ex':
+			var x = length.a;
+			return $elm$core$String$fromFloat(x) + 'ex';
+		case 'In':
+			var x = length.a;
+			return $elm$core$String$fromFloat(x) + 'in';
+		case 'Mm':
+			var x = length.a;
+			return $elm$core$String$fromFloat(x) + 'mm';
+		case 'Num':
+			var x = length.a;
+			return $elm$core$String$fromFloat(x);
+		case 'Pc':
+			var x = length.a;
+			return $elm$core$String$fromFloat(x) + 'pc';
+		case 'Percent':
+			var x = length.a;
+			return $elm$core$String$fromFloat(x) + '%';
+		case 'Pt':
+			var x = length.a;
+			return $elm$core$String$fromFloat(x) + 'pt';
+		default:
+			var x = length.a;
+			return $elm$core$String$fromFloat(x) + 'px';
+	}
+};
+var $elm_community$typed_svg$TypedSvg$Attributes$cx = function (length) {
+	return A2(
+		$elm_community$typed_svg$TypedSvg$Core$attribute,
+		'cx',
+		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
+};
+var $elm_community$typed_svg$TypedSvg$Attributes$cy = function (length) {
+	return A2(
+		$elm_community$typed_svg$TypedSvg$Core$attribute,
+		'cy',
+		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
+};
 var $elm_community$dict_extra$Dict$Extra$insertDedupe = F4(
 	function (combine, key, value, dict) {
 		var _with = function (mbValue) {
@@ -11525,14 +11574,128 @@ var $elm_community$dict_extra$Dict$Extra$fromListDedupe = F2(
 			$elm$core$Dict$empty,
 			xs);
 	});
-var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
-var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
-var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
-var $elm$svg$Svg$Attributes$style = _VirtualDom_attribute('style');
-var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
-var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
-var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $elm_community$typed_svg$TypedSvg$g = $elm_community$typed_svg$TypedSvg$Core$node('g');
+var $elm_community$typed_svg$TypedSvg$Attributes$height = function (length) {
+	return A2(
+		$elm_community$typed_svg$TypedSvg$Core$attribute,
+		'height',
+		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
+};
+var $elm_community$typed_svg$TypedSvg$Types$Px = function (a) {
+	return {$: 'Px', a: a};
+};
+var $elm_community$typed_svg$TypedSvg$Types$px = $elm_community$typed_svg$TypedSvg$Types$Px;
+var $elm_community$typed_svg$TypedSvg$Attributes$r = function (length) {
+	return A2(
+		$elm_community$typed_svg$TypedSvg$Core$attribute,
+		'r',
+		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
+};
+var $elm_community$typed_svg$TypedSvg$Attributes$style = function (value) {
+	return A2($elm_community$typed_svg$TypedSvg$Core$attribute, 'style', value);
+};
+var $elm_community$typed_svg$TypedSvg$svg = $elm_community$typed_svg$TypedSvg$Core$node('svg');
+var $elm$core$String$concat = function (strings) {
+	return A2($elm$core$String$join, '', strings);
+};
+var $elm_community$typed_svg$TypedSvg$TypesToStrings$transformToString = function (xform) {
+	var tr = F2(
+		function (name, args) {
+			return $elm$core$String$concat(
+				_List_fromArray(
+					[
+						name,
+						'(',
+						A2(
+						$elm$core$String$join,
+						' ',
+						A2($elm$core$List$map, $elm$core$String$fromFloat, args)),
+						')'
+					]));
+		});
+	switch (xform.$) {
+		case 'Matrix':
+			var a = xform.a;
+			var b = xform.b;
+			var c = xform.c;
+			var d = xform.d;
+			var e = xform.e;
+			var f = xform.f;
+			return A2(
+				tr,
+				'matrix',
+				_List_fromArray(
+					[a, b, c, d, e, f]));
+		case 'Rotate':
+			var a = xform.a;
+			var x = xform.b;
+			var y = xform.c;
+			return A2(
+				tr,
+				'rotate',
+				_List_fromArray(
+					[a, x, y]));
+		case 'Scale':
+			var x = xform.a;
+			var y = xform.b;
+			return A2(
+				tr,
+				'scale',
+				_List_fromArray(
+					[x, y]));
+		case 'SkewX':
+			var x = xform.a;
+			return A2(
+				tr,
+				'skewX',
+				_List_fromArray(
+					[x]));
+		case 'SkewY':
+			var y = xform.a;
+			return A2(
+				tr,
+				'skewY',
+				_List_fromArray(
+					[y]));
+		default:
+			var x = xform.a;
+			var y = xform.b;
+			return A2(
+				tr,
+				'translate',
+				_List_fromArray(
+					[x, y]));
+	}
+};
+var $elm_community$typed_svg$TypedSvg$Attributes$transform = function (transforms) {
+	return A2(
+		$elm_community$typed_svg$TypedSvg$Core$attribute,
+		'transform',
+		A2(
+			$elm$core$String$join,
+			' ',
+			A2($elm$core$List$map, $elm_community$typed_svg$TypedSvg$TypesToStrings$transformToString, transforms)));
+};
+var $elm_community$typed_svg$TypedSvg$Attributes$viewBox = F4(
+	function (minX, minY, vWidth, vHeight) {
+		return A2(
+			$elm_community$typed_svg$TypedSvg$Core$attribute,
+			'viewBox',
+			A2(
+				$elm$core$String$join,
+				' ',
+				A2(
+					$elm$core$List$map,
+					$elm$core$String$fromFloat,
+					_List_fromArray(
+						[minX, minY, vWidth, vHeight]))));
+	});
+var $elm_community$typed_svg$TypedSvg$Attributes$width = function (length) {
+	return A2(
+		$elm_community$typed_svg$TypedSvg$Core$attribute,
+		'width',
+		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
+};
 var $author$project$Search$Visualization$ScatterPlot$vis = function (model) {
 	var maxHeuristic = model.problem.heuristic(model.problem.initialState);
 	var dots = A2(
@@ -11560,21 +11723,27 @@ var $author$project$Search$Visualization$ScatterPlot$vis = function (model) {
 				$elm$core$List$length,
 				$elm$core$Dict$values(dots))));
 	return A2(
-		$elm$svg$Svg$svg,
+		$elm_community$typed_svg$TypedSvg$svg,
 		_List_fromArray(
 			[
-				$elm$svg$Svg$Attributes$width('500'),
-				$elm$svg$Svg$Attributes$height('500'),
-				$elm$svg$Svg$Attributes$viewBox('0 0 1.2 1.2'),
-				$elm$svg$Svg$Attributes$style('border: 1px dotted black')
+				$elm_community$typed_svg$TypedSvg$Attributes$width(
+				$elm_community$typed_svg$TypedSvg$Types$px(500)),
+				$elm_community$typed_svg$TypedSvg$Attributes$height(
+				$elm_community$typed_svg$TypedSvg$Types$px(500)),
+				A4($elm_community$typed_svg$TypedSvg$Attributes$viewBox, 0, 0, 1.2, 1.2),
+				$elm_community$typed_svg$TypedSvg$Attributes$style('border: 1px dotted black')
 			]),
 		_List_fromArray(
 			[
 				A2(
-				$elm$svg$Svg$g,
+				$elm_community$typed_svg$TypedSvg$g,
 				_List_fromArray(
 					[
-						$elm$svg$Svg$Attributes$transform('translate(0.1 0.1)')
+						$elm_community$typed_svg$TypedSvg$Attributes$transform(
+						_List_fromArray(
+							[
+								A2($elm_community$typed_svg$TypedSvg$Types$Translate, 0.1, 0.1)
+							]))
 					]),
 				A2(
 					$elm$core$List$map,
@@ -11584,15 +11753,15 @@ var $author$project$Search$Visualization$ScatterPlot$vis = function (model) {
 						var heuristic = _v1.b;
 						var states = _v0.b;
 						return A2(
-							$elm$svg$Svg$circle,
+							$elm_community$typed_svg$TypedSvg$circle,
 							_List_fromArray(
 								[
-									$elm$svg$Svg$Attributes$cx(
-									$elm$core$String$fromFloat(pathCost / model.maxPathCost)),
-									$elm$svg$Svg$Attributes$cy(
-									$elm$core$String$fromFloat(heuristic / maxHeuristic)),
-									$elm$svg$Svg$Attributes$r(
-									$elm$core$String$fromFloat(
+									$elm_community$typed_svg$TypedSvg$Attributes$cx(
+									$elm_community$typed_svg$TypedSvg$Types$px(pathCost / model.maxPathCost)),
+									$elm_community$typed_svg$TypedSvg$Attributes$cy(
+									$elm_community$typed_svg$TypedSvg$Types$px(heuristic / maxHeuristic)),
+									$elm_community$typed_svg$TypedSvg$Attributes$r(
+									$elm_community$typed_svg$TypedSvg$Types$px(
 										(($elm$core$Basics$sqrt(
 											$elm$core$List$length(states)) / maxDotSize) / A2(
 											$elm$core$Basics$max,

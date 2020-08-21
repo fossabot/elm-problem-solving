@@ -3,8 +3,10 @@ module Search.Visualization.ScatterPlot exposing (..)
 import Dict exposing (Dict)
 import Dict.Extra as Dict
 import Search
-import Svg exposing (..)
-import Svg.Attributes exposing (..)
+import TypedSvg exposing (..)
+import TypedSvg.Attributes exposing (..)
+import TypedSvg.Core exposing (Svg)
+import TypedSvg.Types exposing (..)
 
 
 vis : Search.Model a comparable -> Svg msg
@@ -32,27 +34,21 @@ vis model =
             model.problem.heuristic model.problem.initialState
     in
     svg
-        [ width "500"
-        , height "500"
-        , viewBox "0 0 1.2 1.2"
-        , Svg.Attributes.style "border: 1px dotted black"
+        [ width (px 500)
+        , height (px 500)
+        , viewBox 0 0 1.2 1.2
+        , TypedSvg.Attributes.style "border: 1px dotted black"
         ]
-        [ g [ transform "translate(0.1 0.1)" ]
+        [ g [ transform [ Translate 0.1 0.1] ]
             (dots
                 |> Dict.toList
                 |> List.map
                     (\( ( pathCost, heuristic ), states ) ->
                         circle
-                            [ cx
-                                (String.fromFloat
-                                    (pathCost / model.maxPathCost)
-                                )
-                            , cy
-                                (String.fromFloat
-                                    (heuristic / maxHeuristic)
-                                )
+                            [ cx (px (pathCost / model.maxPathCost))
+                            , cy (px (heuristic / maxHeuristic))
                             , r
-                                (String.fromFloat
+                                (px
                                     (sqrt (toFloat (List.length states))
                                         / maxDotSize
                                         / Basics.max 10 (toFloat (Dict.size dots))

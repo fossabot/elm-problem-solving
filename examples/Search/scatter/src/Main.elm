@@ -14,7 +14,7 @@ import Search.Visualization.ScatterPlot as ScatterPlot
 import Search.Visualization.TreeMap as TreeMap
 import Task
 
-
+ 
 type alias State =
     List Int
 
@@ -50,7 +50,7 @@ init =
     \_ ->
         let
             initialModel =
-                Search.bestFirst complexEightPuzzle
+                Search.bestFirst  complexEightPuzzle
         in
         ( { searchModel = initialModel
           , tooltip = { node = Nothing, position = { x = 0, y = 0 } }
