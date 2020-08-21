@@ -259,7 +259,11 @@ nextGoal model =
         Pending ->
             nextGoal newModel
 
-
+{--
+TODO
+nextBoundary : ((a, Node a) -> Bool) -> Model a comparable -> Model a comparable
+nextBoundary boundary model = 
+--}
 
 -- INTERFACE
 
@@ -318,6 +322,7 @@ bestFirst problem =
 --
 
 
+-- TODO
 getUnsafe : comparable -> Dict comparable (Node b) -> Node b
 getUnsafe el dict =
     dict |> Dict.get el |> Maybe.withDefault emptyNode
