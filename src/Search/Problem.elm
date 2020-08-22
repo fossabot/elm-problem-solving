@@ -28,7 +28,7 @@ expand problem ( state, node ) =
             List.map
                 (\( stepCost, result ) ->
                     ( result
-                    , { state = state
+                    , { state = result
                       , parent = Just state
                       , pathCost = node.pathCost + stepCost
                       , children = Nothing
