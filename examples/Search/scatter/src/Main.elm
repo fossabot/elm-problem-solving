@@ -2,6 +2,7 @@ module Main exposing (..)
 
 import Browser
 import Browser.Events
+import Dict exposing (Dict)
 import Html exposing (p, text)
 import Json.Decode
 import Process
@@ -14,7 +15,7 @@ import Search.Visualization.ScatterPlot as ScatterPlot
 import Search.Visualization.TreeMap as TreeMap
 import Task
 
- 
+
 type alias State =
     List Int
 
@@ -41,7 +42,9 @@ main =
         , init = init
         , update = update
         , subscriptions =
-            \_ -> Browser.Events.onMouseMove (Json.Decode.map Move decodeMove)
+            \_ -> Sub.none
+
+        --Browser.Events.onMouseMove (Json.Decode.map Move decodeMove)
         }
 
 
@@ -50,7 +53,7 @@ init =
     \_ ->
         let
             initialModel =
-                Search.bestFirst  complexEightPuzzle
+                Search.greedy complexEightPuzzle
         in
         ( { searchModel = initialModel
           , tooltip = { node = Nothing, position = { x = 0, y = 0 } }
@@ -89,7 +92,7 @@ searchTask model =
                 NewModel
                 (Process.sleep 300
                     |> Task.andThen
-                        (\_ -> Task.succeed (Search.nextN 50 model))
+                        (\_ -> Task.succeed (Search.next model))
                 )
 
         _ ->
