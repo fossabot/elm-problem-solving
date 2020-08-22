@@ -11301,14 +11301,6 @@ var $author$project$Main$update = F2(
 					$elm$core$Platform$Cmd$none);
 		}
 	});
-var $elm_community$typed_svg$TypedSvg$Types$Scale = F2(
-	function (a, b) {
-		return {$: 'Scale', a: a, b: b};
-	});
-var $elm_community$typed_svg$TypedSvg$Types$Translate = F2(
-	function (a, b) {
-		return {$: 'Translate', a: a, b: b};
-	});
 var $elm$svg$Svg$Attributes$class = _VirtualDom_attribute('class');
 var $gampleman$elm_visualization$Scale$tickFormat = function (_v0) {
 	var opts = _v0.a;
@@ -11519,55 +11511,9 @@ var $gampleman$elm_visualization$Axis$verticalAttrs = {
 	y2: A2($elm$core$Basics$composeL, $elm$svg$Svg$Attributes$x2, $elm$core$String$fromFloat)
 };
 var $gampleman$elm_visualization$Axis$bottom = A4($gampleman$elm_visualization$Axis$element, $gampleman$elm_visualization$Axis$verticalAttrs, 1, '0.71em', 'middle');
-var $elm_community$typed_svg$TypedSvg$Core$node = $elm$virtual_dom$VirtualDom$nodeNS('http://www.w3.org/2000/svg');
-var $elm_community$typed_svg$TypedSvg$circle = $elm_community$typed_svg$TypedSvg$Core$node('circle');
-var $elm_community$typed_svg$TypedSvg$Core$attribute = $elm$virtual_dom$VirtualDom$attribute;
-var $elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString = function (length) {
-	switch (length.$) {
-		case 'Cm':
-			var x = length.a;
-			return $elm$core$String$fromFloat(x) + 'cm';
-		case 'Em':
-			var x = length.a;
-			return $elm$core$String$fromFloat(x) + 'em';
-		case 'Ex':
-			var x = length.a;
-			return $elm$core$String$fromFloat(x) + 'ex';
-		case 'In':
-			var x = length.a;
-			return $elm$core$String$fromFloat(x) + 'in';
-		case 'Mm':
-			var x = length.a;
-			return $elm$core$String$fromFloat(x) + 'mm';
-		case 'Num':
-			var x = length.a;
-			return $elm$core$String$fromFloat(x);
-		case 'Pc':
-			var x = length.a;
-			return $elm$core$String$fromFloat(x) + 'pc';
-		case 'Percent':
-			var x = length.a;
-			return $elm$core$String$fromFloat(x) + '%';
-		case 'Pt':
-			var x = length.a;
-			return $elm$core$String$fromFloat(x) + 'pt';
-		default:
-			var x = length.a;
-			return $elm$core$String$fromFloat(x) + 'px';
-	}
-};
-var $elm_community$typed_svg$TypedSvg$Attributes$cx = function (length) {
-	return A2(
-		$elm_community$typed_svg$TypedSvg$Core$attribute,
-		'cx',
-		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
-};
-var $elm_community$typed_svg$TypedSvg$Attributes$cy = function (length) {
-	return A2(
-		$elm_community$typed_svg$TypedSvg$Core$attribute,
-		'cy',
-		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
-};
+var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
+var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
+var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
 var $elm_community$dict_extra$Dict$Extra$insertDedupe = F4(
 	function (combine, key, value, dict) {
 		var _with = function (mbValue) {
@@ -11594,13 +11540,7 @@ var $elm_community$dict_extra$Dict$Extra$fromListDedupe = F2(
 			$elm$core$Dict$empty,
 			xs);
 	});
-var $elm_community$typed_svg$TypedSvg$g = $elm_community$typed_svg$TypedSvg$Core$node('g');
-var $elm_community$typed_svg$TypedSvg$Attributes$height = function (length) {
-	return A2(
-		$elm_community$typed_svg$TypedSvg$Core$attribute,
-		'height',
-		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
-};
+var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $gampleman$elm_visualization$Axis$horizontalAttrs = {
 	horizontal: true,
 	translate: function (y) {
@@ -11824,105 +11764,46 @@ var $elm$core$Basics$min = F2(
 	function (x, y) {
 		return (_Utils_cmp(x, y) < 0) ? x : y;
 	});
-var $elm_community$typed_svg$TypedSvg$Types$Px = function (a) {
-	return {$: 'Px', a: a};
-};
-var $elm_community$typed_svg$TypedSvg$Types$px = $elm_community$typed_svg$TypedSvg$Types$Px;
-var $elm_community$typed_svg$TypedSvg$Attributes$r = function (length) {
-	return A2(
-		$elm_community$typed_svg$TypedSvg$Core$attribute,
-		'r',
-		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
-};
-var $elm_community$typed_svg$TypedSvg$Attributes$style = function (value) {
-	return A2($elm_community$typed_svg$TypedSvg$Core$attribute, 'style', value);
-};
-var $elm_community$typed_svg$TypedSvg$svg = $elm_community$typed_svg$TypedSvg$Core$node('svg');
+var $elm$svg$Svg$Attributes$opacity = _VirtualDom_attribute('opacity');
+var $author$project$Search$path = F2(
+	function (model, _v0) {
+		var problem = model.problem;
+		var explored = model.explored;
+		var state = _v0.a;
+		var pathCost = _v0.b.pathCost;
+		var parent = _v0.b.parent;
+		return A2(
+			$elm$core$List$cons,
+			_Utils_Tuple2(pathCost, state),
+			function () {
+				if (parent.$ === 'Just') {
+					var parentState = parent.a;
+					var _v2 = A2(
+						$elm$core$Dict$get,
+						problem.stateToComparable(parentState),
+						explored);
+					if (_v2.$ === 'Just') {
+						var parentNode = _v2.a;
+						return A2(
+							$author$project$Search$path,
+							model,
+							_Utils_Tuple2(parentState, parentNode));
+					} else {
+						return _List_Nil;
+					}
+				} else {
+					return _List_Nil;
+				}
+			}());
+	});
+var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
+var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
+var $elm$svg$Svg$Attributes$style = _VirtualDom_attribute('style');
+var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
 var $gampleman$elm_visualization$Axis$TickSizeInner = function (a) {
 	return {$: 'TickSizeInner', a: a};
 };
 var $gampleman$elm_visualization$Axis$tickSizeInner = $gampleman$elm_visualization$Axis$TickSizeInner;
-var $elm$core$String$concat = function (strings) {
-	return A2($elm$core$String$join, '', strings);
-};
-var $elm_community$typed_svg$TypedSvg$TypesToStrings$transformToString = function (xform) {
-	var tr = F2(
-		function (name, args) {
-			return $elm$core$String$concat(
-				_List_fromArray(
-					[
-						name,
-						'(',
-						A2(
-						$elm$core$String$join,
-						' ',
-						A2($elm$core$List$map, $elm$core$String$fromFloat, args)),
-						')'
-					]));
-		});
-	switch (xform.$) {
-		case 'Matrix':
-			var a = xform.a;
-			var b = xform.b;
-			var c = xform.c;
-			var d = xform.d;
-			var e = xform.e;
-			var f = xform.f;
-			return A2(
-				tr,
-				'matrix',
-				_List_fromArray(
-					[a, b, c, d, e, f]));
-		case 'Rotate':
-			var a = xform.a;
-			var x = xform.b;
-			var y = xform.c;
-			return A2(
-				tr,
-				'rotate',
-				_List_fromArray(
-					[a, x, y]));
-		case 'Scale':
-			var x = xform.a;
-			var y = xform.b;
-			return A2(
-				tr,
-				'scale',
-				_List_fromArray(
-					[x, y]));
-		case 'SkewX':
-			var x = xform.a;
-			return A2(
-				tr,
-				'skewX',
-				_List_fromArray(
-					[x]));
-		case 'SkewY':
-			var y = xform.a;
-			return A2(
-				tr,
-				'skewY',
-				_List_fromArray(
-					[y]));
-		default:
-			var x = xform.a;
-			var y = xform.b;
-			return A2(
-				tr,
-				'translate',
-				_List_fromArray(
-					[x, y]));
-	}
-};
-var $elm_community$typed_svg$TypedSvg$Attributes$transform = function (transforms) {
-	return A2(
-		$elm_community$typed_svg$TypedSvg$Core$attribute,
-		'transform',
-		A2(
-			$elm$core$String$join,
-			' ',
-			A2($elm$core$List$map, $elm_community$typed_svg$TypedSvg$TypesToStrings$transformToString, transforms)));
-};
 var $elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
 };
@@ -11975,26 +11856,8 @@ var $elm_community$list_extra$List$Extra$uniqueHelp = F4(
 var $elm_community$list_extra$List$Extra$unique = function (list) {
 	return A4($elm_community$list_extra$List$Extra$uniqueHelp, $elm$core$Basics$identity, $elm$core$Set$empty, list, _List_Nil);
 };
-var $elm_community$typed_svg$TypedSvg$Attributes$viewBox = F4(
-	function (minX, minY, vWidth, vHeight) {
-		return A2(
-			$elm_community$typed_svg$TypedSvg$Core$attribute,
-			'viewBox',
-			A2(
-				$elm$core$String$join,
-				' ',
-				A2(
-					$elm$core$List$map,
-					$elm$core$String$fromFloat,
-					_List_fromArray(
-						[minX, minY, vWidth, vHeight]))));
-	});
-var $elm_community$typed_svg$TypedSvg$Attributes$width = function (length) {
-	return A2(
-		$elm_community$typed_svg$TypedSvg$Core$attribute,
-		'width',
-		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
-};
+var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var $author$project$Search$Visualization$ScatterPlot$vis = function (model) {
 	var maxPathCost = model.maxPathCost;
 	var pathCostScale = A2(
@@ -12011,8 +11874,8 @@ var $author$project$Search$Visualization$ScatterPlot$vis = function (model) {
 		$elm$core$Basics$append,
 		A2(
 			$elm$core$List$map,
-			function (_v2) {
-				var node = _v2.b;
+			function (_v4) {
+				var node = _v4.b;
 				return _Utils_Tuple2(
 					_Utils_Tuple2(
 						node.pathCost,
@@ -12043,41 +11906,30 @@ var $author$project$Search$Visualization$ScatterPlot$vis = function (model) {
 				$elm$core$Tuple$first,
 				$elm$core$Dict$keys(dots))));
 	return A2(
-		$elm_community$typed_svg$TypedSvg$svg,
+		$elm$svg$Svg$svg,
 		_List_fromArray(
 			[
-				$elm_community$typed_svg$TypedSvg$Attributes$width(
-				$elm_community$typed_svg$TypedSvg$Types$px(500)),
-				$elm_community$typed_svg$TypedSvg$Attributes$height(
-				$elm_community$typed_svg$TypedSvg$Types$px(500)),
-				A4($elm_community$typed_svg$TypedSvg$Attributes$viewBox, 0, 0, 1.3, 1.3),
-				$elm_community$typed_svg$TypedSvg$Attributes$style('border: 1px dotted black')
+				$elm$svg$Svg$Attributes$width('500'),
+				$elm$svg$Svg$Attributes$height('500'),
+				$elm$svg$Svg$Attributes$viewBox('0 0 1.3 1.3'),
+				$elm$svg$Svg$Attributes$style('border: 1px dotted black')
 			]),
 		_List_fromArray(
 			[
 				A2(
-				$elm_community$typed_svg$TypedSvg$g,
+				$elm$svg$Svg$g,
 				_List_fromArray(
 					[
-						$elm_community$typed_svg$TypedSvg$Attributes$transform(
-						_List_fromArray(
-							[
-								A2($elm_community$typed_svg$TypedSvg$Types$Translate, 0.2, 0.1)
-							]))
+						$elm$svg$Svg$Attributes$transform('translate(0.2 0.1)')
 					]),
 				_Utils_ap(
 					_List_fromArray(
 						[
 							A2(
-							$elm_community$typed_svg$TypedSvg$g,
+							$elm$svg$Svg$g,
 							_List_fromArray(
 								[
-									$elm_community$typed_svg$TypedSvg$Attributes$transform(
-									_List_fromArray(
-										[
-											A2($elm_community$typed_svg$TypedSvg$Types$Translate, 0, 1.1),
-											A2($elm_community$typed_svg$TypedSvg$Types$Scale, 0.002, 0.002)
-										]))
+									$elm$svg$Svg$Attributes$transform('translate(0 1.1) scale(0.002 0.002)')
 								]),
 							_List_fromArray(
 								[
@@ -12090,15 +11942,10 @@ var $author$project$Search$Visualization$ScatterPlot$vis = function (model) {
 									pathCostScale)
 								])),
 							A2(
-							$elm_community$typed_svg$TypedSvg$g,
+							$elm$svg$Svg$g,
 							_List_fromArray(
 								[
-									$elm_community$typed_svg$TypedSvg$Attributes$transform(
-									_List_fromArray(
-										[
-											A2($elm_community$typed_svg$TypedSvg$Types$Translate, -0.1, 0),
-											A2($elm_community$typed_svg$TypedSvg$Types$Scale, 0.002, 0.002)
-										]))
+									$elm$svg$Svg$Attributes$transform('translate(-0.1 0) scale(0.002 0.002)')
 								]),
 							_List_fromArray(
 								[
@@ -12111,38 +11958,74 @@ var $author$project$Search$Visualization$ScatterPlot$vis = function (model) {
 									heuristicScale)
 								]))
 						]),
-					A2(
-						$elm$core$List$map,
-						function (_v0) {
-							var _v1 = _v0.a;
-							var pathCost = _v1.a;
-							var heuristic = _v1.b;
-							var states = _v0.b;
-							return A2(
-								$elm_community$typed_svg$TypedSvg$g,
-								_List_Nil,
-								_List_fromArray(
+					_Utils_ap(
+						A2(
+							$elm$core$List$map,
+							function (_v0) {
+								var _v1 = _v0.a;
+								var pathCost = _v1.a;
+								var heuristic = _v1.b;
+								var states = _v0.b;
+								return A2(
+									$elm$svg$Svg$g,
+									_List_Nil,
+									_List_fromArray(
+										[
+											A2(
+											$elm$svg$Svg$circle,
+											_List_fromArray(
+												[
+													$elm$svg$Svg$Attributes$cx(
+													$elm$core$String$fromFloat(pathCost / maxPathCost)),
+													$elm$svg$Svg$Attributes$cy(
+													$elm$core$String$fromFloat(heuristic / maxHeuristic)),
+													$elm$svg$Svg$Attributes$r(
+													$elm$core$String$fromFloat(
+														A2(
+															$elm$core$Basics$min,
+															0.05,
+															(($elm$core$Basics$sqrt(
+																$elm$core$List$length(states)) / maxDotSize) / A2($elm$core$Basics$max, nX, nY)) / 2)))
+												]),
+											_List_Nil)
+										]));
+							},
+							$elm$core$Dict$toList(dots)),
+						function () {
+							var _v2 = model.solution;
+							if (_v2.$ === 'Solution') {
+								var a = _v2.a;
+								return _List_fromArray(
 									[
 										A2(
-										$elm_community$typed_svg$TypedSvg$circle,
+										$elm$svg$Svg$path,
 										_List_fromArray(
 											[
-												$elm_community$typed_svg$TypedSvg$Attributes$cx(
-												$elm_community$typed_svg$TypedSvg$Types$px(pathCost / maxPathCost)),
-												$elm_community$typed_svg$TypedSvg$Attributes$cy(
-												$elm_community$typed_svg$TypedSvg$Types$px(heuristic / maxHeuristic)),
-												$elm_community$typed_svg$TypedSvg$Attributes$r(
-												$elm_community$typed_svg$TypedSvg$Types$px(
+												$elm$svg$Svg$Attributes$fill('none'),
+												$elm$svg$Svg$Attributes$stroke('black'),
+												$elm$svg$Svg$Attributes$opacity('0.5'),
+												$elm$svg$Svg$Attributes$strokeWidth('0.002'),
+												$elm$svg$Svg$Attributes$d(
+												'M 0 1' + A3(
+													$elm$core$List$foldl,
+													$elm$core$Basics$append,
+													'',
 													A2(
-														$elm$core$Basics$min,
-														0.05,
-														(($elm$core$Basics$sqrt(
-															$elm$core$List$length(states)) / maxDotSize) / A2($elm$core$Basics$max, nX, nY)) / 2)))
+														$elm$core$List$map,
+														function (_v3) {
+															var pathCost = _v3.a;
+															var state = _v3.b;
+															return 'L' + ($elm$core$String$fromFloat(pathCost / maxPathCost) + (' ' + $elm$core$String$fromFloat(
+																model.problem.heuristic(state) / maxHeuristic)));
+														},
+														A2($author$project$Search$path, model, a))))
 											]),
 										_List_Nil)
-									]));
-						},
-						$elm$core$Dict$toList(dots))))
+									]);
+							} else {
+								return _List_Nil;
+							}
+						}())))
 			]));
 };
 var $author$project$Main$main = $elm$browser$Browser$document(

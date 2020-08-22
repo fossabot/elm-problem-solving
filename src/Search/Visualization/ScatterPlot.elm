@@ -6,10 +6,10 @@ import Dict.Extra as Dict
 import List.Extra as List
 import Scale
 import Search
-import TypedSvg exposing (..)
-import TypedSvg.Attributes exposing (..)
-import TypedSvg.Core exposing (Svg, text)
-import TypedSvg.Types exposing (..)
+import Search.Result exposing (Result(..))
+import Shape
+import Svg exposing (..)
+import Svg.Attributes exposing (..)
 
 
 vis : Search.Model a comparable -> Svg msg
@@ -60,25 +60,17 @@ vis model =
             Scale.linear ( 0, 500 ) ( 0, maxHeuristic )
     in
     svg
-        [ width (px 500)
-        , height (px 500)
-        , viewBox 0 0 1.3 1.3
-        , TypedSvg.Attributes.style "border: 1px dotted black"
+        [ width "500"
+        , height "500"
+        , viewBox "0 0 1.3 1.3"
+        , Svg.Attributes.style "border: 1px dotted black"
         ]
-        [ g [ transform [ Translate 0.2 0.1 ] ]
+        [ g [ transform "translate(0.2 0.1)" ]
             ([ g
-                [ transform
-                    [ Translate 0 1.1
-                    , Scale 0.002 0.002
-                    ]
-                ]
+                [ transform "translate(0 1.1) scale(0.002 0.002)" ]
                 [ Axis.bottom [ tickSizeInner 3 ] pathCostScale ]
              , g
-                [ transform
-                    [ Translate -0.1 0
-                    , Scale 0.002 0.002
-                    ]
-                ]
+                [ transform "translate(-0.1 0) scale(0.002 0.002)" ]
                 [ Axis.left [ tickSizeInner 3 ] heuristicScale ]
              ]
                 ++ (dots
@@ -87,10 +79,10 @@ vis model =
                             (\( ( pathCost, heuristic ), states ) ->
                                 g []
                                     [ circle
-                                        [ cx (px (pathCost / maxPathCost))
-                                        , cy (px (heuristic / maxHeuristic))
+                                        [ cx (String.fromFloat (pathCost / maxPathCost))
+                                        , cy (String.fromFloat (heuristic / maxHeuristic))
                                         , r
-                                            (px
+                                            (String.fromFloat
                                                 (Basics.min 0.05
                                                     (sqrt (toFloat (List.length states))
                                                         / maxDotSize
@@ -103,6 +95,30 @@ vis model =
                                         []
                                     ]
                             )
+                   )
+                ++ (case model.solution of
+                        Solution a ->
+                            [ Svg.path
+                                [ fill "none"
+                                , stroke "black"
+                                , opacity "0.5"
+                                , strokeWidth "0.002"
+                                , d <|
+                                    "M 0 1"
+                                        ++ (a
+                                                |> Search.path model
+                                                |> List.map
+                                                    (\( pathCost, state ) ->
+                                                        "L" ++ String.fromFloat (pathCost / maxPathCost) ++ " " ++ String.fromFloat (model.problem.heuristic state / maxHeuristic)
+                                                    )
+                                                |> List.foldl (++) ""
+                                           )
+                                ]
+                                []
+                            ]
+
+                        _ ->
+                            []
                    )
             )
         ]
