@@ -366,20 +366,23 @@ pathWithPosition ({ problem, explored } as model) ( state, { pathCost, parent } 
             case Dict.get (problem.stateToComparable parentState) explored of
                 Just parentNode ->
                     let
-                        siblings =
+                        unestrangedSiblings =
                             ( parentState, parentNode )
                                 |> unestrangedChildren model
+
+                        enumeratedUnestrangedSiblings =
+                            unestrangedSiblings
                                 |> Maybe.map (List.indexedMap Tuple.pair)
                     in
                     ( pathCost
                     , state
-                    , ( siblings
+                    , ( enumeratedUnestrangedSiblings
                             |> Maybe.map (List.findIndex (Tuple.second >> (==) state))
                             |> Maybe.join
                             |> Maybe.withDefault 0
-                      , siblings
+                      , enumeratedUnestrangedSiblings
                             |> Maybe.map List.length
-                            |> Maybe.withDefault 1
+                            |> Maybe.withDefault 0
                       )
                     )
                         :: pathWithPosition

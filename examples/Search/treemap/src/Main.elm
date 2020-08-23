@@ -37,7 +37,7 @@ main =
         { view =
             \{ tooltip, searchModel } ->
                 { title = "Search of 8-Puzzle"
-                , body = [ TreeMap.vis searchModel ]
+                , body = [ TreeMap.vis TreeMap.treeMap searchModel ]
                 }
         , init = init
         , update = update
@@ -90,7 +90,7 @@ searchTask model =
         Pending ->
             Task.perform
                 NewModel
-                (Process.sleep 0
+                (Process.sleep 100
                     |> Task.andThen
                         (\_ -> Task.succeed (Search.next model))
                 )
