@@ -34,6 +34,7 @@ In this example, the model of the application _is_ the model of the search algor
 
 import Dict exposing (Dict)
 import List.Extra as List
+import Maybe.Extra as Maybe
 import Search.Problem as Problem exposing (Node, expand)
 import Search.Result exposing (Result(..))
 
@@ -355,3 +356,55 @@ path ({ problem, explored } as model) ( state, { pathCost, parent } ) =
                 Nothing ->
                     []
            )
+
+
+pathWithPosition : Model a comparable -> ( a, Node a ) -> List ( Float, a, ( Int, Int ) )
+pathWithPosition ({ problem, explored } as model) ( state, { pathCost, parent } ) =
+    -- TODO stack safety
+    case parent of
+        Just parentState ->
+            case Dict.get (problem.stateToComparable parentState) explored of
+                Just parentNode ->
+                    let
+                        siblings =
+                            ( parentState, parentNode )
+                                |> unestrangedChildren model
+                                |> Maybe.map (List.indexedMap Tuple.pair)
+                    in
+                    ( pathCost
+                    , state
+                    , ( siblings
+                            |> Maybe.map (List.findIndex (Tuple.second >> (==) state))
+                            |> Maybe.join
+                            |> Maybe.withDefault 0
+                      , siblings
+                            |> Maybe.map List.length
+                            |> Maybe.withDefault 1
+                      )
+                    )
+                        :: pathWithPosition
+                            model
+                            ( parentState, parentNode )
+
+                -- never occurs, since the state _must_ be in the `explored` dictionary
+                Nothing ->
+                    [ ( pathCost, state, ( 0, 1 ) ) ]
+
+        Nothing ->
+            [ ( pathCost, state, ( 0, 1 ) ) ]
+
+
+unestrangedChildren : Model a comparable -> ( a, Node a ) -> Maybe (List a)
+unestrangedChildren model ( state, node ) =
+    node.children
+        |> Maybe.map
+            (\children ->
+                children
+                    |> List.map
+                        (\( _, childState ) ->
+                            Dict.get (model.problem.stateToComparable childState) model.explored
+                        )
+                    |> Maybe.values
+                    |> List.filter (\child -> child.parent == Just state)
+                    |> List.map .state
+            )

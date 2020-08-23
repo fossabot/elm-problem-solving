@@ -24,9 +24,12 @@ type alias Node a =
 expand : Problem a b -> ( a, Node a ) -> ( Node a, List ( a, Node a ) )
 expand problem ( state, node ) =
     let
+        actions =
+            problem.actions state
+
         children =
-            List.map
-                (\( stepCost, result ) ->
+            List.indexedMap
+                (\i ( stepCost, result ) ->
                     ( result
                     , { state = result
                       , parent = Just state
@@ -35,7 +38,7 @@ expand problem ( state, node ) =
                       }
                     )
                 )
-                (problem.actions state)
+                actions
 
         updatedParent =
             { node
