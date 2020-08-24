@@ -10550,11 +10550,40 @@ var $elm$core$Basics$never = function (_v0) {
 	}
 };
 var $elm$browser$Browser$document = _Browser_document;
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
-var $elm$svg$Svg$Attributes$cx = _VirtualDom_attribute('cx');
-var $elm$svg$Svg$Attributes$cy = _VirtualDom_attribute('cy');
-var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
 var $elm_community$list_extra$List$Extra$find = F2(
 	function (predicate, list) {
 		find:
@@ -10576,15 +10605,9 @@ var $elm_community$list_extra$List$Extra$find = F2(
 			}
 		}
 	});
+var $elm$svg$Svg$Attributes$fontSize = _VirtualDom_attribute('font-size');
+var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
-var $elm_community$maybe_extra$Maybe$Extra$join = function (mx) {
-	if (mx.$ === 'Just') {
-		var x = mx.a;
-		return x;
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
 var $elm$core$Maybe$map = F2(
 	function (f, maybe) {
 		if (maybe.$ === 'Just') {
@@ -10614,7 +10637,23 @@ var $elm$core$Tuple$pair = F2(
 	function (a, b) {
 		return _Utils_Tuple2(a, b);
 	});
+var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
 var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
+var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
+var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
+var $author$project$Main$path = F3(
+	function (c, e1, e2) {
+		return A2(
+			$elm$svg$Svg$path,
+			_List_fromArray(
+				[
+					$elm$svg$Svg$Attributes$d(
+					'M ' + ($elm$core$String$fromFloat((e1.x * c) + 0.5) + (' ' + ($elm$core$String$fromFloat((e1.y * c) + 0.5) + ('L ' + ($elm$core$String$fromFloat((e2.x * c) + 0.5) + (' ' + $elm$core$String$fromFloat((e2.y * c) + 0.5)))))))),
+					$elm$svg$Svg$Attributes$stroke('black'),
+					$elm$svg$Svg$Attributes$strokeWidth('0.0002')
+				]),
+			_List_Nil);
+	});
 var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
 var $gampleman$elm_visualization$Force$isCompleted = function (_v0) {
 	var alpha = _v0.a.alpha;
@@ -11533,7 +11572,7 @@ var $author$project$Main$firstState = F2(
 									$elm$core$Maybe$map,
 									function (parent) {
 										return {
-											distance: node.pathCost - A2(
+											distance: (node.pathCost - A2(
 												$elm$core$Maybe$withDefault,
 												0,
 												A2(
@@ -11544,7 +11583,7 @@ var $author$project$Main$firstState = F2(
 													A2(
 														$elm$core$Dict$get,
 														model.problem.stateToComparable(parent),
-														model.explored))),
+														model.explored)))) / model.maxPathCost,
 											source: A2(
 												$elm$core$Maybe$withDefault,
 												0,
@@ -11561,7 +11600,7 @@ var $author$project$Main$firstState = F2(
 																model.problem.stateToComparable(parent));
 														},
 														list))),
-											strength: $elm$core$Maybe$Just(1),
+											strength: $elm$core$Maybe$Nothing,
 											target: i
 										};
 									},
@@ -11585,10 +11624,12 @@ var $author$project$Main$sim = F2(
 				},
 				list));
 	});
-var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
-var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
 var $elm$svg$Svg$Attributes$style = _VirtualDom_attribute('style');
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
+var $elm$svg$Svg$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$svg$Svg$text_ = $elm$svg$Svg$trustedNode('text');
+var $elm$core$Debug$toString = _Debug_toString;
+var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
 var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
 var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
 var $author$project$Main$forceMap = function (model) {
@@ -11597,7 +11638,7 @@ var $author$project$Main$forceMap = function (model) {
 		$elm$core$Tuple$pair,
 		$elm$core$Dict$toList(model.explored));
 	var entities = A2($author$project$Main$sim, model, list);
-	var c = 1 / 25;
+	var c = 1 / 7;
 	return A2(
 		$elm$svg$Svg$svg,
 		_List_fromArray(
@@ -11612,79 +11653,109 @@ var $author$project$Main$forceMap = function (model) {
 				$elm$core$List$map,
 				function (entity) {
 					return A2(
-						$elm$svg$Svg$circle,
+						$elm$svg$Svg$g,
 						_List_fromArray(
 							[
-								$elm$svg$Svg$Attributes$cx(
-								$elm$core$String$fromFloat((entity.x * c) + 0.5)),
-								$elm$svg$Svg$Attributes$cy(
-								$elm$core$String$fromFloat((entity.y * c) + 0.5)),
-								$elm$svg$Svg$Attributes$r('0.002')
+								$elm$svg$Svg$Attributes$transform(
+								'translate (' + ($elm$core$String$fromFloat((entity.x * c) + 0.5) + (' ' + ($elm$core$String$fromFloat((entity.y * c) + 0.5) + ')'))))
 							]),
-						_List_Nil);
+						_List_fromArray(
+							[
+								A2(
+								$elm$svg$Svg$circle,
+								_List_fromArray(
+									[
+										$elm$svg$Svg$Attributes$r('0.002')
+									]),
+								_List_Nil),
+								A2(
+								$elm$svg$Svg$text_,
+								_List_fromArray(
+									[
+										$elm$svg$Svg$Attributes$stroke('black'),
+										$elm$svg$Svg$Attributes$strokeWidth('0.1'),
+										$elm$svg$Svg$Attributes$transform('translate(0.005 0) scale(0.001) '),
+										$elm$svg$Svg$Attributes$fontSize('10')
+									]),
+								_List_fromArray(
+									[
+										$elm$svg$Svg$text(
+										A2(
+											$elm$core$Maybe$withDefault,
+											'',
+											A2(
+												$elm$core$Maybe$map,
+												function (_v0) {
+													var _v1 = _v0.b;
+													var node = _v1.b;
+													return $elm$core$Debug$toString(node.state);
+												},
+												A2(
+													$elm_community$list_extra$List$Extra$find,
+													A2(
+														$elm$core$Basics$composeR,
+														$elm$core$Tuple$first,
+														$elm$core$Basics$eq(entity.id)),
+													list))))
+									]))
+							]));
 				},
 				entities),
-			$elm_community$maybe_extra$Maybe$Extra$values(
-				A2(
-					$elm$core$List$map,
-					function (_v0) {
-						var id1 = _v0.a;
-						var _v1 = _v0.b;
-						var node = _v1.b;
-						return $elm_community$maybe_extra$Maybe$Extra$join(
-							A2(
+			$elm$core$List$concat(
+				$elm_community$maybe_extra$Maybe$Extra$values(
+					A2(
+						$elm$core$List$map,
+						function (_v2) {
+							var id1 = _v2.a;
+							var _v3 = _v2.b;
+							var node = _v3.b;
+							return A2(
 								$elm$core$Maybe$map,
-								function (parent) {
-									return $elm_community$maybe_extra$Maybe$Extra$join(
+								function (children) {
+									return $elm_community$maybe_extra$Maybe$Extra$values(
 										A2(
-											$elm$core$Maybe$map,
-											function (_v4) {
-												var id2 = _v4.a;
-												var _v5 = _v4.b;
+											$elm$core$List$map,
+											function (_v7) {
+												var id2 = _v7.a;
+												var _v8 = _v7.b;
 												return A3(
 													$elm$core$Maybe$map2,
-													F2(
-														function (e1, e2) {
-															return A2(
-																$elm$svg$Svg$path,
-																_List_fromArray(
-																	[
-																		$elm$svg$Svg$Attributes$d(
-																		'M ' + ($elm$core$String$fromFloat((e1.x * c) + 0.5) + (' ' + ($elm$core$String$fromFloat((e1.y * c) + 0.5) + ('L ' + ($elm$core$String$fromFloat((e2.x * c) + 0.5) + (' ' + $elm$core$String$fromFloat((e2.y * c) + 0.5)))))))),
-																		$elm$svg$Svg$Attributes$stroke('black'),
-																		$elm$svg$Svg$Attributes$strokeWidth('0.0002')
-																	]),
-																_List_Nil);
-														}),
+													$author$project$Main$path(c),
 													A2(
 														$elm_community$list_extra$List$Extra$find,
-														function (_v6) {
-															var id = _v6.id;
+														function (_v9) {
+															var id = _v9.id;
 															return _Utils_eq(id, id1);
 														},
 														entities),
 													A2(
 														$elm_community$list_extra$List$Extra$find,
-														function (_v7) {
-															var id = _v7.id;
+														function (_v10) {
+															var id = _v10.id;
 															return _Utils_eq(id, id2);
 														},
 														entities));
 											},
 											A2(
-												$elm_community$list_extra$List$Extra$find,
-												function (_v2) {
-													var _v3 = _v2.b;
-													var state = _v3.a;
-													return _Utils_eq(
-														state,
-														model.problem.stateToComparable(parent));
+												$elm$core$List$filter,
+												function (_v4) {
+													var _v5 = _v4.b;
+													var state = _v5.a;
+													return A2(
+														$elm$core$List$any,
+														function (_v6) {
+															var child = _v6.b;
+															return _Utils_eq(
+																model.problem.stateToComparable(child),
+																state);
+														},
+														children);
 												},
 												list)));
 								},
-								node.parent));
-					},
-					list))));
+								node.children);
+						},
+						list)))));
 };
 var $elm_community$list_extra$List$Extra$unconsLast = function (list) {
 	var _v0 = $elm$core$List$reverse(list);
@@ -11704,38 +11775,6 @@ var $author$project$Search$fifo = {
 		return $elm_community$list_extra$List$Extra$unconsLast;
 	}
 };
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var $elm$core$Dict$member = F2(
 	function (key, dict) {
 		var _v0 = A2($elm$core$Dict$get, key, dict);
@@ -11816,6 +11855,14 @@ var $elm_community$list_extra$List$Extra$findIndex = $elm_community$list_extra$L
 var $elm_community$list_extra$List$Extra$elemIndex = function (x) {
 	return $elm_community$list_extra$List$Extra$findIndex(
 		$elm$core$Basics$eq(x));
+};
+var $elm_community$maybe_extra$Maybe$Extra$join = function (mx) {
+	if (mx.$ === 'Just') {
+		var x = mx.a;
+		return x;
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
 };
 var $elm$core$List$head = function (list) {
 	if (list.b) {
@@ -12107,16 +12154,16 @@ var $author$project$Search$Problem$NPuzzle$nPuzzle = function (validState) {
 		stateToComparable: $elm$core$Basics$identity
 	};
 };
-var $author$project$Search$Problem$NPuzzle$complexEightPuzzle = $author$project$Search$Problem$NPuzzle$nPuzzle(
+var $author$project$Search$Problem$NPuzzle$mediumEightPuzzle = $author$project$Search$Problem$NPuzzle$nPuzzle(
 	$elm$core$List$concat(
 		_List_fromArray(
 			[
 				_List_fromArray(
-				[7, 2, 4]),
+				[1, 4, 2]),
 				_List_fromArray(
-				[5, 0, 6]),
+				[3, 5, 8]),
 				_List_fromArray(
-				[8, 3, 1])
+				[0, 6, 7])
 			])));
 var $author$project$Main$NewModel = function (a) {
 	return {$: 'NewModel', a: a};
@@ -12270,15 +12317,15 @@ var $author$project$Main$searchTask = function (model) {
 				$elm$core$Task$andThen,
 				function (_v1) {
 					return $elm$core$Task$succeed(
-						A2($author$project$Search$nextN, 50, model));
+						A2($author$project$Search$nextN, 15, model));
 				},
-				$elm$core$Process$sleep(100)));
+				$elm$core$Process$sleep(1000)));
 	} else {
 		return $elm$core$Platform$Cmd$none;
 	}
 };
 var $author$project$Main$init = function (_v0) {
-	var initialModel = $author$project$Search$breadthFirst($author$project$Search$Problem$NPuzzle$complexEightPuzzle);
+	var initialModel = $author$project$Search$breadthFirst($author$project$Search$Problem$NPuzzle$mediumEightPuzzle);
 	return _Utils_Tuple2(
 		{
 			searchModel: initialModel,

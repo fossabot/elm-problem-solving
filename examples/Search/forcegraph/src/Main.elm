@@ -5,6 +5,7 @@ import Browser.Events
 import Dict exposing (Dict)
 import Force exposing (..)
 import Html exposing (Html, p, text)
+import List
 import List.Extra as List
 import Maybe.Extra as Maybe
 import Process
@@ -20,6 +21,7 @@ import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Task
 import Tuple
+import Maybe
 
 
 type alias State =
@@ -57,7 +59,7 @@ init =
     \_ ->
         let
             initialModel =
-                Search.breadthFirst complexEightPuzzle
+                Search.breadthFirst mediumEightPuzzle
         in
         ( { searchModel = initialModel
           , tooltip = { node = Nothing, position = { x = 0, y = 0 } }
@@ -71,6 +73,7 @@ update msg ({ tooltip } as model) =
     case msg of
         NewModel m ->
             ( { model | searchModel = m }
+            --, Cmd.none
             , searchTask m
             )
 
@@ -87,11 +90,11 @@ searchTask model =
         Pending ->
             Task.perform
                 NewModel
-                (Process.sleep 100
+                (Process.sleep 1000
                     |> Task.andThen
                         (\_ ->
                             Task.succeed
-                                (Search.nextN 50 model)
+                                (Search.nextN 15 model)
                         )
                 )
 
@@ -120,13 +123,15 @@ firstState model list =
                                             |> Maybe.withDefault 0
                                     , target = i
                                     , distance =
-                                        node.pathCost
+                                        (node.pathCost
                                             - (model.explored
                                                 |> Dict.get (model.problem.stateToComparable parent)
                                                 |> Maybe.map .pathCost
                                                 |> Maybe.withDefault 0
                                               )
-                                    , strength = Just 1
+                                        )
+                                            / model.maxPathCost
+                                    , strength = Nothing
                                     }
                                 )
                     )
@@ -146,13 +151,16 @@ forceMap : Search.Model a comparable -> Html Msg
 forceMap model =
     let
         list =
-            List.indexedMap Tuple.pair (Dict.toList model.explored)
+            model.explored
+                |> Dict.toList
+                --|> List.sortBy (\( _, { pathCost } ) -> pathCost)
+                |> List.indexedMap Tuple.pair
 
         entities =
             sim model list
 
         c =
-            1 / 25
+            1 / 7
     in
     svg
         [ width "1000"
@@ -163,49 +171,69 @@ forceMap model =
         ((entities
             |> List.map
                 (\entity ->
-                    circle
-                        [ cx (String.fromFloat (entity.x * c + 0.5))
-                        , cy (String.fromFloat (entity.y * c + 0.5))
-                        , r "0.002"
+                    g
+                        [ transform
+                            ("translate ("
+                                ++ String.fromFloat (entity.x * c + 0.5)
+                                ++ " "
+                                ++ String.fromFloat (entity.y * c + 0.5)
+                                ++ ")"
+                            )
                         ]
-                        []
+                        [ circle [ r "0.002" ] []
+                        , Svg.text_
+                            [ stroke "black", strokeWidth "0.1", transform "translate(0.005 0) scale(0.001) ", fontSize "10" ]
+                            [ Svg.text
+                                (list
+                                    |> List.find (Tuple.first >> (==) entity.id)
+                                    |> Maybe.map (\(_, ( _, node )) -> Debug.toString node.state)
+                                    |> Maybe.withDefault ""
+                                )
+                            ]
+                        ]
                 )
          )
-            ++ -- maybe hell
-               (list
+            ++ (list
                     |> List.map
                         (\( id1, ( _, node ) ) ->
-                            node.parent
+                            node.children
                                 |> Maybe.map
-                                    (\parent ->
-                                        List.find (\( _, ( state, _ ) ) -> state == model.problem.stateToComparable parent) list
-                                            |> Maybe.map
+                                    (\children ->
+                                        List.filter
+                                            (\( _, ( state, _ ) ) ->
+                                                List.any
+                                                    (\( _, child ) -> model.problem.stateToComparable child == state)
+                                                    children
+                                            )
+                                            list
+                                            |> List.map
                                                 (\( id2, ( _, _ ) ) ->
-                                                    Maybe.map2
-                                                        (\e1 e2 ->
-                                                            Svg.path
-                                                                [ d
-                                                                    ("M "
-                                                                        ++ String.fromFloat (e1.x * c + 0.5)
-                                                                        ++ " "
-                                                                        ++ String.fromFloat (e1.y * c + 0.5)
-                                                                        ++ "L "
-                                                                        ++ String.fromFloat (e2.x * c + 0.5)
-                                                                        ++ " "
-                                                                        ++ String.fromFloat (e2.y * c + 0.5)
-                                                                    )
-                                                                , stroke "black"
-                                                                , strokeWidth "0.0002"
-                                                                ]
-                                                                []
-                                                        )
+                                                    Maybe.map2 (path c)
                                                         (List.find (\{ id } -> id == id1) entities)
                                                         (List.find (\{ id } -> id == id2) entities)
                                                 )
-                                            |> Maybe.join
+                                            |> Maybe.values
                                     )
-                                |> Maybe.join
                         )
                     |> Maybe.values
+                    |> List.concat
                )
         )
+
+
+path c e1 e2 =
+    Svg.path
+        [ d
+            ("M "
+                ++ String.fromFloat (e1.x * c + 0.5)
+                ++ " "
+                ++ String.fromFloat (e1.y * c + 0.5)
+                ++ "L "
+                ++ String.fromFloat (e2.x * c + 0.5)
+                ++ " "
+                ++ String.fromFloat (e2.y * c + 0.5)
+            )
+        , stroke "black"
+        , strokeWidth "0.0002"
+        ]
+        []
