@@ -10550,40 +10550,8 @@ var $elm$core$Basics$never = function (_v0) {
 	}
 };
 var $elm$browser$Browser$document = _Browser_document;
-var $elm$core$List$any = F2(
-	function (isOkay, list) {
-		any:
-		while (true) {
-			if (!list.b) {
-				return false;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (isOkay(x)) {
-					return true;
-				} else {
-					var $temp$isOkay = isOkay,
-						$temp$list = xs;
-					isOkay = $temp$isOkay;
-					list = $temp$list;
-					continue any;
-				}
-			}
-		}
-	});
 var $elm$svg$Svg$trustedNode = _VirtualDom_nodeNS('http://www.w3.org/2000/svg');
 var $elm$svg$Svg$circle = $elm$svg$Svg$trustedNode('circle');
-var $elm$core$List$filter = F2(
-	function (isGood, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, xs) {
-					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
-				}),
-			_List_Nil,
-			list);
-	});
 var $elm_community$list_extra$List$Extra$find = F2(
 	function (predicate, list) {
 		find:
@@ -10605,7 +10573,6 @@ var $elm_community$list_extra$List$Extra$find = F2(
 			}
 		}
 	});
-var $elm$svg$Svg$Attributes$fontSize = _VirtualDom_attribute('font-size');
 var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $elm$core$Maybe$map = F2(
@@ -10633,28 +10600,880 @@ var $elm$core$Maybe$map2 = F3(
 			}
 		}
 	});
-var $elm$core$Tuple$pair = F2(
-	function (a, b) {
-		return _Utils_Tuple2(a, b);
+var $elm_community$list_extra$List$Extra$maximumBy = F2(
+	function (f, ls) {
+		var maxBy = F2(
+			function (x, _v1) {
+				var y = _v1.a;
+				var fy = _v1.b;
+				var fx = f(x);
+				return (_Utils_cmp(fx, fy) > 0) ? _Utils_Tuple2(x, fx) : _Utils_Tuple2(y, fy);
+			});
+		if (ls.b) {
+			if (!ls.b.b) {
+				var l_ = ls.a;
+				return $elm$core$Maybe$Just(l_);
+			} else {
+				var l_ = ls.a;
+				var ls_ = ls.b;
+				return $elm$core$Maybe$Just(
+					A3(
+						$elm$core$List$foldl,
+						maxBy,
+						_Utils_Tuple2(
+							l_,
+							f(l_)),
+						ls_).a);
+			}
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
+	});
+var $elm_community$list_extra$List$Extra$minimumBy = F2(
+	function (f, ls) {
+		var minBy = F2(
+			function (x, _v1) {
+				var y = _v1.a;
+				var fy = _v1.b;
+				var fx = f(x);
+				return (_Utils_cmp(fx, fy) < 0) ? _Utils_Tuple2(x, fx) : _Utils_Tuple2(y, fy);
+			});
+		if (ls.b) {
+			if (!ls.b.b) {
+				var l_ = ls.a;
+				return $elm$core$Maybe$Just(l_);
+			} else {
+				var l_ = ls.a;
+				var ls_ = ls.b;
+				return $elm$core$Maybe$Just(
+					A3(
+						$elm$core$List$foldl,
+						minBy,
+						_Utils_Tuple2(
+							l_,
+							f(l_)),
+						ls_).a);
+			}
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
 	});
 var $elm$svg$Svg$Attributes$d = _VirtualDom_attribute('d');
 var $elm$svg$Svg$path = $elm$svg$Svg$trustedNode('path');
 var $elm$svg$Svg$Attributes$stroke = _VirtualDom_attribute('stroke');
 var $elm$svg$Svg$Attributes$strokeWidth = _VirtualDom_attribute('stroke-width');
-var $author$project$Main$path = F3(
-	function (c, e1, e2) {
+var $author$project$Main$path = F6(
+	function (cx, cy, offsetX, offsetY, e1, e2) {
 		return A2(
 			$elm$svg$Svg$path,
 			_List_fromArray(
 				[
 					$elm$svg$Svg$Attributes$d(
-					'M ' + ($elm$core$String$fromFloat((e1.x * c) + 0.5) + (' ' + ($elm$core$String$fromFloat((e1.y * c) + 0.5) + ('L ' + ($elm$core$String$fromFloat((e2.x * c) + 0.5) + (' ' + $elm$core$String$fromFloat((e2.y * c) + 0.5)))))))),
+					'M ' + ($elm$core$String$fromFloat((e1.x * cx) - offsetX) + (' ' + ($elm$core$String$fromFloat((e1.y * cy) - offsetY) + ('L ' + ($elm$core$String$fromFloat((e2.x * cx) - offsetX) + (' ' + $elm$core$String$fromFloat((e2.y * cy) - offsetY)))))))),
 					$elm$svg$Svg$Attributes$stroke('black'),
 					$elm$svg$Svg$Attributes$strokeWidth('0.0002')
 				]),
 			_List_Nil);
 	});
 var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
+var $elm$svg$Svg$Attributes$style = _VirtualDom_attribute('style');
+var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
+var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
+var $elm_community$maybe_extra$Maybe$Extra$cons = F2(
+	function (item, list) {
+		if (item.$ === 'Just') {
+			var v = item.a;
+			return A2($elm$core$List$cons, v, list);
+		} else {
+			return list;
+		}
+	});
+var $elm_community$maybe_extra$Maybe$Extra$values = A2($elm$core$List$foldr, $elm_community$maybe_extra$Maybe$Extra$cons, _List_Nil);
+var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
+var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
+var $author$project$Main$forceMap = function (model) {
+	var minY = A2(
+		$elm$core$Maybe$withDefault,
+		0,
+		A2(
+			$elm$core$Maybe$map,
+			function ($) {
+				return $.y;
+			},
+			A2(
+				$elm_community$list_extra$List$Extra$minimumBy,
+				function ($) {
+					return $.y;
+				},
+				model.nodes)));
+	var minX = A2(
+		$elm$core$Maybe$withDefault,
+		0,
+		A2(
+			$elm$core$Maybe$map,
+			function ($) {
+				return $.x;
+			},
+			A2(
+				$elm_community$list_extra$List$Extra$minimumBy,
+				function ($) {
+					return $.x;
+				},
+				model.nodes)));
+	var maxY = A2(
+		$elm$core$Maybe$withDefault,
+		0,
+		A2(
+			$elm$core$Maybe$map,
+			function ($) {
+				return $.y;
+			},
+			A2(
+				$elm_community$list_extra$List$Extra$maximumBy,
+				function ($) {
+					return $.y;
+				},
+				model.nodes)));
+	var maxX = A2(
+		$elm$core$Maybe$withDefault,
+		0,
+		A2(
+			$elm$core$Maybe$map,
+			function ($) {
+				return $.x;
+			},
+			A2(
+				$elm_community$list_extra$List$Extra$maximumBy,
+				function ($) {
+					return $.x;
+				},
+				model.nodes)));
+	var cy = 1 / (maxY - minY);
+	var offsetY = minY * cy;
+	var cx = 1 / (maxX - minX);
+	var offsetX = minX * cx;
+	return A2(
+		$elm$svg$Svg$svg,
+		_List_fromArray(
+			[
+				$elm$svg$Svg$Attributes$width('900'),
+				$elm$svg$Svg$Attributes$height('900'),
+				$elm$svg$Svg$Attributes$viewBox('0 0 1 1'),
+				$elm$svg$Svg$Attributes$style('border: 1px dotted black')
+			]),
+		_Utils_ap(
+			A2(
+				$elm$core$List$map,
+				function (entity) {
+					return A2(
+						$elm$svg$Svg$g,
+						_List_fromArray(
+							[
+								$elm$svg$Svg$Attributes$transform(
+								'translate (' + ($elm$core$String$fromFloat((entity.x * cx) - offsetX) + (' ' + ($elm$core$String$fromFloat((entity.y * cy) - offsetY) + ')'))))
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$svg$Svg$circle,
+								_List_fromArray(
+									[
+										$elm$svg$Svg$Attributes$r('0.002')
+									]),
+								_List_Nil)
+							]));
+				},
+				model.nodes),
+			$elm_community$maybe_extra$Maybe$Extra$values(
+				A2(
+					$elm$core$List$map,
+					function (_v0) {
+						var source = _v0.source;
+						var target = _v0.target;
+						return A3(
+							$elm$core$Maybe$map2,
+							A4($author$project$Main$path, cx, cy, offsetX, offsetY),
+							A2(
+								$elm_community$list_extra$List$Extra$find,
+								function (_v1) {
+									var id = _v1.id;
+									return _Utils_eq(id, source);
+								},
+								model.nodes),
+							A2(
+								$elm_community$list_extra$List$Extra$find,
+								function (_v2) {
+									var id = _v2.id;
+									return _Utils_eq(id, target);
+								},
+								model.nodes));
+					},
+					model.edges))));
+};
+var $elm$core$List$any = F2(
+	function (isOkay, list) {
+		any:
+		while (true) {
+			if (!list.b) {
+				return false;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (isOkay(x)) {
+					return true;
+				} else {
+					var $temp$isOkay = isOkay,
+						$temp$list = xs;
+					isOkay = $temp$isOkay;
+					list = $temp$list;
+					continue any;
+				}
+			}
+		}
+	});
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$Dict$member = F2(
+	function (key, dict) {
+		var _v0 = A2($elm$core$Dict$get, key, dict);
+		if (_v0.$ === 'Just') {
+			return true;
+		} else {
+			return false;
+		}
+	});
+var $author$project$Search$graphSearch = {
+	frontier: F5(
+		function (problem, explored, childNodes, h, t) {
+			return A2(
+				$elm$core$List$filter,
+				function (_v0) {
+					var state = _v0.a;
+					var pathCost = _v0.b.pathCost;
+					return (!_Utils_eq(state, h)) && ((!A2(
+						$elm$core$List$any,
+						function (_v1) {
+							var state_ = _v1.a;
+							var sibling = _v1.b;
+							return _Utils_eq(state, state_) && (_Utils_cmp(pathCost, sibling.pathCost) < 0);
+						},
+						childNodes)) && (!A2(
+						$elm$core$Dict$member,
+						problem.stateToComparable(state),
+						explored)));
+				},
+				childNodes);
+		})
+};
+var $author$project$Search$Result$Pending = {$: 'Pending'};
+var $author$project$Search$init = F3(
+	function (strategy, queue, problem) {
+		var initialNode = {children: $elm$core$Maybe$Nothing, parent: $elm$core$Maybe$Nothing, pathCost: 0, state: problem.initialState};
+		return {
+			explored: $elm$core$Dict$fromList(
+				_List_fromArray(
+					[
+						_Utils_Tuple2(
+						problem.stateToComparable(problem.initialState),
+						initialNode)
+					])),
+			frontier: _List_fromArray(
+				[problem.initialState]),
+			maxPathCost: 0,
+			newExplored: _List_fromArray(
+				[initialNode]),
+			problem: problem,
+			queue: queue,
+			solution: $author$project$Search$Result$Pending,
+			strategy: strategy
+		};
+	});
+var $elm_community$list_extra$List$Extra$remove = F2(
+	function (x, xs) {
+		if (!xs.b) {
+			return _List_Nil;
+		} else {
+			var y = xs.a;
+			var ys = xs.b;
+			return _Utils_eq(x, y) ? ys : A2(
+				$elm$core$List$cons,
+				y,
+				A2($elm_community$list_extra$List$Extra$remove, x, ys));
+		}
+	});
+var $author$project$Search$priority = function (f) {
+	return {
+		pop: F2(
+			function (d, l) {
+				return A2(
+					$elm$core$Maybe$map,
+					function (a) {
+						return _Utils_Tuple2(
+							a,
+							A2($elm_community$list_extra$List$Extra$remove, a, l));
+					},
+					A2(
+						$elm_community$list_extra$List$Extra$minimumBy,
+						f(d),
+						l));
+			})
+	};
+};
+var $author$project$Search$bestFirst = function (problem) {
+	return A3(
+		$author$project$Search$init,
+		$author$project$Search$graphSearch,
+		$author$project$Search$priority(
+			F2(
+				function (explored, state) {
+					return A2(
+						$elm$core$Maybe$withDefault,
+						0,
+						A2(
+							$elm$core$Maybe$map,
+							function ($) {
+								return $.pathCost;
+							},
+							A2(
+								$elm$core$Dict$get,
+								problem.stateToComparable(state),
+								explored))) + problem.heuristic(state);
+				})),
+		problem);
+};
+var $elm_community$list_extra$List$Extra$findIndexHelp = F3(
+	function (index, predicate, list) {
+		findIndexHelp:
+		while (true) {
+			if (!list.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var x = list.a;
+				var xs = list.b;
+				if (predicate(x)) {
+					return $elm$core$Maybe$Just(index);
+				} else {
+					var $temp$index = index + 1,
+						$temp$predicate = predicate,
+						$temp$list = xs;
+					index = $temp$index;
+					predicate = $temp$predicate;
+					list = $temp$list;
+					continue findIndexHelp;
+				}
+			}
+		}
+	});
+var $elm_community$list_extra$List$Extra$findIndex = $elm_community$list_extra$List$Extra$findIndexHelp(0);
+var $elm_community$list_extra$List$Extra$elemIndex = function (x) {
+	return $elm_community$list_extra$List$Extra$findIndex(
+		$elm$core$Basics$eq(x));
+};
+var $elm_community$maybe_extra$Maybe$Extra$join = function (mx) {
+	if (mx.$ === 'Just') {
+		var x = mx.a;
+		return x;
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm_community$list_extra$List$Extra$getAt = F2(
+	function (idx, xs) {
+		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
+			A2($elm$core$List$drop, idx, xs));
+	});
+var $elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2($elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return $elm$core$List$reverse(
+			A3($elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var $elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _v0 = _Utils_Tuple2(n, list);
+			_v0$1:
+			while (true) {
+				_v0$5:
+				while (true) {
+					if (!_v0.b.b) {
+						return list;
+					} else {
+						if (_v0.b.b.b) {
+							switch (_v0.a) {
+								case 1:
+									break _v0$1;
+								case 2:
+									var _v2 = _v0.b;
+									var x = _v2.a;
+									var _v3 = _v2.b;
+									var y = _v3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_v0.b.b.b.b) {
+										var _v4 = _v0.b;
+										var x = _v4.a;
+										var _v5 = _v4.b;
+										var y = _v5.a;
+										var _v6 = _v5.b;
+										var z = _v6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _v0$5;
+									}
+								default:
+									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+										var _v7 = _v0.b;
+										var x = _v7.a;
+										var _v8 = _v7.b;
+										var y = _v8.a;
+										var _v9 = _v8.b;
+										var z = _v9.a;
+										var _v10 = _v9.b;
+										var w = _v10.a;
+										var tl = _v10.b;
+										return (ctr > 1000) ? A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _v0$5;
+									}
+							}
+						} else {
+							if (_v0.a === 1) {
+								break _v0$1;
+							} else {
+								break _v0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _v1 = _v0.b;
+			var x = _v1.a;
+			return _List_fromArray(
+				[x]);
+		}
+	});
+var $elm$core$List$take = F2(
+	function (n, list) {
+		return A3($elm$core$List$takeFast, 0, n, list);
+	});
+var $elm_community$list_extra$List$Extra$updateAt = F3(
+	function (index, fn, list) {
+		if (index < 0) {
+			return list;
+		} else {
+			var tail = A2($elm$core$List$drop, index, list);
+			var head = A2($elm$core$List$take, index, list);
+			if (tail.b) {
+				var x = tail.a;
+				var xs = tail.b;
+				return _Utils_ap(
+					head,
+					A2(
+						$elm$core$List$cons,
+						fn(x),
+						xs));
+			} else {
+				return list;
+			}
+		}
+	});
+var $elm_community$list_extra$List$Extra$setAt = F2(
+	function (index, value) {
+		return A2(
+			$elm_community$list_extra$List$Extra$updateAt,
+			index,
+			$elm$core$Basics$always(value));
+	});
+var $author$project$Search$Problem$NPuzzle$swapAt = F3(
+	function (x, y, l) {
+		var b = A2($elm_community$list_extra$List$Extra$getAt, y, l);
+		var a = A2($elm_community$list_extra$List$Extra$getAt, x, l);
+		return A3(
+			$elm$core$Maybe$map2,
+			F2(
+				function (a_, b_) {
+					return A3(
+						$elm_community$list_extra$List$Extra$setAt,
+						y,
+						a_,
+						A3($elm_community$list_extra$List$Extra$setAt, x, b_, l));
+				}),
+			a,
+			b);
+	});
+var $author$project$Search$Problem$NPuzzle$vertical = F2(
+	function (d, state) {
+		return $elm_community$maybe_extra$Maybe$Extra$join(
+			A2(
+				$elm$core$Maybe$map,
+				function (a) {
+					return A3($author$project$Search$Problem$NPuzzle$swapAt, a, a + d, state);
+				},
+				A2($elm_community$list_extra$List$Extra$elemIndex, 0, state)));
+	});
+var $author$project$Search$Problem$NPuzzle$down = function (s) {
+	return $author$project$Search$Problem$NPuzzle$vertical(s);
+};
+var $author$project$Search$Problem$NPuzzle$goal = function (state) {
+	return A2(
+		$elm$core$List$range,
+		0,
+		$elm$core$List$length(state) - 1);
+};
+var $author$project$Search$Problem$NPuzzle$horizontal = F2(
+	function (d, state) {
+		return $elm_community$maybe_extra$Maybe$Extra$join(
+			A2(
+				$elm$core$Maybe$map,
+				function (a) {
+					return A3($author$project$Search$Problem$NPuzzle$swapAt, a, a + d, state);
+				},
+				A2($elm_community$list_extra$List$Extra$elemIndex, 0, state)));
+	});
+var $author$project$Search$Problem$NPuzzle$left = $author$project$Search$Problem$NPuzzle$horizontal(-1);
+var $elm$core$Basics$abs = function (n) {
+	return (n < 0) ? (-n) : n;
+};
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $elm$core$Basics$round = _Basics_round;
+var $elm$core$Basics$sqrt = _Basics_sqrt;
+var $author$project$Search$Problem$NPuzzle$sideLength = function (state) {
+	return $elm$core$Basics$round(
+		$elm$core$Basics$sqrt(
+			$elm$core$List$length(state)));
+};
+var $author$project$Search$Problem$NPuzzle$manhattanDist = F3(
+	function (p, q, state) {
+		var s = $author$project$Search$Problem$NPuzzle$sideLength(state);
+		return $elm$core$Basics$abs(
+			A2($elm$core$Basics$modBy, s, p) - A2($elm$core$Basics$modBy, s, q)) + $elm$core$Basics$abs(((p / s) | 0) - ((q / s) | 0));
+	});
+var $author$project$Search$Problem$NPuzzle$right = $author$project$Search$Problem$NPuzzle$horizontal(1);
+var $elm$core$List$sum = function (numbers) {
+	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
+};
+var $author$project$Search$Problem$NPuzzle$up = function (s) {
+	return $author$project$Search$Problem$NPuzzle$vertical(-s);
+};
+var $author$project$Search$Problem$NPuzzle$nPuzzle = function (validState) {
+	var s = $author$project$Search$Problem$NPuzzle$sideLength(validState);
+	return {
+		actions: function (state) {
+			return A2(
+				$elm$core$List$map,
+				function (a) {
+					return _Utils_Tuple2(1, a);
+				},
+				$elm_community$maybe_extra$Maybe$Extra$values(
+					A2(
+						$elm$core$List$map,
+						function (f) {
+							return f(state);
+						},
+						_List_fromArray(
+							[
+								$author$project$Search$Problem$NPuzzle$up(s),
+								$author$project$Search$Problem$NPuzzle$down(s),
+								$author$project$Search$Problem$NPuzzle$left,
+								$author$project$Search$Problem$NPuzzle$right
+							]))));
+		},
+		goalTest: function (state) {
+			return _Utils_eq(
+				state,
+				$author$project$Search$Problem$NPuzzle$goal(validState));
+		},
+		heuristic: function (state) {
+			return $elm$core$List$sum(
+				A2(
+					$elm$core$List$indexedMap,
+					F2(
+						function (i, n) {
+							return A3(
+								$author$project$Search$Problem$NPuzzle$manhattanDist,
+								i,
+								A2(
+									$elm$core$Maybe$withDefault,
+									1000,
+									A2(
+										$elm_community$list_extra$List$Extra$elemIndex,
+										n,
+										$author$project$Search$Problem$NPuzzle$goal(state))),
+								state);
+						}),
+					state));
+		},
+		initialState: validState,
+		stateToComparable: $elm$core$Basics$identity
+	};
+};
+var $author$project$Search$Problem$NPuzzle$complexEightPuzzle = $author$project$Search$Problem$NPuzzle$nPuzzle(
+	$elm$core$List$concat(
+		_List_fromArray(
+			[
+				_List_fromArray(
+				[7, 2, 4]),
+				_List_fromArray(
+				[5, 0, 6]),
+				_List_fromArray(
+				[8, 3, 1])
+			])));
+var $author$project$Main$NewModel = function (a) {
+	return {$: 'NewModel', a: a};
+};
+var $author$project$Search$Result$Failure = {$: 'Failure'};
+var $author$project$Search$Result$Solution = function (a) {
+	return {$: 'Solution', a: a};
+};
+var $author$project$Search$Problem$expand = F2(
+	function (problem, _v0) {
+		var state = _v0.a;
+		var node = _v0.b;
+		var actions = problem.actions(state);
+		var children = A2(
+			$elm$core$List$indexedMap,
+			F2(
+				function (i, _v2) {
+					var stepCost = _v2.a;
+					var result = _v2.b;
+					return _Utils_Tuple2(
+						result,
+						{
+							children: $elm$core$Maybe$Nothing,
+							parent: $elm$core$Maybe$Just(state),
+							pathCost: node.pathCost + stepCost,
+							state: result
+						});
+				}),
+			actions);
+		var updatedParent = _Utils_update(
+			node,
+			{
+				children: $elm$core$Maybe$Just(
+					A2(
+						$elm$core$List$map,
+						function (_v1) {
+							var state_ = _v1.a;
+							var node_ = _v1.b;
+							return _Utils_Tuple2(node_.pathCost, state_);
+						},
+						children))
+			});
+		return _Utils_Tuple2(updatedParent, children);
+	});
+var $elm$core$Dict$union = F2(
+	function (t1, t2) {
+		return A3($elm$core$Dict$foldl, $elm$core$Dict$insert, t2, t1);
+	});
+var $author$project$Search$searchStep = F3(
+	function (strategy, queue, model) {
+		var problem = model.problem;
+		var explored = model.explored;
+		var _v0 = A2(queue.pop, explored, model.frontier);
+		if (_v0.$ === 'Just') {
+			var _v1 = _v0.a;
+			var h = _v1.a;
+			var t = _v1.b;
+			var _v2 = A2(
+				$elm$core$Dict$get,
+				problem.stateToComparable(h),
+				explored);
+			if (_v2.$ === 'Just') {
+				var node = _v2.a;
+				var _v3 = A2(
+					$author$project$Search$Problem$expand,
+					problem,
+					_Utils_Tuple2(h, node));
+				var updatedParent = _v3.a;
+				var childNodes = _v3.b;
+				var filteredChildNodes = A5(strategy.frontier, problem, explored, childNodes, h, t);
+				return _Utils_update(
+					model,
+					{
+						explored: A2(
+							$elm$core$Dict$union,
+							$elm$core$Dict$fromList(
+								A2(
+									$elm$core$List$map,
+									function (_v4) {
+										var a = _v4.a;
+										var node_ = _v4.b;
+										return _Utils_Tuple2(
+											problem.stateToComparable(a),
+											node_);
+									},
+									filteredChildNodes)),
+							A3(
+								$elm$core$Dict$insert,
+								problem.stateToComparable(h),
+								updatedParent,
+								explored)),
+						frontier: _Utils_ap(
+							$elm$core$List$reverse(
+								A2($elm$core$List$map, $elm$core$Tuple$first, filteredChildNodes)),
+							t),
+						maxPathCost: A3(
+							$elm$core$List$foldl,
+							$elm$core$Basics$max,
+							model.maxPathCost,
+							A2(
+								$elm$core$List$map,
+								A2(
+									$elm$core$Basics$composeR,
+									$elm$core$Tuple$second,
+									function ($) {
+										return $.pathCost;
+									}),
+								childNodes)),
+						newExplored: A2($elm$core$List$map, $elm$core$Tuple$second, filteredChildNodes),
+						solution: function () {
+							var _v5 = A2(
+								$elm_community$list_extra$List$Extra$find,
+								function (_v6) {
+									var a = _v6.a;
+									return problem.goalTest(a);
+								},
+								childNodes);
+							if (_v5.$ === 'Just') {
+								var a = _v5.a;
+								return $author$project$Search$Result$Solution(a);
+							} else {
+								return model.solution;
+							}
+						}()
+					});
+			} else {
+				return _Utils_update(
+					model,
+					{solution: $author$project$Search$Result$Failure});
+			}
+		} else {
+			return _Utils_update(
+				model,
+				{solution: $author$project$Search$Result$Failure});
+		}
+	});
+var $author$project$Search$nextN = F2(
+	function (n, model) {
+		return (n > 0) ? A2(
+			$author$project$Search$nextN,
+			n - 1,
+			A3($author$project$Search$searchStep, model.strategy, model.queue, model)) : model;
+	});
+var $elm$core$Process$sleep = _Process_sleep;
+var $author$project$Main$searchTask = function (model) {
+	var _v0 = model.solution;
+	if (_v0.$ === 'Pending') {
+		return A2(
+			$elm$core$Task$perform,
+			$author$project$Main$NewModel,
+			A2(
+				$elm$core$Task$andThen,
+				function (_v1) {
+					return $elm$core$Task$succeed(
+						A2($author$project$Search$nextN, 10, model));
+				},
+				$elm$core$Process$sleep(0)));
+	} else {
+		return $elm$core$Platform$Cmd$none;
+	}
+};
+var $author$project$Main$init = function (_v0) {
+	var initialSearchModel = $author$project$Search$bestFirst($author$project$Search$Problem$NPuzzle$complexEightPuzzle);
+	return _Utils_Tuple2(
+		{
+			edges: _List_Nil,
+			nodes: _List_fromArray(
+				[
+					{
+					id: initialSearchModel.problem.stateToComparable(initialSearchModel.problem.initialState),
+					vx: 0,
+					vy: 0,
+					x: 0,
+					y: 0
+				}
+				]),
+			searchModel: initialSearchModel
+		},
+		$author$project$Main$searchTask(initialSearchModel));
+};
+var $elm$core$Platform$Sub$batch = _Platform_batch;
+var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
+var $gampleman$elm_visualization$Force$Center = F2(
+	function (a, b) {
+		return {$: 'Center', a: a, b: b};
+	});
+var $gampleman$elm_visualization$Force$center = $gampleman$elm_visualization$Force$Center;
 var $gampleman$elm_visualization$Force$isCompleted = function (_v0) {
 	var alpha = _v0.a.alpha;
 	var minAlpha = _v0.a.minAlpha;
@@ -10681,7 +11500,6 @@ var $gampleman$elm_visualization$Force$nTimes = F3(
 		}
 	});
 var $elm$core$Basics$pow = _Basics_pow;
-var $elm$core$Basics$sqrt = _Basics_sqrt;
 var $ianmackenzie$elm_geometry$Vector2d$components = function (_v0) {
 	var components_ = _v0.a;
 	return components_;
@@ -11437,29 +12255,6 @@ var $gampleman$elm_visualization$Force$computeSimulation = F2(
 			}
 		}
 	});
-var $elm$core$Basics$cos = _Basics_cos;
-var $elm$core$Basics$pi = _Basics_pi;
-var $gampleman$elm_visualization$Force$initialAngle = $elm$core$Basics$pi * (3 - $elm$core$Basics$sqrt(5));
-var $gampleman$elm_visualization$Force$initialRadius = 10;
-var $elm$core$Basics$sin = _Basics_sin;
-var $gampleman$elm_visualization$Force$entity = F2(
-	function (index, a) {
-		var radius = $elm$core$Basics$sqrt(index) * $gampleman$elm_visualization$Force$initialRadius;
-		var angle = index * $gampleman$elm_visualization$Force$initialAngle;
-		return {
-			id: index,
-			value: a,
-			vx: 0.0,
-			vy: 0.0,
-			x: radius * $elm$core$Basics$cos(angle),
-			y: radius * $elm$core$Basics$sin(angle)
-		};
-	});
-var $gampleman$elm_visualization$Force$Center = F2(
-	function (a, b) {
-		return {$: 'Center', a: a, b: b};
-	});
-var $gampleman$elm_visualization$Force$center = $gampleman$elm_visualization$Force$Center;
 var $gampleman$elm_visualization$Force$Links = F2(
 	function (a, b) {
 		return {$: 'Links', a: a, b: b};
@@ -11530,6 +12325,26 @@ var $gampleman$elm_visualization$Force$customLinks = F2(
 				},
 				list));
 	});
+var $elm$core$Debug$log = _Debug_log;
+var $gampleman$elm_visualization$Force$ManyBody = F2(
+	function (a, b) {
+		return {$: 'ManyBody', a: a, b: b};
+	});
+var $gampleman$elm_visualization$Force$customManyBody = function (theta) {
+	return A2(
+		$elm$core$Basics$composeR,
+		$elm$core$Dict$fromList,
+		$gampleman$elm_visualization$Force$ManyBody(theta));
+};
+var $gampleman$elm_visualization$Force$manyBodyStrength = function (strength) {
+	return A2(
+		$elm$core$Basics$composeL,
+		$gampleman$elm_visualization$Force$customManyBody(0.9),
+		$elm$core$List$map(
+			function (key) {
+				return _Utils_Tuple2(key, strength);
+			}));
+};
 var $gampleman$elm_visualization$Force$simulation = function (forces) {
 	return $gampleman$elm_visualization$Force$State(
 		{
@@ -11541,837 +12356,127 @@ var $gampleman$elm_visualization$Force$simulation = function (forces) {
 			velocityDecay: 0.6
 		});
 };
-var $elm_community$maybe_extra$Maybe$Extra$cons = F2(
-	function (item, list) {
-		if (item.$ === 'Just') {
-			var v = item.a;
-			return A2($elm$core$List$cons, v, list);
-		} else {
-			return list;
-		}
-	});
-var $elm_community$maybe_extra$Maybe$Extra$values = A2($elm$core$List$foldr, $elm_community$maybe_extra$Maybe$Extra$cons, _List_Nil);
-var $author$project$Main$firstState = F2(
-	function (model, list) {
-		return $gampleman$elm_visualization$Force$simulation(
-			_List_fromArray(
-				[
-					A2($gampleman$elm_visualization$Force$center, 0, 0),
-					A2(
-					$gampleman$elm_visualization$Force$customLinks,
-					1,
-					$elm_community$maybe_extra$Maybe$Extra$values(
-						A2(
-							$elm$core$List$map,
-							function (_v0) {
-								var i = _v0.a;
-								var _v1 = _v0.b;
-								var state = _v1.a;
-								var node = _v1.b;
-								return A2(
-									$elm$core$Maybe$map,
-									function (parent) {
-										return {
-											distance: (node.pathCost - A2(
-												$elm$core$Maybe$withDefault,
-												0,
-												A2(
-													$elm$core$Maybe$map,
-													function ($) {
-														return $.pathCost;
-													},
-													A2(
-														$elm$core$Dict$get,
-														model.problem.stateToComparable(parent),
-														model.explored)))) / model.maxPathCost,
-											source: A2(
-												$elm$core$Maybe$withDefault,
-												0,
-												A2(
-													$elm$core$Maybe$map,
-													$elm$core$Tuple$first,
-													A2(
-														$elm_community$list_extra$List$Extra$find,
-														function (_v2) {
-															var _v3 = _v2.b;
-															var state_ = _v3.a;
-															return _Utils_eq(
-																state_,
-																model.problem.stateToComparable(parent));
-														},
-														list))),
-											strength: $elm$core$Maybe$Nothing,
-											target: i
-										};
-									},
-									node.parent);
-							},
-							list)))
-				]));
-	});
-var $author$project$Main$sim = F2(
-	function (model, list) {
-		return A2(
-			$gampleman$elm_visualization$Force$computeSimulation,
-			A2($author$project$Main$firstState, model, list),
-			A2(
-				$elm$core$List$map,
-				function (_v0) {
-					var i = _v0.a;
-					var _v1 = _v0.b;
-					var state = _v1.a;
-					return A2($gampleman$elm_visualization$Force$entity, i, state);
-				},
-				list));
-	});
-var $elm$svg$Svg$Attributes$style = _VirtualDom_attribute('style');
-var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
-var $elm$svg$Svg$text = $elm$virtual_dom$VirtualDom$text;
-var $elm$svg$Svg$text_ = $elm$svg$Svg$trustedNode('text');
-var $elm$core$Debug$toString = _Debug_toString;
-var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
-var $elm$svg$Svg$Attributes$viewBox = _VirtualDom_attribute('viewBox');
-var $elm$svg$Svg$Attributes$width = _VirtualDom_attribute('width');
-var $author$project$Main$forceMap = function (model) {
-	var list = A2(
-		$elm$core$List$indexedMap,
-		$elm$core$Tuple$pair,
-		$elm$core$Dict$toList(model.explored));
-	var entities = A2($author$project$Main$sim, model, list);
-	var c = 1 / 7;
-	return A2(
-		$elm$svg$Svg$svg,
-		_List_fromArray(
-			[
-				$elm$svg$Svg$Attributes$width('1000'),
-				$elm$svg$Svg$Attributes$height('1000'),
-				$elm$svg$Svg$Attributes$viewBox('0 0 1 1'),
-				$elm$svg$Svg$Attributes$style('border: 1px dotted black')
-			]),
-		_Utils_ap(
-			A2(
-				$elm$core$List$map,
-				function (entity) {
-					return A2(
-						$elm$svg$Svg$g,
-						_List_fromArray(
-							[
-								$elm$svg$Svg$Attributes$transform(
-								'translate (' + ($elm$core$String$fromFloat((entity.x * c) + 0.5) + (' ' + ($elm$core$String$fromFloat((entity.y * c) + 0.5) + ')'))))
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$svg$Svg$circle,
-								_List_fromArray(
-									[
-										$elm$svg$Svg$Attributes$r('0.002')
-									]),
-								_List_Nil),
-								A2(
-								$elm$svg$Svg$text_,
-								_List_fromArray(
-									[
-										$elm$svg$Svg$Attributes$stroke('black'),
-										$elm$svg$Svg$Attributes$strokeWidth('0.1'),
-										$elm$svg$Svg$Attributes$transform('translate(0.005 0) scale(0.001) '),
-										$elm$svg$Svg$Attributes$fontSize('10')
-									]),
-								_List_fromArray(
-									[
-										$elm$svg$Svg$text(
-										A2(
-											$elm$core$Maybe$withDefault,
-											'',
-											A2(
-												$elm$core$Maybe$map,
-												function (_v0) {
-													var _v1 = _v0.b;
-													var node = _v1.b;
-													return $elm$core$Debug$toString(node.state);
-												},
-												A2(
-													$elm_community$list_extra$List$Extra$find,
-													A2(
-														$elm$core$Basics$composeR,
-														$elm$core$Tuple$first,
-														$elm$core$Basics$eq(entity.id)),
-													list))))
-									]))
-							]));
-				},
-				entities),
-			$elm$core$List$concat(
-				$elm_community$maybe_extra$Maybe$Extra$values(
-					A2(
-						$elm$core$List$map,
-						function (_v2) {
-							var id1 = _v2.a;
-							var _v3 = _v2.b;
-							var node = _v3.b;
-							return A2(
-								$elm$core$Maybe$map,
-								function (children) {
-									return $elm_community$maybe_extra$Maybe$Extra$values(
-										A2(
-											$elm$core$List$map,
-											function (_v7) {
-												var id2 = _v7.a;
-												var _v8 = _v7.b;
-												return A3(
-													$elm$core$Maybe$map2,
-													$author$project$Main$path(c),
-													A2(
-														$elm_community$list_extra$List$Extra$find,
-														function (_v9) {
-															var id = _v9.id;
-															return _Utils_eq(id, id1);
-														},
-														entities),
-													A2(
-														$elm_community$list_extra$List$Extra$find,
-														function (_v10) {
-															var id = _v10.id;
-															return _Utils_eq(id, id2);
-														},
-														entities));
-											},
-											A2(
-												$elm$core$List$filter,
-												function (_v4) {
-													var _v5 = _v4.b;
-													var state = _v5.a;
-													return A2(
-														$elm$core$List$any,
-														function (_v6) {
-															var child = _v6.b;
-															return _Utils_eq(
-																model.problem.stateToComparable(child),
-																state);
-														},
-														children);
-												},
-												list)));
-								},
-								node.children);
-						},
-						list)))));
-};
-var $elm_community$list_extra$List$Extra$unconsLast = function (list) {
-	var _v0 = $elm$core$List$reverse(list);
-	if (!_v0.b) {
-		return $elm$core$Maybe$Nothing;
-	} else {
-		var last_ = _v0.a;
-		var rest = _v0.b;
-		return $elm$core$Maybe$Just(
-			_Utils_Tuple2(
-				last_,
-				$elm$core$List$reverse(rest)));
-	}
-};
-var $author$project$Search$fifo = {
-	pop: function (_v0) {
-		return $elm_community$list_extra$List$Extra$unconsLast;
-	}
-};
-var $elm$core$Dict$member = F2(
-	function (key, dict) {
-		var _v0 = A2($elm$core$Dict$get, key, dict);
-		if (_v0.$ === 'Just') {
-			return true;
-		} else {
-			return false;
-		}
-	});
-var $author$project$Search$graphSearch = {
-	frontier: F5(
-		function (problem, explored, childNodes, h, t) {
-			return A2(
-				$elm$core$List$filter,
-				function (_v0) {
-					var state = _v0.a;
-					var pathCost = _v0.b.pathCost;
-					return (!_Utils_eq(state, h)) && ((!A2(
-						$elm$core$List$any,
-						function (_v1) {
-							var state_ = _v1.a;
-							var sibling = _v1.b;
-							return _Utils_eq(state, state_) && (_Utils_cmp(pathCost, sibling.pathCost) < 0);
-						},
-						childNodes)) && (!A2(
-						$elm$core$Dict$member,
-						problem.stateToComparable(state),
-						explored)));
-				},
-				childNodes);
-		})
-};
-var $author$project$Search$Result$Pending = {$: 'Pending'};
-var $author$project$Search$init = F3(
-	function (strategy, queue, problem) {
-		return {
-			explored: $elm$core$Dict$fromList(
-				_List_fromArray(
-					[
-						_Utils_Tuple2(
-						problem.stateToComparable(problem.initialState),
-						{children: $elm$core$Maybe$Nothing, parent: $elm$core$Maybe$Nothing, pathCost: 0, state: problem.initialState})
-					])),
-			frontier: _List_fromArray(
-				[problem.initialState]),
-			maxPathCost: 0,
-			problem: problem,
-			queue: queue,
-			solution: $author$project$Search$Result$Pending,
-			strategy: strategy
-		};
-	});
-var $author$project$Search$breadthFirst = A2($author$project$Search$init, $author$project$Search$graphSearch, $author$project$Search$fifo);
-var $elm_community$list_extra$List$Extra$findIndexHelp = F3(
-	function (index, predicate, list) {
-		findIndexHelp:
-		while (true) {
-			if (!list.b) {
-				return $elm$core$Maybe$Nothing;
-			} else {
-				var x = list.a;
-				var xs = list.b;
-				if (predicate(x)) {
-					return $elm$core$Maybe$Just(index);
-				} else {
-					var $temp$index = index + 1,
-						$temp$predicate = predicate,
-						$temp$list = xs;
-					index = $temp$index;
-					predicate = $temp$predicate;
-					list = $temp$list;
-					continue findIndexHelp;
-				}
-			}
-		}
-	});
-var $elm_community$list_extra$List$Extra$findIndex = $elm_community$list_extra$List$Extra$findIndexHelp(0);
-var $elm_community$list_extra$List$Extra$elemIndex = function (x) {
-	return $elm_community$list_extra$List$Extra$findIndex(
-		$elm$core$Basics$eq(x));
-};
-var $elm_community$maybe_extra$Maybe$Extra$join = function (mx) {
-	if (mx.$ === 'Just') {
-		var x = mx.a;
-		return x;
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $elm$core$List$head = function (list) {
-	if (list.b) {
-		var x = list.a;
-		var xs = list.b;
-		return $elm$core$Maybe$Just(x);
-	} else {
-		return $elm$core$Maybe$Nothing;
-	}
-};
-var $elm_community$list_extra$List$Extra$getAt = F2(
-	function (idx, xs) {
-		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
-			A2($elm$core$List$drop, idx, xs));
-	});
-var $elm$core$List$takeReverse = F3(
-	function (n, list, kept) {
-		takeReverse:
-		while (true) {
-			if (n <= 0) {
-				return kept;
-			} else {
-				if (!list.b) {
-					return kept;
-				} else {
-					var x = list.a;
-					var xs = list.b;
-					var $temp$n = n - 1,
-						$temp$list = xs,
-						$temp$kept = A2($elm$core$List$cons, x, kept);
-					n = $temp$n;
-					list = $temp$list;
-					kept = $temp$kept;
-					continue takeReverse;
-				}
-			}
-		}
-	});
-var $elm$core$List$takeTailRec = F2(
-	function (n, list) {
-		return $elm$core$List$reverse(
-			A3($elm$core$List$takeReverse, n, list, _List_Nil));
-	});
-var $elm$core$List$takeFast = F3(
-	function (ctr, n, list) {
-		if (n <= 0) {
-			return _List_Nil;
-		} else {
-			var _v0 = _Utils_Tuple2(n, list);
-			_v0$1:
-			while (true) {
-				_v0$5:
-				while (true) {
-					if (!_v0.b.b) {
-						return list;
-					} else {
-						if (_v0.b.b.b) {
-							switch (_v0.a) {
-								case 1:
-									break _v0$1;
-								case 2:
-									var _v2 = _v0.b;
-									var x = _v2.a;
-									var _v3 = _v2.b;
-									var y = _v3.a;
-									return _List_fromArray(
-										[x, y]);
-								case 3:
-									if (_v0.b.b.b.b) {
-										var _v4 = _v0.b;
-										var x = _v4.a;
-										var _v5 = _v4.b;
-										var y = _v5.a;
-										var _v6 = _v5.b;
-										var z = _v6.a;
-										return _List_fromArray(
-											[x, y, z]);
-									} else {
-										break _v0$5;
-									}
-								default:
-									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
-										var _v7 = _v0.b;
-										var x = _v7.a;
-										var _v8 = _v7.b;
-										var y = _v8.a;
-										var _v9 = _v8.b;
-										var z = _v9.a;
-										var _v10 = _v9.b;
-										var w = _v10.a;
-										var tl = _v10.b;
-										return (ctr > 1000) ? A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
-											$elm$core$List$cons,
-											x,
-											A2(
-												$elm$core$List$cons,
-												y,
-												A2(
-													$elm$core$List$cons,
-													z,
-													A2(
-														$elm$core$List$cons,
-														w,
-														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
-									} else {
-										break _v0$5;
-									}
-							}
-						} else {
-							if (_v0.a === 1) {
-								break _v0$1;
-							} else {
-								break _v0$5;
-							}
-						}
-					}
-				}
-				return list;
-			}
-			var _v1 = _v0.b;
-			var x = _v1.a;
-			return _List_fromArray(
-				[x]);
-		}
-	});
-var $elm$core$List$take = F2(
-	function (n, list) {
-		return A3($elm$core$List$takeFast, 0, n, list);
-	});
-var $elm_community$list_extra$List$Extra$updateAt = F3(
-	function (index, fn, list) {
-		if (index < 0) {
-			return list;
-		} else {
-			var tail = A2($elm$core$List$drop, index, list);
-			var head = A2($elm$core$List$take, index, list);
-			if (tail.b) {
-				var x = tail.a;
-				var xs = tail.b;
-				return _Utils_ap(
-					head,
-					A2(
-						$elm$core$List$cons,
-						fn(x),
-						xs));
-			} else {
-				return list;
-			}
-		}
-	});
-var $elm_community$list_extra$List$Extra$setAt = F2(
-	function (index, value) {
-		return A2(
-			$elm_community$list_extra$List$Extra$updateAt,
-			index,
-			$elm$core$Basics$always(value));
-	});
-var $author$project$Search$Problem$NPuzzle$swapAt = F3(
-	function (x, y, l) {
-		var b = A2($elm_community$list_extra$List$Extra$getAt, y, l);
-		var a = A2($elm_community$list_extra$List$Extra$getAt, x, l);
-		return A3(
-			$elm$core$Maybe$map2,
-			F2(
-				function (a_, b_) {
-					return A3(
-						$elm_community$list_extra$List$Extra$setAt,
-						y,
-						a_,
-						A3($elm_community$list_extra$List$Extra$setAt, x, b_, l));
-				}),
-			a,
-			b);
-	});
-var $author$project$Search$Problem$NPuzzle$vertical = F2(
-	function (d, state) {
-		return $elm_community$maybe_extra$Maybe$Extra$join(
-			A2(
-				$elm$core$Maybe$map,
-				function (a) {
-					return A3($author$project$Search$Problem$NPuzzle$swapAt, a, a + d, state);
-				},
-				A2($elm_community$list_extra$List$Extra$elemIndex, 0, state)));
-	});
-var $author$project$Search$Problem$NPuzzle$down = function (s) {
-	return $author$project$Search$Problem$NPuzzle$vertical(s);
-};
-var $author$project$Search$Problem$NPuzzle$goal = function (state) {
-	return A2(
-		$elm$core$List$range,
-		0,
-		$elm$core$List$length(state) - 1);
-};
-var $author$project$Search$Problem$NPuzzle$horizontal = F2(
-	function (d, state) {
-		return $elm_community$maybe_extra$Maybe$Extra$join(
-			A2(
-				$elm$core$Maybe$map,
-				function (a) {
-					return A3($author$project$Search$Problem$NPuzzle$swapAt, a, a + d, state);
-				},
-				A2($elm_community$list_extra$List$Extra$elemIndex, 0, state)));
-	});
-var $author$project$Search$Problem$NPuzzle$left = $author$project$Search$Problem$NPuzzle$horizontal(-1);
-var $elm$core$Basics$abs = function (n) {
-	return (n < 0) ? (-n) : n;
-};
-var $elm$core$Basics$modBy = _Basics_modBy;
-var $elm$core$Basics$round = _Basics_round;
-var $author$project$Search$Problem$NPuzzle$sideLength = function (state) {
-	return $elm$core$Basics$round(
-		$elm$core$Basics$sqrt(
-			$elm$core$List$length(state)));
-};
-var $author$project$Search$Problem$NPuzzle$manhattanDist = F3(
-	function (p, q, state) {
-		var s = $author$project$Search$Problem$NPuzzle$sideLength(state);
-		return $elm$core$Basics$abs(
-			A2($elm$core$Basics$modBy, s, p) - A2($elm$core$Basics$modBy, s, q)) + $elm$core$Basics$abs(((p / s) | 0) - ((q / s) | 0));
-	});
-var $author$project$Search$Problem$NPuzzle$right = $author$project$Search$Problem$NPuzzle$horizontal(1);
-var $elm$core$List$sum = function (numbers) {
-	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
-};
-var $author$project$Search$Problem$NPuzzle$up = function (s) {
-	return $author$project$Search$Problem$NPuzzle$vertical(-s);
-};
-var $author$project$Search$Problem$NPuzzle$nPuzzle = function (validState) {
-	var s = $author$project$Search$Problem$NPuzzle$sideLength(validState);
-	return {
-		actions: function (state) {
-			return A2(
-				$elm$core$List$map,
-				function (a) {
-					return _Utils_Tuple2(1, a);
-				},
-				$elm_community$maybe_extra$Maybe$Extra$values(
-					A2(
-						$elm$core$List$map,
-						function (f) {
-							return f(state);
-						},
-						_List_fromArray(
-							[
-								$author$project$Search$Problem$NPuzzle$up(s),
-								$author$project$Search$Problem$NPuzzle$down(s),
-								$author$project$Search$Problem$NPuzzle$left,
-								$author$project$Search$Problem$NPuzzle$right
-							]))));
-		},
-		goalTest: function (state) {
-			return _Utils_eq(
-				state,
-				$author$project$Search$Problem$NPuzzle$goal(validState));
-		},
-		heuristic: function (state) {
-			return $elm$core$List$sum(
-				A2(
-					$elm$core$List$indexedMap,
-					F2(
-						function (i, n) {
-							return A3(
-								$author$project$Search$Problem$NPuzzle$manhattanDist,
-								i,
-								A2(
-									$elm$core$Maybe$withDefault,
-									1000,
-									A2(
-										$elm_community$list_extra$List$Extra$elemIndex,
-										n,
-										$author$project$Search$Problem$NPuzzle$goal(state))),
-								state);
-						}),
-					state));
-		},
-		initialState: validState,
-		stateToComparable: $elm$core$Basics$identity
-	};
-};
-var $author$project$Search$Problem$NPuzzle$mediumEightPuzzle = $author$project$Search$Problem$NPuzzle$nPuzzle(
-	$elm$core$List$concat(
-		_List_fromArray(
-			[
-				_List_fromArray(
-				[1, 4, 2]),
-				_List_fromArray(
-				[3, 5, 8]),
-				_List_fromArray(
-				[0, 6, 7])
-			])));
-var $author$project$Main$NewModel = function (a) {
-	return {$: 'NewModel', a: a};
-};
-var $author$project$Search$Result$Failure = {$: 'Failure'};
-var $author$project$Search$Result$Solution = function (a) {
-	return {$: 'Solution', a: a};
-};
-var $author$project$Search$Problem$expand = F2(
-	function (problem, _v0) {
-		var state = _v0.a;
-		var node = _v0.b;
-		var actions = problem.actions(state);
-		var children = A2(
-			$elm$core$List$indexedMap,
-			F2(
-				function (i, _v2) {
-					var stepCost = _v2.a;
-					var result = _v2.b;
-					return _Utils_Tuple2(
-						result,
-						{
-							children: $elm$core$Maybe$Nothing,
-							parent: $elm$core$Maybe$Just(state),
-							pathCost: node.pathCost + stepCost,
-							state: result
-						});
-				}),
-			actions);
-		var updatedParent = _Utils_update(
-			node,
-			{
-				children: $elm$core$Maybe$Just(
-					A2(
-						$elm$core$List$map,
-						function (_v1) {
-							var state_ = _v1.a;
-							var node_ = _v1.b;
-							return _Utils_Tuple2(node_.pathCost, state_);
-						},
-						children))
-			});
-		return _Utils_Tuple2(updatedParent, children);
-	});
-var $elm$core$Dict$union = F2(
-	function (t1, t2) {
-		return A3($elm$core$Dict$foldl, $elm$core$Dict$insert, t2, t1);
-	});
-var $author$project$Search$searchStep = F3(
-	function (strategy, queue, model) {
-		var problem = model.problem;
-		var explored = model.explored;
-		var _v0 = A2(queue.pop, explored, model.frontier);
-		if (_v0.$ === 'Just') {
-			var _v1 = _v0.a;
-			var h = _v1.a;
-			var t = _v1.b;
-			var _v2 = A2(
-				$elm$core$Dict$get,
-				problem.stateToComparable(h),
-				explored);
-			if (_v2.$ === 'Just') {
-				var node = _v2.a;
-				var _v3 = A2(
-					$author$project$Search$Problem$expand,
-					problem,
-					_Utils_Tuple2(h, node));
-				var updatedParent = _v3.a;
-				var childNodes = _v3.b;
-				var filteredChildNodes = A5(strategy.frontier, problem, explored, childNodes, h, t);
-				return _Utils_update(
-					model,
-					{
-						explored: A2(
-							$elm$core$Dict$union,
-							$elm$core$Dict$fromList(
-								A2(
-									$elm$core$List$map,
-									function (_v4) {
-										var a = _v4.a;
-										var node_ = _v4.b;
-										return _Utils_Tuple2(
-											problem.stateToComparable(a),
-											node_);
-									},
-									filteredChildNodes)),
-							A3(
-								$elm$core$Dict$insert,
-								problem.stateToComparable(h),
-								updatedParent,
-								explored)),
-						frontier: _Utils_ap(
-							$elm$core$List$reverse(
-								A2($elm$core$List$map, $elm$core$Tuple$first, filteredChildNodes)),
-							t),
-						maxPathCost: A3(
-							$elm$core$List$foldl,
-							$elm$core$Basics$max,
-							model.maxPathCost,
-							A2(
-								$elm$core$List$map,
-								A2(
-									$elm$core$Basics$composeR,
-									$elm$core$Tuple$second,
-									function ($) {
-										return $.pathCost;
-									}),
-								childNodes)),
-						solution: function () {
-							var _v5 = A2(
-								$elm_community$list_extra$List$Extra$find,
-								function (_v6) {
-									var a = _v6.a;
-									return problem.goalTest(a);
-								},
-								childNodes);
-							if (_v5.$ === 'Just') {
-								var a = _v5.a;
-								return $author$project$Search$Result$Solution(a);
-							} else {
-								return model.solution;
-							}
-						}()
-					});
-			} else {
-				return _Utils_update(
-					model,
-					{solution: $author$project$Search$Result$Failure});
-			}
-		} else {
-			return _Utils_update(
-				model,
-				{solution: $author$project$Search$Result$Failure});
-		}
-	});
-var $author$project$Search$nextN = F2(
-	function (n, model) {
-		return (n > 0) ? A2(
-			$author$project$Search$nextN,
-			n - 1,
-			A3($author$project$Search$searchStep, model.strategy, model.queue, model)) : model;
-	});
-var $elm$core$Process$sleep = _Process_sleep;
-var $author$project$Main$searchTask = function (model) {
-	var _v0 = model.solution;
-	if (_v0.$ === 'Pending') {
-		return A2(
-			$elm$core$Task$perform,
-			$author$project$Main$NewModel,
-			A2(
-				$elm$core$Task$andThen,
-				function (_v1) {
-					return $elm$core$Task$succeed(
-						A2($author$project$Search$nextN, 15, model));
-				},
-				$elm$core$Process$sleep(1000)));
-	} else {
-		return $elm$core$Platform$Cmd$none;
-	}
-};
-var $author$project$Main$init = function (_v0) {
-	var initialModel = $author$project$Search$breadthFirst($author$project$Search$Problem$NPuzzle$mediumEightPuzzle);
-	return _Utils_Tuple2(
-		{
-			searchModel: initialModel,
-			tooltip: {
-				node: $elm$core$Maybe$Nothing,
-				position: {x: 0, y: 0}
-			}
-		},
-		$author$project$Main$searchTask(initialModel));
-};
-var $elm$core$Platform$Sub$batch = _Platform_batch;
-var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$update = F2(
 	function (msg, model) {
-		var tooltip = model.tooltip;
-		switch (msg.$) {
-			case 'NewModel':
-				var m = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{searchModel: m}),
-					$author$project$Main$searchTask(m));
-			case 'Show':
-				var s = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							tooltip: _Utils_update(
-								tooltip,
-								{node: s})
-						}),
-					$elm$core$Platform$Cmd$none);
-			default:
-				var p = msg.a;
-				return _Utils_Tuple2(
-					_Utils_update(
-						model,
-						{
-							tooltip: _Utils_update(
-								tooltip,
-								{position: p})
-						}),
-					$elm$core$Platform$Cmd$none);
-		}
+		var m = msg.a;
+		var nodes = _Utils_ap(
+			A2(
+				$elm$core$List$indexedMap,
+				F2(
+					function (i, _v4) {
+						var state = _v4.state;
+						var parent = _v4.parent;
+						var parentNode = A2(
+							$elm_community$list_extra$List$Extra$find,
+							function (_v5) {
+								var id = _v5.id;
+								return _Utils_eq(
+									$elm$core$Maybe$Just(id),
+									parent);
+							},
+							model.nodes);
+						return {
+							id: m.problem.stateToComparable(state),
+							vx: 0,
+							vy: 0,
+							x: A2(
+								$elm$core$Maybe$withDefault,
+								0,
+								A2(
+									$elm$core$Maybe$map,
+									function ($) {
+										return $.x;
+									},
+									parentNode)) + (0.1 * i),
+							y: A2(
+								$elm$core$Maybe$withDefault,
+								0,
+								A2(
+									$elm$core$Maybe$map,
+									function ($) {
+										return $.y;
+									},
+									parentNode)) + 0.1
+						};
+					}),
+				m.newExplored),
+			model.nodes);
+		var newNodes = A2(
+			$elm$core$List$map,
+			function (a) {
+				var x = a.x;
+				return _Utils_update(
+					a,
+					{x: x});
+			},
+			A2(
+				$gampleman$elm_visualization$Force$computeSimulation,
+				$gampleman$elm_visualization$Force$simulation(
+					_List_fromArray(
+						[
+							A2($gampleman$elm_visualization$Force$center, 0, 0),
+							A2($gampleman$elm_visualization$Force$customLinks, 1, model.edges),
+							A2(
+							$gampleman$elm_visualization$Force$manyBodyStrength,
+							-0.002,
+							A2(
+								$elm$core$List$map,
+								function ($) {
+									return $.id;
+								},
+								nodes))
+						])),
+				nodes));
+		var newEdges = function () {
+			var _v1 = A2(
+				$elm$core$Debug$log,
+				'n',
+				A2(
+					$elm$core$List$filter,
+					function (_v2) {
+						var parent = _v2.parent;
+						return _Utils_eq(parent, $elm$core$Maybe$Nothing);
+					},
+					m.newExplored));
+			return _Utils_ap(
+				$elm_community$maybe_extra$Maybe$Extra$values(
+					A2(
+						$elm$core$List$map,
+						function (_v3) {
+							var state = _v3.state;
+							var parent = _v3.parent;
+							var pathCost = _v3.pathCost;
+							return A2(
+								$elm$core$Maybe$map,
+								function (parent_) {
+									return {
+										distance: pathCost - A2(
+											$elm$core$Maybe$withDefault,
+											0,
+											A2(
+												$elm$core$Maybe$map,
+												function ($) {
+													return $.pathCost;
+												},
+												A2(
+													$elm$core$Dict$get,
+													m.problem.stateToComparable(parent_),
+													m.explored))),
+										source: parent_,
+										strength: $elm$core$Maybe$Nothing,
+										target: state
+									};
+								},
+								parent);
+						},
+						m.newExplored)),
+				model.edges);
+		}();
+		return _Utils_Tuple2(
+			_Utils_update(
+				model,
+				{edges: newEdges, nodes: newNodes, searchModel: m}),
+			$author$project$Main$searchTask(m));
 	});
 var $author$project$Main$main = $elm$browser$Browser$document(
 	{
@@ -12380,20 +12485,18 @@ var $author$project$Main$main = $elm$browser$Browser$document(
 			return $elm$core$Platform$Sub$none;
 		},
 		update: $author$project$Main$update,
-		view: function (_v1) {
-			var tooltip = _v1.tooltip;
-			var searchModel = _v1.searchModel;
+		view: function (model) {
 			return {
 				body: _List_fromArray(
 					[
-						$author$project$Main$forceMap(searchModel)
+						$author$project$Main$forceMap(model)
 					]),
 				title: 'Search of 8-Puzzle'
 			};
 		}
 	});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Search.Model":{"args":["a","b"],"type":"{ strategy : Search.Strategy a b, queue : Search.Queue a b, problem : Search.Problem a b, explored : Dict.Dict b (Search.Problem.Node a), frontier : List.List a, solution : Search.Result.Result ( a, Search.Problem.Node a ), maxPathCost : Basics.Float }"},"Search.Problem.Node":{"args":["a"],"type":"{ state : a, parent : Maybe.Maybe a, pathCost : Basics.Float, children : Maybe.Maybe (List.List ( Basics.Float, a )) }"},"Search.Problem":{"args":["a","b"],"type":"Search.Problem.Problem a b"},"Search.Problem.Problem":{"args":["a","comparable"],"type":"{ initialState : a, actions : a -> List.List ( Basics.Float, a ), heuristic : a -> Basics.Float, goalTest : a -> Basics.Bool, stateToComparable : a -> comparable }"},"Search.Queue":{"args":["a","b"],"type":"{ pop : Dict.Dict b (Search.Problem.Node a) -> List.List a -> Maybe.Maybe ( a, List.List a ) }"},"Main.State":{"args":[],"type":"List.List Basics.Int"},"Search.Strategy":{"args":["a","b"],"type":"{ frontier : Search.Problem a b -> Dict.Dict b (Search.Problem.Node a) -> List.List ( a, Search.Problem.Node a ) -> a -> List.List a -> List.List ( a, Search.Problem.Node a ) }"}},"unions":{"Main.Msg":{"args":[],"tags":{"NewModel":["Search.Model Main.State Main.State"],"Show":["Maybe.Maybe ( Basics.Float, Main.State )"],"Move":["{ x : Basics.Float, y : Basics.Float }"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Search.Result.Result":{"args":["a"],"tags":{"Pending":[],"Solution":["a"],"Failure":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Search.Model":{"args":["a","b"],"type":"{ strategy : Search.Strategy a b, queue : Search.Queue a b, problem : Search.Problem a b, explored : Dict.Dict b (Search.Problem.Node a), newExplored : List.List (Search.Problem.Node a), frontier : List.List a, solution : Search.Result.Result ( a, Search.Problem.Node a ), maxPathCost : Basics.Float }"},"Search.Problem.Node":{"args":["a"],"type":"{ state : a, parent : Maybe.Maybe a, pathCost : Basics.Float, children : Maybe.Maybe (List.List ( Basics.Float, a )) }"},"Search.Problem":{"args":["a","b"],"type":"Search.Problem.Problem a b"},"Search.Problem.Problem":{"args":["a","comparable"],"type":"{ initialState : a, actions : a -> List.List ( Basics.Float, a ), heuristic : a -> Basics.Float, goalTest : a -> Basics.Bool, stateToComparable : a -> comparable }"},"Search.Queue":{"args":["a","b"],"type":"{ pop : Dict.Dict b (Search.Problem.Node a) -> List.List a -> Maybe.Maybe ( a, List.List a ) }"},"Main.State":{"args":[],"type":"List.List Basics.Int"},"Search.Strategy":{"args":["a","b"],"type":"{ frontier : Search.Problem a b -> Dict.Dict b (Search.Problem.Node a) -> List.List ( a, Search.Problem.Node a ) -> a -> List.List a -> List.List ( a, Search.Problem.Node a ) }"}},"unions":{"Main.Msg":{"args":[],"tags":{"NewModel":["Search.Model Main.State Main.State"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Search.Result.Result":{"args":["a"],"tags":{"Pending":[],"Solution":["a"],"Failure":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
 
   var app = Elm.Main.init({ node: document.getElementById("elm") });
 }
