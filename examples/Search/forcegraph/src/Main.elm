@@ -14,10 +14,13 @@ import Search
 import Search.Problem exposing (Node)
 import Search.Problem.Graph exposing (routeFinding)
 import Search.Problem.NPuzzle as NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle, visualize)
+import Search.Problem.NQueens exposing (incrementalEightQueens)
 import Search.Problem.Romania as Romania
 import Search.Result exposing (Result(..))
 import Search.Visualization.TreeMap as TreeMap
 import Search.Visualization.TreeMap2 as TreeMap2
+import Set exposing (Set)
+import String
 import Svg exposing (..)
 import Svg.Attributes exposing (..)
 import Task
@@ -25,7 +28,7 @@ import Tuple
 
 
 type alias State =
-    List Int
+    List ( Int, Int )
 
 
 type Msg
@@ -43,6 +46,7 @@ type alias Node =
 
 type alias Model =
     { searchModel : Search.Model State State
+    , existingStates : Set State
     , nodes : List (Force.Entity State {})
     , edges :
         List
@@ -72,12 +76,19 @@ init : () -> ( Model, Cmd Msg )
 init =
     \_ ->
         let
+            problem =
+                incrementalEightQueens
+
+            initialState =
+                problem.stateToComparable problem.initialState
+
             initialSearchModel =
-                Search.bestFirst complexEightPuzzle
+                Search.bestFirst problem
         in
         ( { searchModel = initialSearchModel
+          , existingStates = Set.fromList [ initialState ]
           , nodes =
-                [ { id = initialSearchModel.problem.stateToComparable initialSearchModel.problem.initialState
+                [ { id = initialState
                   , x = 0
                   , y = 0
                   , vx = 0
@@ -95,29 +106,34 @@ update msg model =
     case msg of
         NewModel m ->
             let
+                newNodes =
+                    model.searchModel.explored
+                        |> Dict.filter (\k _ -> not <| Set.member k model.existingStates)
+                        |> Dict.toList
+
                 nodes : List (Entity State {})
                 nodes =
-                    (m.newExplored
+                    (newNodes
                         |> List.indexedMap
-                            (\i { state, parent } ->
+                            (\i ( state, { parent } ) ->
                                 let
                                     parentNode =
                                         model.nodes |> List.find (\{ id } -> Just id == parent)
                                 in
-                                { id = m.problem.stateToComparable state
+                                { id = state
                                 , x =
                                     (parentNode
                                         |> Maybe.map .x
                                         |> Maybe.withDefault 0
                                     )
-                                        + 0.1
+                                        + 0.01
                                         * toFloat i
                                 , y =
                                     (parentNode
                                         |> Maybe.map .y
                                         |> Maybe.withDefault 0
                                     )
-                                        + 0.1
+                                        + 0.01
                                 , vx = 0
                                 , vy = 0
                                 }
@@ -125,8 +141,8 @@ update msg model =
                     )
                         ++ model.nodes
 
-                newNodes : List (Entity State {})
-                newNodes =
+                simulatedNodes : List (Entity State {})
+                simulatedNodes =
                     computeSimulation
                         (simulation
                             [ center 0 0
@@ -137,14 +153,10 @@ update msg model =
                         nodes
                         |> List.map (\({ x } as a) -> { a | x = x })
 
-                newEdges =
-                    let
-                        _ =
-                            Debug.log "n" (m.newExplored |> List.filter (\{ parent } -> parent == Nothing))
-                    in
-                    (m.newExplored
+                edges =
+                    (newNodes
                         |> List.map
-                            (\{ state, parent, pathCost } ->
+                            (\( state, { parent, pathCost } ) ->
                                 Maybe.map
                                     (\parent_ ->
                                         { source = parent_
@@ -167,8 +179,15 @@ update msg model =
             in
             ( { model
                 | searchModel = m
-                , nodes = newNodes
-                , edges = newEdges
+                , nodes = simulatedNodes
+                , edges = edges
+                , existingStates =
+                    Set.union
+                        (newNodes
+                            |> List.map Tuple.first
+                            |> Set.fromList
+                        )
+                        model.existingStates
               }
               --, Cmd.none
             , searchTask m
@@ -185,7 +204,7 @@ searchTask model =
                     |> Task.andThen
                         (\_ ->
                             Task.succeed
-                                (Search.nextN 10 model)
+                                (Search.next model)
                         )
                 )
 
@@ -207,10 +226,31 @@ forceMap model =
 
         maxY =
             List.maximumBy .y model.nodes |> Maybe.map .y |> Maybe.withDefault 0
-        cx = 1 / (maxX - minX)
-        cy = 1 / (maxY - minY)
-        offsetX = minX * cx
-        offsetY = minY * cy
+
+        cx =
+            1 / (maxX - minX)
+
+        cy =
+            1 / (maxY - minY)
+
+        c =
+            1 / Basics.max (maxX - minX) (maxY - minY)
+
+        d =
+            Basics.min minX minY
+
+        pos ( x, y ) =
+            ( c * (x - d)
+            , c * (y - d)
+            )
+
+        posString =
+            pos
+                >> (\( x, y ) ->
+                        String.fromFloat x
+                            ++ " "
+                            ++ String.fromFloat y
+                   )
     in
     svg
         [ width "900"
@@ -224,9 +264,7 @@ forceMap model =
                     g
                         [ transform
                             ("translate ("
-                                ++ String.fromFloat (entity.x * cx - offsetX)
-                                ++ " "
-                                ++ String.fromFloat (entity.y * cy - offsetY)
+                                ++ posString ( entity.x, entity.y )
                                 ++ ")"
                             )
                         ]
@@ -242,7 +280,7 @@ forceMap model =
             ++ (model.edges
                     |> List.map
                         (\{ source, target } ->
-                            Maybe.map2 (path cx cy offsetX offsetY)
+                            Maybe.map2 (path posString)
                                 (model.nodes |> List.find (\{ id } -> id == source))
                                 (model.nodes |> List.find (\{ id } -> id == target))
                         )
@@ -251,17 +289,13 @@ forceMap model =
         )
 
 
-path cx cy offsetX offsetY e1 e2 =
+path posString e1 e2 =
     Svg.path
         [ d
             ("M "
-                ++ String.fromFloat (e1.x * cx - offsetX)
-                ++ " "
-                ++ String.fromFloat (e1.y * cy - offsetY)
+                ++ posString ( e1.x, e1.y )
                 ++ "L "
-                ++ String.fromFloat (e2.x * cx - offsetX)
-                ++ " "
-                ++ String.fromFloat (e2.y * cy - offsetY)
+                ++ posString ( e2.x, e2.y )
             )
         , stroke "black"
         , strokeWidth "0.0002"

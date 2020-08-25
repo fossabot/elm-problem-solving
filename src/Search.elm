@@ -150,7 +150,6 @@ type alias Model a b =
     , queue : Queue a b
     , problem : Problem a b
     , explored : Dict b (Node a)
-    , newExplored : List (Node a)
     , frontier : List a
     , solution : Result ( a, Node a )
     , maxPathCost : Float
@@ -165,24 +164,19 @@ init :
     -> Problem a comparable
     -> Model a comparable
 init strategy queue problem =
-    let
-        initialNode =
-            { state = problem.initialState
-            , pathCost = 0
-            , parent = Nothing
-            , children = Nothing
-            }
-    in
     { strategy = strategy
     , queue = queue
     , problem = problem
     , explored =
         Dict.fromList
             [ ( problem.stateToComparable problem.initialState
-              , initialNode
+              , { state = problem.initialState
+                , pathCost = 0
+                , parent = Nothing
+                , children = Nothing
+                }
               )
             ]
-    , newExplored = [ initialNode ]
     , frontier = [ problem.initialState ]
     , solution = Pending
     , maxPathCost = 0
@@ -230,7 +224,6 @@ searchStep strategy queue ({ problem, explored } as model) =
                                         |> List.map (\( a, node_ ) -> ( problem.stateToComparable a, node_ ))
                                         |> Dict.fromList
                                     )
-                        , newExplored = List.map Tuple.second filteredChildNodes
                         , maxPathCost = List.foldl max model.maxPathCost (List.map (Tuple.second >> .pathCost) childNodes)
                     }
 
