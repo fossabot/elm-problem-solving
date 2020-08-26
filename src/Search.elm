@@ -33,6 +33,7 @@ In this example, the model of the application _is_ the model of the search algor
 -}
 
 import Dict exposing (Dict)
+import Dict.Extra as Dict
 import List.Extra as List
 import Maybe.Extra as Maybe
 import Search.Problem as Problem exposing (Node, expand)
@@ -215,15 +216,21 @@ searchStep strategy queue ({ problem, explored } as model) =
                             )
                                 ++ t
                         , explored =
-                            explored
-                                |> Dict.insert
-                                    (problem.stateToComparable h)
-                                    updatedParent
-                                |> Dict.union
-                                    (filteredChildNodes
-                                        |> List.map (\( a, node_ ) -> ( problem.stateToComparable a, node_ ))
-                                        |> Dict.fromList
-                                    )
+                            List.foldl
+                                (\( state, node_ ) ->
+                                    Dict.insertDedupe
+                                        (\original new ->
+                                            if new.pathCost > original.pathCost then
+                                                original
+
+                                            else
+                                                new
+                                        )
+                                        (problem.stateToComparable state)
+                                        node_
+                                )
+                                explored
+                                (( h, updatedParent ) :: childNodes)
                         , maxPathCost = List.foldl max model.maxPathCost (List.map (Tuple.second >> .pathCost) childNodes)
                     }
 

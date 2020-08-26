@@ -28,8 +28,8 @@ expand problem ( state, node ) =
             problem.actions state
 
         children =
-            List.indexedMap
-                (\i ( stepCost, result ) ->
+            List.map
+                (\( stepCost, result ) ->
                     ( result
                     , { state = result
                       , parent = Just state
