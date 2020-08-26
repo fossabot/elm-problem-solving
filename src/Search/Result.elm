@@ -1,4 +1,6 @@
-module Search.Result exposing (Result(..), map, withDefault)
+module Search.Result exposing (Result(..), is, map, withDefault)
+
+import Search.Problem exposing (Node)
 
 
 type Result a
@@ -31,3 +33,13 @@ withDefault default result =
 
         Failure ->
             default
+
+
+is : a -> Result ( a, Node a ) -> Bool
+is state result =
+    case result of
+        Solution ( state_, _ ) ->
+            state_ == state
+
+        _ ->
+            False

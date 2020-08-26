@@ -7,6 +7,7 @@ import Search exposing (..)
 import Search.Problem exposing (..)
 import Search.Problem.Graph exposing (routeFinding)
 import Search.Problem.KnuthConjecture exposing (..)
+import Search.Problem.MotionPlanning as MotionPlanning
 import Search.Problem.NPuzzle exposing (..)
 import Search.Problem.NQueens exposing (..)
 import Search.Problem.Romania exposing (distance)
@@ -73,6 +74,12 @@ solvesWithState searchModel visualize state =
          Maybe.map (Tuple.first >> visualize) solution
         )
         (Just state)
+
+
+{-| Shift string to the left by n spaces in each line.
+-}
+addSpaces n =
+    String.split "\n" >> String.join ("\n" ++ String.repeat n " ")
 
 
 bfs =
@@ -170,6 +177,37 @@ bfs =
                 , ( 2, 1.4142135623730951 )
                 , ( 3, 1 )
                 ]
+    , test "solves simple motion planning problem" <|
+        \_ ->
+            Expect.equal
+                (breadthFirst MotionPlanning.simpleProblem
+                    |> nextGoal
+                    |> Tuple.second
+                    |> MotionPlanning.stateToString MotionPlanning.simpleConfig
+                    |> addSpaces 16
+                )
+                """
+                ╭────────────────────╮
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅●|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅▒▒▒▒▒▒▒▒▒▒▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅▒         ▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅▒▒▒▒▒▒▒▒▒ ▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅▒ ▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅▒ ▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅▒ ▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅▒ ▒⋅•⋅⋅|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅▒▒▒•⋅⋅⋅|
+                |⋅⋅⋅⋅⋅⋅⋅•••••••••⋅⋅⋅⋅|
+                |⋅⋅⋅⋅⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |⋅⋅⋅⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |⋅⋅⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |⋅⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |○⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                ╰────────────────────╯
+                """
     ]
 
 
@@ -242,6 +280,37 @@ dfs =
                 ]
 
     -- does not solve knuth conjecture
+    , test "solves simple motion planning problem" <|
+        \_ ->
+            Expect.equal
+                (depthFirst MotionPlanning.simpleProblem
+                    |> nextGoal
+                    |> Tuple.second
+                    |> MotionPlanning.stateToString MotionPlanning.simpleConfig
+                    |> addSpaces 16
+                )
+                """
+                ╭────────────────────╮
+                |⋅••⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅••⋅●|
+                |•⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅•⋅⋅•⋅|
+                |⋅•⋅⋅•▒▒▒▒▒▒▒▒▒▒▒•⋅⋅⋅|
+                |•⋅⋅•⋅▒         ▒⋅•⋅ |
+                |⋅•⋅⋅•▒▒▒▒▒▒▒▒▒ ▒•⋅⋅ |
+                |•⋅⋅•⋅⋅⋅••⋅⋅  ▒ ▒⋅•⋅ |
+                |⋅•⋅⋅•⋅•⋅⋅•⋅⋅ ▒ ▒•⋅⋅ |
+                |•⋅⋅•⋅⋅⋅•⋅⋅•⋅ ▒ ▒⋅•⋅⋅|
+                |⋅•⋅⋅•⋅•⋅⋅•⋅⋅ ▒ ▒⋅⋅•⋅|
+                |•⋅⋅•⋅⋅⋅•⋅⋅•⋅⋅▒▒▒⋅⋅⋅•|
+                |⋅•⋅⋅•⋅•⋅⋅•⋅⋅•⋅•⋅•⋅•⋅|
+                |•⋅⋅•⋅⋅⋅•⋅⋅••⋅•⋅•⋅•⋅⋅|
+                |⋅•⋅⋅•⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |•⋅⋅•⋅⋅⋅•⋅•⋅•⋅•⋅•⋅•⋅⋅|
+                |⋅•⋅⋅•⋅⋅⋅•⋅•⋅•⋅•⋅•⋅•⋅|
+                |•⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅•|
+                |⋅•⋅⋅•⋅•⋅•⋅•⋅•⋅•⋅•⋅•⋅|
+                |○⋅⋅⋅⋅•⋅•⋅•⋅•⋅•⋅•⋅•⋅⋅|
+                ╰────────────────────╯
+                """
     ]
 
 
@@ -330,6 +399,37 @@ ucs =
                 , ( 2, 1.4142135623730951 )
                 , ( 3, 1 )
                 ]
+    , test "solves simple motion planning problem" <|
+        \_ ->
+            Expect.equal
+                (uniformCost MotionPlanning.simpleProblem
+                    |> nextGoal
+                    |> Tuple.second
+                    |> MotionPlanning.stateToString MotionPlanning.simpleConfig
+                    |> addSpaces 16
+                )
+                """
+                ╭────────────────────╮
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅●|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅▒▒▒▒▒▒▒▒▒▒▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅▒         ▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅▒▒▒▒▒▒▒▒▒ ▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅▒ ▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅▒ ▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅▒ ▒⋅⋅•⋅|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅▒ ▒⋅•⋅⋅|
+                |⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅▒▒▒•⋅⋅⋅|
+                |⋅⋅⋅⋅⋅⋅⋅•••••••••⋅⋅⋅⋅|
+                |⋅⋅⋅⋅⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |⋅⋅⋅⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |⋅⋅⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |⋅⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                |○⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅|
+                ╰────────────────────╯
+                """
     ]
 
 
@@ -407,6 +507,37 @@ cfs =
                 ]
 
     -- does not solve knuth conjecture
+    , test "solves simple motion planning problem" <|
+        \_ ->
+            Expect.equal
+                (greedy MotionPlanning.simpleProblem
+                    |> nextGoal
+                    |> Tuple.second
+                    |> MotionPlanning.stateToString MotionPlanning.simpleConfig
+                    |> addSpaces 16
+                )
+                """
+                ╭────────────────────╮
+                |                  ⋅●|
+                |                  ⋅•|
+                |     ▒▒▒▒▒▒▒▒▒▒▒  ⋅•|
+                |     ▒         ▒  ⋅•|
+                |     ▒▒▒▒▒▒▒▒▒ ▒  ⋅•|
+                |       ⋅⋅⋅⋅⋅⋅▒ ▒  ⋅•|
+                |       ⋅⋅⋅⋅⋅⋅▒ ▒ ⋅⋅•|
+                |        ⋅⋅••⋅▒ ▒⋅⋅•⋅|
+                |       ⋅⋅•⋅⋅•▒ ▒⋅•⋅⋅|
+                |      ⋅⋅•⋅⋅⋅•▒▒▒•⋅⋅ |
+                |     ⋅⋅•⋅⋅ ⋅⋅•••⋅⋅  |
+                |    ⋅⋅•⋅⋅   ⋅⋅⋅⋅⋅   |
+                |   ⋅⋅•⋅⋅            |
+                |  ⋅⋅•⋅⋅             |
+                | ⋅⋅•⋅⋅              |
+                |⋅⋅•⋅⋅               |
+                |⋅•⋅⋅                |
+                |○⋅⋅                 |
+                ╰────────────────────╯
+                """
     ]
 
 
@@ -498,35 +629,69 @@ ass =
 
     -- this works, just takes 30 seconds or so, so will not be included in tests
     -- testComplexEightPuzzle bestFirst
-    , skip <|
-        test "solves complex eight puzzle" <|
-            \_ ->
-                solvesWithPath
-                    (bestFirst complexEightPuzzle)
-                    [ ( 0, [ 7, 2, 4, 5, 0, 6, 8, 3, 1 ] )
-                    , ( 1, [ 7, 2, 4, 5, 3, 6, 8, 0, 1 ] )
-                    , ( 2, [ 7, 2, 4, 5, 3, 6, 0, 8, 1 ] )
-                    , ( 3, [ 7, 2, 4, 5, 3, 0, 6, 8, 1 ] )
-                    , ( 4, [ 7, 2, 4, 5, 3, 1, 6, 8, 0 ] )
-                    , ( 5, [ 7, 2, 4, 5, 3, 1, 6, 0, 8 ] )
-                    , ( 6, [ 7, 2, 4, 5, 3, 1, 0, 6, 8 ] )
-                    , ( 7, [ 7, 2, 4, 0, 3, 1, 5, 6, 8 ] )
-                    , ( 8, [ 7, 2, 0, 4, 3, 1, 5, 6, 8 ] )
-                    , ( 9, [ 7, 0, 2, 4, 3, 1, 5, 6, 8 ] )
-                    , ( 10, [ 7, 3, 2, 4, 0, 1, 5, 6, 8 ] )
-                    , ( 11, [ 7, 3, 2, 4, 1, 0, 5, 6, 8 ] )
-                    , ( 12, [ 7, 3, 2, 4, 1, 5, 0, 6, 8 ] )
-                    , ( 13, [ 7, 3, 2, 0, 1, 5, 4, 6, 8 ] )
-                    , ( 14, [ 0, 3, 2, 7, 1, 5, 4, 6, 8 ] )
-                    , ( 15, [ 3, 0, 2, 7, 1, 5, 4, 6, 8 ] )
-                    , ( 16, [ 3, 1, 2, 7, 0, 5, 4, 6, 8 ] )
-                    , ( 17, [ 3, 1, 2, 0, 7, 5, 4, 6, 8 ] )
-                    , ( 18, [ 3, 1, 2, 4, 7, 5, 0, 6, 8 ] )
-                    , ( 19, [ 3, 1, 2, 4, 7, 5, 6, 0, 8 ] )
-                    , ( 20, [ 3, 1, 2, 4, 0, 5, 6, 7, 8 ] )
-                    , ( 21, [ 3, 1, 2, 0, 4, 5, 6, 7, 8 ] )
-                    , ( 22, [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ] )
-                    ]
+    , test "solves complex eight puzzle" <|
+        \_ ->
+            solvesWithPath
+                (bestFirst complexEightPuzzle)
+                [ ( 0, [ 7, 2, 4, 5, 0, 6, 8, 3, 1 ] )
+                , ( 1, [ 7, 2, 4, 0, 5, 6, 8, 3, 1 ] )
+                , ( 2, [ 0, 2, 4, 7, 5, 6, 8, 3, 1 ] )
+                , ( 3, [ 2, 0, 4, 7, 5, 6, 8, 3, 1 ] )
+                , ( 4, [ 2, 5, 4, 7, 0, 6, 8, 3, 1 ] )
+                , ( 5, [ 2, 5, 4, 7, 6, 0, 8, 3, 1 ] )
+                , ( 6, [ 2, 5, 4, 7, 6, 1, 8, 3, 0 ] )
+                , ( 7, [ 2, 5, 4, 7, 6, 1, 8, 0, 3 ] )
+                , ( 8, [ 2, 5, 4, 7, 6, 1, 0, 8, 3 ] )
+                , ( 9, [ 2, 5, 4, 0, 6, 1, 7, 8, 3 ] )
+                , ( 10, [ 2, 5, 4, 6, 0, 1, 7, 8, 3 ] )
+                , ( 11, [ 2, 5, 4, 6, 1, 0, 7, 8, 3 ] )
+                , ( 12, [ 2, 5, 4, 6, 1, 3, 7, 8, 0 ] )
+                , ( 13, [ 2, 5, 4, 6, 1, 3, 7, 0, 8 ] )
+                , ( 14, [ 2, 5, 4, 6, 1, 3, 0, 7, 8 ] )
+                , ( 15, [ 2, 5, 4, 0, 1, 3, 6, 7, 8 ] )
+                , ( 16, [ 2, 5, 4, 1, 0, 3, 6, 7, 8 ] )
+                , ( 17, [ 2, 5, 4, 1, 3, 0, 6, 7, 8 ] )
+                , ( 18, [ 2, 5, 0, 1, 3, 4, 6, 7, 8 ] )
+                , ( 19, [ 2, 0, 5, 1, 3, 4, 6, 7, 8 ] )
+                , ( 20, [ 0, 2, 5, 1, 3, 4, 6, 7, 8 ] )
+                , ( 21, [ 1, 2, 5, 0, 3, 4, 6, 7, 8 ] )
+                , ( 22, [ 1, 2, 5, 3, 0, 4, 6, 7, 8 ] )
+                , ( 23, [ 1, 2, 5, 3, 4, 0, 6, 7, 8 ] )
+                , ( 24, [ 1, 2, 0, 3, 4, 5, 6, 7, 8 ] )
+                , ( 25, [ 1, 0, 2, 3, 4, 5, 6, 7, 8 ] )
+                , ( 26, [ 0, 1, 2, 3, 4, 5, 6, 7, 8 ] )
+                ]
+    , test "solves simple motion planning problem" <|
+        \_ ->
+            Expect.equal
+                (bestFirst MotionPlanning.simpleProblem
+                    |> nextGoal
+                    |> Tuple.second
+                    |> MotionPlanning.stateToString MotionPlanning.simpleConfig
+                    |> addSpaces 16
+                )
+                """
+                ╭────────────────────╮
+                |                  ⋅●|
+                |                  ⋅•|
+                |     ▒▒▒▒▒▒▒▒▒▒▒  ⋅•|
+                |     ▒         ▒  ⋅•|
+                |     ▒▒▒▒▒▒▒▒▒ ▒  ⋅•|
+                |      ⋅⋅⋅⋅⋅⋅⋅▒ ▒  ⋅•|
+                |      ⋅⋅⋅⋅⋅⋅⋅▒ ▒ ⋅⋅•|
+                |      ⋅⋅⋅⋅⋅⋅⋅▒ ▒⋅⋅•⋅|
+                |      ⋅⋅⋅⋅⋅⋅⋅▒ ▒⋅•⋅⋅|
+                |      ⋅⋅⋅⋅⋅⋅⋅▒▒▒•⋅⋅ |
+                |     ⋅⋅•••••••••⋅⋅  |
+                |    ⋅⋅•⋅⋅⋅⋅⋅⋅⋅⋅⋅⋅   |
+                |   ⋅⋅•⋅⋅            |
+                |  ⋅⋅•⋅⋅             |
+                | ⋅⋅•⋅⋅              |
+                |⋅⋅•⋅⋅               |
+                |⋅•⋅⋅                |
+                |○⋅⋅                 |
+                ╰────────────────────╯
+                """
     ]
 
 
