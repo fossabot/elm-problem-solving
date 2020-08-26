@@ -28,7 +28,7 @@ import Tuple
 
 
 type alias State =
-    List ( Int, Int )
+    String
 
 
 type Msg
@@ -44,17 +44,19 @@ type alias Node =
     }
 
 
+type alias Edge =
+    { source : State
+    , target : State
+    , distance : Float
+    , strength : Maybe Float
+    }
+
+
 type alias Model =
     { searchModel : Search.Model State State
     , existingStates : Set State
     , nodes : List (Force.Entity State {})
-    , edges :
-        List
-            { source : State
-            , target : State
-            , distance : Float
-            , strength : Maybe Float
-            }
+    , edges : List Edge
     }
 
 
@@ -77,13 +79,13 @@ init =
     \_ ->
         let
             problem =
-                incrementalEightQueens
+                routeFinding "Arad" "Bucharet" Romania.distance
 
             initialState =
                 problem.stateToComparable problem.initialState
 
             initialSearchModel =
-                Search.bestFirst problem
+                Search.breadthFirst problem
         in
         ( { searchModel = initialSearchModel
           , existingStates = Set.fromList [ initialState ]
@@ -141,41 +143,39 @@ update msg model =
                     )
                         ++ model.nodes
 
+                edges =
+                    model.searchModel.explored
+                        |> Dict.toList
+                        |> List.map
+                            (\( state, { children, pathCost } ) ->
+                                Maybe.map
+                                    (List.map
+                                        (\( childPathCost, childState ) ->
+                                            { source = state
+                                            , target = childState
+                                            , distance = childPathCost - pathCost
+                                            , strength = Nothing
+                                            }
+                                        )
+                                    )
+                                    children
+                            )
+                        |> Maybe.values
+                        |> List.concat
+
+                graphState =
+                    simulation
+                        [ center 0 0
+                        , customLinks 1 model.edges
+                        , manyBodyStrength -0.002 (List.map .id nodes)
+                        ]
+
                 simulatedNodes : List (Entity State {})
                 simulatedNodes =
                     computeSimulation
-                        (simulation
-                            [ center 0 0
-                            , customLinks 1 model.edges
-                            , manyBodyStrength -0.002 (List.map .id nodes)
-                            ]
-                        )
+                        graphState
                         nodes
                         |> List.map (\({ x } as a) -> { a | x = x })
-
-                edges =
-                    (newNodes
-                        |> List.map
-                            (\( state, { parent, pathCost } ) ->
-                                Maybe.map
-                                    (\parent_ ->
-                                        { source = parent_
-                                        , target = state
-                                        , distance =
-                                            pathCost
-                                                - (m.explored
-                                                    |> Dict.get (m.problem.stateToComparable parent_)
-                                                    |> Maybe.map .pathCost
-                                                    |> Maybe.withDefault 0
-                                                  )
-                                        , strength = Nothing
-                                        }
-                                    )
-                                    parent
-                            )
-                        |> Maybe.values
-                    )
-                        ++ model.edges
             in
             ( { model
                 | searchModel = m
@@ -270,10 +270,12 @@ forceMap model =
                         ]
                         [ circle [ r "0.002" ] []
 
-                        {--, Svg.text_
+                        {--}
+                        , Svg.text_
                             [ stroke "black", strokeWidth "0.1", transform "translate(0.005 0) scale(0.001) ", fontSize "10" ]
                             [ Svg.text (Debug.toString entity.id) ]
-                            --}
+
+                        --}
                         ]
                 )
          )

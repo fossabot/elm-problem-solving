@@ -10573,6 +10573,7 @@ var $elm_community$list_extra$List$Extra$find = F2(
 			}
 		}
 	});
+var $elm$svg$Svg$Attributes$fontSize = _VirtualDom_attribute('font-size');
 var $elm$svg$Svg$g = $elm$svg$Svg$trustedNode('g');
 var $elm$svg$Svg$Attributes$height = _VirtualDom_attribute('height');
 var $elm$core$Maybe$map = F2(
@@ -10684,6 +10685,9 @@ var $author$project$Main$path = F3(
 var $elm$svg$Svg$Attributes$r = _VirtualDom_attribute('r');
 var $elm$svg$Svg$Attributes$style = _VirtualDom_attribute('style');
 var $elm$svg$Svg$svg = $elm$svg$Svg$trustedNode('svg');
+var $elm$svg$Svg$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$svg$Svg$text_ = $elm$svg$Svg$trustedNode('text');
+var $elm$core$Debug$toString = _Debug_toString;
 var $elm$svg$Svg$Attributes$transform = _VirtualDom_attribute('transform');
 var $elm_community$maybe_extra$Maybe$Extra$cons = F2(
 	function (item, list) {
@@ -10800,7 +10804,21 @@ var $author$project$Main$forceMap = function (model) {
 									[
 										$elm$svg$Svg$Attributes$r('0.002')
 									]),
-								_List_Nil)
+								_List_Nil),
+								A2(
+								$elm$svg$Svg$text_,
+								_List_fromArray(
+									[
+										$elm$svg$Svg$Attributes$stroke('black'),
+										$elm$svg$Svg$Attributes$strokeWidth('0.1'),
+										$elm$svg$Svg$Attributes$transform('translate(0.005 0) scale(0.001) '),
+										$elm$svg$Svg$Attributes$fontSize('10')
+									]),
+								_List_fromArray(
+									[
+										$elm$svg$Svg$text(
+										$elm$core$Debug$toString(entity.id))
+									]))
 							]));
 				},
 				model.nodes),
@@ -10829,6 +10847,24 @@ var $author$project$Main$forceMap = function (model) {
 								model.nodes));
 					},
 					model.edges))));
+};
+var $elm_community$list_extra$List$Extra$unconsLast = function (list) {
+	var _v0 = $elm$core$List$reverse(list);
+	if (!_v0.b) {
+		return $elm$core$Maybe$Nothing;
+	} else {
+		var last_ = _v0.a;
+		var rest = _v0.b;
+		return $elm$core$Maybe$Just(
+			_Utils_Tuple2(
+				last_,
+				$elm$core$List$reverse(rest)));
+	}
+};
+var $author$project$Search$fifo = {
+	pop: function (_v0) {
+		return $elm_community$list_extra$List$Extra$unconsLast;
+	}
 };
 var $elm$core$List$any = F2(
 	function (isOkay, list) {
@@ -10914,59 +10950,248 @@ var $author$project$Search$init = F3(
 			strategy: strategy
 		};
 	});
-var $elm_community$list_extra$List$Extra$remove = F2(
-	function (x, xs) {
-		if (!xs.b) {
-			return _List_Nil;
-		} else {
-			var y = xs.a;
-			var ys = xs.b;
-			return _Utils_eq(x, y) ? ys : A2(
-				$elm$core$List$cons,
-				y,
-				A2($elm_community$list_extra$List$Extra$remove, x, ys));
+var $author$project$Search$breadthFirst = A2($author$project$Search$init, $author$project$Search$graphSearch, $author$project$Search$fifo);
+var $Janiczek$elm_graph$Graph$Graph = function (a) {
+	return {$: 'Graph', a: a};
+};
+var $pzp1997$assoc_list$AssocList$D = function (a) {
+	return {$: 'D', a: a};
+};
+var $pzp1997$assoc_list$AssocList$get = F2(
+	function (targetKey, _v0) {
+		get:
+		while (true) {
+			var alist = _v0.a;
+			if (!alist.b) {
+				return $elm$core$Maybe$Nothing;
+			} else {
+				var _v2 = alist.a;
+				var key = _v2.a;
+				var value = _v2.b;
+				var rest = alist.b;
+				if (_Utils_eq(key, targetKey)) {
+					return $elm$core$Maybe$Just(value);
+				} else {
+					var $temp$targetKey = targetKey,
+						$temp$_v0 = $pzp1997$assoc_list$AssocList$D(rest);
+					targetKey = $temp$targetKey;
+					_v0 = $temp$_v0;
+					continue get;
+				}
+			}
 		}
 	});
-var $author$project$Search$priority = function (f) {
-	return {
-		pop: F2(
-			function (d, l) {
-				return A2(
-					$elm$core$Maybe$map,
-					function (a) {
-						return _Utils_Tuple2(
-							a,
-							A2($elm_community$list_extra$List$Extra$remove, a, l));
-					},
+var $pzp1997$assoc_list$AssocList$singleton = F2(
+	function (key, value) {
+		return $pzp1997$assoc_list$AssocList$D(
+			_List_fromArray(
+				[
+					_Utils_Tuple2(key, value)
+				]));
+	});
+var $pzp1997$assoc_list$AssocList$remove = F2(
+	function (targetKey, _v0) {
+		var alist = _v0.a;
+		return $pzp1997$assoc_list$AssocList$D(
+			A2(
+				$elm$core$List$filter,
+				function (_v1) {
+					var key = _v1.a;
+					return !_Utils_eq(key, targetKey);
+				},
+				alist));
+	});
+var $pzp1997$assoc_list$AssocList$update = F3(
+	function (targetKey, alter, dict) {
+		var alist = dict.a;
+		var maybeValue = A2($pzp1997$assoc_list$AssocList$get, targetKey, dict);
+		if (maybeValue.$ === 'Just') {
+			var _v1 = alter(maybeValue);
+			if (_v1.$ === 'Just') {
+				var alteredValue = _v1.a;
+				return $pzp1997$assoc_list$AssocList$D(
 					A2(
-						$elm_community$list_extra$List$Extra$minimumBy,
-						f(d),
-						l));
-			})
-	};
-};
-var $author$project$Search$bestFirst = function (problem) {
-	return A3(
-		$author$project$Search$init,
-		$author$project$Search$graphSearch,
-		$author$project$Search$priority(
-			F2(
-				function (explored, state) {
-					return A2(
-						$elm$core$Maybe$withDefault,
-						0,
-						A2(
-							$elm$core$Maybe$map,
-							function ($) {
-								return $.pathCost;
-							},
-							A2(
-								$elm$core$Dict$get,
-								problem.stateToComparable(state),
-								explored))) + problem.heuristic(state);
-				})),
-		problem);
-};
+						$elm$core$List$map,
+						function (entry) {
+							var key = entry.a;
+							return _Utils_eq(key, targetKey) ? _Utils_Tuple2(targetKey, alteredValue) : entry;
+						},
+						alist));
+			} else {
+				return A2($pzp1997$assoc_list$AssocList$remove, targetKey, dict);
+			}
+		} else {
+			var _v2 = alter($elm$core$Maybe$Nothing);
+			if (_v2.$ === 'Just') {
+				var alteredValue = _v2.a;
+				return $pzp1997$assoc_list$AssocList$D(
+					A2(
+						$elm$core$List$cons,
+						_Utils_Tuple2(targetKey, alteredValue),
+						alist));
+			} else {
+				return dict;
+			}
+		}
+	});
+var $Janiczek$elm_graph$Graph$addEdge_ = F4(
+	function (from, to, data, graph) {
+		var g = graph.a;
+		var maybeToId = A2($pzp1997$assoc_list$AssocList$get, to, g.vertices);
+		var maybeFromId = A2($pzp1997$assoc_list$AssocList$get, from, g.vertices);
+		return A2(
+			$elm$core$Maybe$withDefault,
+			graph,
+			A3(
+				$elm$core$Maybe$map2,
+				F2(
+					function (fromId, toId) {
+						return $Janiczek$elm_graph$Graph$Graph(
+							_Utils_update(
+								g,
+								{
+									edges: A3(
+										$pzp1997$assoc_list$AssocList$update,
+										fromId,
+										function (maybeEdgesFrom) {
+											if (maybeEdgesFrom.$ === 'Nothing') {
+												return $elm$core$Maybe$Just(
+													A2($pzp1997$assoc_list$AssocList$singleton, toId, data));
+											} else {
+												var edgesFrom = maybeEdgesFrom.a;
+												return $elm$core$Maybe$Just(
+													A3(
+														$pzp1997$assoc_list$AssocList$update,
+														toId,
+														function (maybeData) {
+															if (maybeData.$ === 'Nothing') {
+																return $elm$core$Maybe$Just(data);
+															} else {
+																var oldData = maybeData.a;
+																return $elm$core$Maybe$Just(oldData);
+															}
+														},
+														edgesFrom));
+											}
+										},
+										g.edges)
+								}));
+					}),
+				maybeFromId,
+				maybeToId));
+	});
+var $pzp1997$assoc_list$AssocList$member = F2(
+	function (targetKey, dict) {
+		var _v0 = A2($pzp1997$assoc_list$AssocList$get, targetKey, dict);
+		if (_v0.$ === 'Just') {
+			return true;
+		} else {
+			return false;
+		}
+	});
+var $Janiczek$elm_graph$Graph$hasVertex = F2(
+	function (vertex, _v0) {
+		var g = _v0.a;
+		return A2($pzp1997$assoc_list$AssocList$member, vertex, g.vertices);
+	});
+var $pzp1997$assoc_list$AssocList$insert = F3(
+	function (key, value, dict) {
+		var _v0 = A2($pzp1997$assoc_list$AssocList$remove, key, dict);
+		var alteredAlist = _v0.a;
+		return $pzp1997$assoc_list$AssocList$D(
+			A2(
+				$elm$core$List$cons,
+				_Utils_Tuple2(key, value),
+				alteredAlist));
+	});
+var $Janiczek$elm_graph$Graph$addVertex = F2(
+	function (vertex, graph) {
+		var g = graph.a;
+		return A2($Janiczek$elm_graph$Graph$hasVertex, vertex, graph) ? graph : $Janiczek$elm_graph$Graph$Graph(
+			_Utils_update(
+				g,
+				{
+					unusedId: g.unusedId + 1,
+					vertices: A3($pzp1997$assoc_list$AssocList$insert, vertex, g.unusedId, g.vertices),
+					verticesById: A3($pzp1997$assoc_list$AssocList$insert, g.unusedId, vertex, g.verticesById)
+				}));
+	});
+var $Janiczek$elm_graph$Graph$addEdge = F4(
+	function (from, to, data, graph) {
+		return A4(
+			$Janiczek$elm_graph$Graph$addEdge_,
+			from,
+			to,
+			data,
+			A2(
+				$Janiczek$elm_graph$Graph$addVertex,
+				to,
+				A2($Janiczek$elm_graph$Graph$addVertex, from, graph)));
+	});
+var $pzp1997$assoc_list$AssocList$empty = $pzp1997$assoc_list$AssocList$D(_List_Nil);
+var $Janiczek$elm_graph$Graph$empty = $Janiczek$elm_graph$Graph$Graph(
+	{edges: $pzp1997$assoc_list$AssocList$empty, unusedId: 0, vertices: $pzp1997$assoc_list$AssocList$empty, verticesById: $pzp1997$assoc_list$AssocList$empty});
+var $Janiczek$elm_graph$Graph$fromVerticesAndEdges = F2(
+	function (vertices_, edges_) {
+		return function (graph) {
+			return A3($elm$core$List$foldl, $Janiczek$elm_graph$Graph$addVertex, graph, vertices_);
+		}(
+			function (graph) {
+				return A3(
+					$elm$core$List$foldl,
+					function (_v0) {
+						var from = _v0.from;
+						var to = _v0.to;
+						var data = _v0.data;
+						return A3($Janiczek$elm_graph$Graph$addEdge, from, to, data);
+					},
+					graph,
+					edges_);
+			}($Janiczek$elm_graph$Graph$empty));
+	});
+var $author$project$Search$Problem$Romania$distance = A2(
+	$Janiczek$elm_graph$Graph$fromVerticesAndEdges,
+	_List_Nil,
+	$elm$core$List$concat(
+		A2(
+			$elm$core$List$map,
+			function (a) {
+				var from = a.from;
+				var to = a.to;
+				var data = a.data;
+				return _List_fromArray(
+					[
+						a,
+						{data: data, from: to, to: from}
+					]);
+			},
+			$elm$core$List$reverse(
+				_List_fromArray(
+					[
+						{data: 75, from: 'Arad', to: 'Zerind'},
+						{data: 140, from: 'Arad', to: 'Sibiu'},
+						{data: 118, from: 'Arad', to: 'Timisoara'},
+						{data: 71, from: 'Zerind', to: 'Oradea'},
+						{data: 151, from: 'Oradea', to: 'Sibiu'},
+						{data: 99, from: 'Sibiu', to: 'Fagaras'},
+						{data: 80, from: 'Sibiu', to: 'Rimnicu Vilcea'},
+						{data: 211, from: 'Fagaras', to: 'Bucharest'},
+						{data: 85, from: 'Bucharest', to: 'Urziceni'},
+						{data: 90, from: 'Bucharest', to: 'Giurgiu'},
+						{data: 101, from: 'Bucharest', to: 'Pitesti'},
+						{data: 142, from: 'Urziceni', to: 'Vaslui'},
+						{data: 98, from: 'Urziceni', to: 'Hirsova'},
+						{data: 92, from: 'Vaslui', to: 'Iasi'},
+						{data: 87, from: 'Iasi', to: 'Neamt'},
+						{data: 86, from: 'Hirsova', to: 'Eforie'},
+						{data: 138, from: 'Pitesti', to: 'Craiova'},
+						{data: 97, from: 'Pitesti', to: 'Rimnicu Vilcea'},
+						{data: 120, from: 'Craiova', to: 'Drobeta'},
+						{data: 146, from: 'Craiova', to: 'Rimnicu Vilcea'},
+						{data: 75, from: 'Drobeta', to: 'Mehadia'},
+						{data: 70, from: 'Mehadia', to: 'Lugoj'},
+						{data: 111, from: 'Lugoj', to: 'Timisoara'}
+					])))));
 var $elm$core$Set$Set_elm_builtin = function (a) {
 	return {$: 'Set_elm_builtin', a: a};
 };
@@ -10980,56 +11205,76 @@ var $elm$core$Set$insert = F2(
 var $elm$core$Set$fromList = function (list) {
 	return A3($elm$core$List$foldl, $elm$core$Set$insert, $elm$core$Set$empty, list);
 };
-var $elm$core$Basics$abs = function (n) {
-	return (n < 0) ? (-n) : n;
-};
-var $author$project$Search$Problem$NQueens$isAttacked = F3(
-	function (y, x, state) {
-		return A2(
-			$elm$core$List$any,
-			function (_v0) {
-				var yy = _v0.a;
-				var xx = _v0.b;
-				return _Utils_eq(xx, x) || (_Utils_eq(yy, y) || _Utils_eq(
-					$elm$core$Basics$abs(yy - y),
-					$elm$core$Basics$abs(xx - x)));
-			},
-			state);
+var $elm$core$Maybe$andThen = F2(
+	function (callback, maybeValue) {
+		if (maybeValue.$ === 'Just') {
+			var value = maybeValue.a;
+			return callback(value);
+		} else {
+			return $elm$core$Maybe$Nothing;
+		}
 	});
-var $author$project$Search$Problem$NQueens$incrementalNQueens = function (n) {
-	return {
-		actions: function (state) {
-			var y = $elm$core$List$length(state);
-			return (_Utils_cmp(y, n) < 0) ? A2(
-				$elm$core$List$map,
-				function (x) {
-					return _Utils_Tuple2(
-						1,
-						A2(
-							$elm$core$List$cons,
-							_Utils_Tuple2(y, x),
-							state));
-				},
-				A2(
-					$elm$core$List$filter,
-					function (x) {
-						return !A3($author$project$Search$Problem$NQueens$isAttacked, y, x, state);
-					},
-					A2($elm$core$List$range, 0, n - 1))) : _List_Nil;
-		},
-		goalTest: function (state) {
-			return _Utils_eq(
-				$elm$core$List$length(state),
-				n);
-		},
-		heuristic: function (_v0) {
-			return 0;
-		},
-		initialState: _List_Nil,
-		stateToComparable: $elm$core$Basics$identity
-	};
+var $elm_community$maybe_extra$Maybe$Extra$combine = A2(
+	$elm$core$List$foldr,
+	$elm$core$Maybe$map2($elm$core$List$cons),
+	$elm$core$Maybe$Just(_List_Nil));
+var $pzp1997$assoc_list$AssocList$toList = function (_v0) {
+	var alist = _v0.a;
+	return alist;
 };
-var $author$project$Search$Problem$NQueens$incrementalEightQueens = $author$project$Search$Problem$NQueens$incrementalNQueens(8);
+var $Janiczek$elm_graph$Graph$outgoingEdgesWithData = F2(
+	function (vertex, _v0) {
+		var g = _v0.a;
+		return A2(
+			$elm$core$Maybe$withDefault,
+			_List_Nil,
+			A2(
+				$elm$core$Maybe$andThen,
+				A2(
+					$elm$core$Basics$composeR,
+					$elm$core$List$map(
+						function (_v1) {
+							var toId = _v1.a;
+							var data = _v1.b;
+							return A2(
+								$elm$core$Maybe$map,
+								function (to) {
+									return _Utils_Tuple2(to, data);
+								},
+								A2($pzp1997$assoc_list$AssocList$get, toId, g.verticesById));
+						}),
+					$elm_community$maybe_extra$Maybe$Extra$combine),
+				A2(
+					$elm$core$Maybe$map,
+					$pzp1997$assoc_list$AssocList$toList,
+					A2(
+						$elm$core$Maybe$andThen,
+						function (vertexId) {
+							return A2($pzp1997$assoc_list$AssocList$get, vertexId, g.edges);
+						},
+						A2($pzp1997$assoc_list$AssocList$get, vertex, g.vertices)))));
+	});
+var $author$project$Search$Problem$Graph$routeFinding = F3(
+	function (root, goal, graph) {
+		return {
+			actions: function (a) {
+				return A2(
+					$elm$core$List$map,
+					function (_v0) {
+						var vertex = _v0.a;
+						var data = _v0.b;
+						return _Utils_Tuple2(data, vertex);
+					},
+					A2($Janiczek$elm_graph$Graph$outgoingEdgesWithData, a, graph));
+			},
+			goalTest: $elm$core$Basics$eq(goal),
+			heuristic: function (_v1) {
+				return 0;
+			},
+			initialState: root,
+			stateToComparable: $elm$core$Basics$identity
+		};
+	});
 var $author$project$Main$NewModel = function (a) {
 	return {$: 'NewModel', a: a};
 };
@@ -11043,20 +11288,19 @@ var $author$project$Search$Problem$expand = F2(
 		var node = _v0.b;
 		var actions = problem.actions(state);
 		var children = A2(
-			$elm$core$List$indexedMap,
-			F2(
-				function (i, _v2) {
-					var stepCost = _v2.a;
-					var result = _v2.b;
-					return _Utils_Tuple2(
-						result,
-						{
-							children: $elm$core$Maybe$Nothing,
-							parent: $elm$core$Maybe$Just(state),
-							pathCost: node.pathCost + stepCost,
-							state: result
-						});
-				}),
+			$elm$core$List$map,
+			function (_v2) {
+				var stepCost = _v2.a;
+				var result = _v2.b;
+				return _Utils_Tuple2(
+					result,
+					{
+						children: $elm$core$Maybe$Nothing,
+						parent: $elm$core$Maybe$Just(state),
+						pathCost: node.pathCost + stepCost,
+						state: result
+					});
+			},
 			actions);
 		var updatedParent = _Utils_update(
 			node,
@@ -11073,9 +11317,18 @@ var $author$project$Search$Problem$expand = F2(
 			});
 		return _Utils_Tuple2(updatedParent, children);
 	});
-var $elm$core$Dict$union = F2(
-	function (t1, t2) {
-		return A3($elm$core$Dict$foldl, $elm$core$Dict$insert, t2, t1);
+var $elm_community$dict_extra$Dict$Extra$insertDedupe = F4(
+	function (combine, key, value, dict) {
+		var _with = function (mbValue) {
+			if (mbValue.$ === 'Just') {
+				var oldValue = mbValue.a;
+				return $elm$core$Maybe$Just(
+					A2(combine, oldValue, value));
+			} else {
+				return $elm$core$Maybe$Just(value);
+			}
+		};
+		return A3($elm$core$Dict$update, key, _with, dict);
 	});
 var $author$project$Search$searchStep = F3(
 	function (strategy, queue, model) {
@@ -11102,24 +11355,25 @@ var $author$project$Search$searchStep = F3(
 				return _Utils_update(
 					model,
 					{
-						explored: A2(
-							$elm$core$Dict$union,
-							$elm$core$Dict$fromList(
-								A2(
-									$elm$core$List$map,
-									function (_v4) {
-										var a = _v4.a;
-										var node_ = _v4.b;
-										return _Utils_Tuple2(
-											problem.stateToComparable(a),
-											node_);
-									},
-									filteredChildNodes)),
-							A3(
-								$elm$core$Dict$insert,
-								problem.stateToComparable(h),
-								updatedParent,
-								explored)),
+						explored: A3(
+							$elm$core$List$foldl,
+							function (_v4) {
+								var state = _v4.a;
+								var node_ = _v4.b;
+								return A3(
+									$elm_community$dict_extra$Dict$Extra$insertDedupe,
+									F2(
+										function (original, _new) {
+											return (_Utils_cmp(_new.pathCost, original.pathCost) > 0) ? original : _new;
+										}),
+									problem.stateToComparable(state),
+									node_);
+							},
+							explored,
+							A2(
+								$elm$core$List$cons,
+								_Utils_Tuple2(h, updatedParent),
+								childNodes)),
 						frontier: _Utils_ap(
 							$elm$core$List$reverse(
 								A2($elm$core$List$map, $elm$core$Tuple$first, filteredChildNodes)),
@@ -11186,9 +11440,9 @@ var $author$project$Main$searchTask = function (model) {
 	}
 };
 var $author$project$Main$init = function (_v0) {
-	var problem = $author$project$Search$Problem$NQueens$incrementalEightQueens;
+	var problem = A3($author$project$Search$Problem$Graph$routeFinding, 'Arad', 'Bucharet', $author$project$Search$Problem$Romania$distance);
 	var initialState = problem.stateToComparable(problem.initialState);
-	var initialSearchModel = $author$project$Search$bestFirst(problem);
+	var initialSearchModel = $author$project$Search$breadthFirst(problem);
 	return _Utils_Tuple2(
 		{
 			edges: _List_Nil,
@@ -12104,6 +12358,10 @@ var $gampleman$elm_visualization$Force$simulation = function (forces) {
 			velocityDecay: 0.6
 		});
 };
+var $elm$core$Dict$union = F2(
+	function (t1, t2) {
+		return A3($elm$core$Dict$foldl, $elm$core$Dict$insert, t2, t1);
+	});
 var $elm$core$Set$union = F2(
 	function (_v0, _v1) {
 		var dict1 = _v0.a;
@@ -12118,7 +12376,7 @@ var $author$project$Main$update = F2(
 			A2(
 				$elm$core$Dict$filter,
 				F2(
-					function (k, _v4) {
+					function (k, _v5) {
 						return !A2($elm$core$Set$member, k, model.existingStates);
 					}),
 				model.searchModel.explored));
@@ -12126,13 +12384,13 @@ var $author$project$Main$update = F2(
 			A2(
 				$elm$core$List$indexedMap,
 				F2(
-					function (i, _v2) {
-						var state = _v2.a;
-						var parent = _v2.b.parent;
+					function (i, _v3) {
+						var state = _v3.a;
+						var parent = _v3.b.parent;
 						var parentNode = A2(
 							$elm_community$list_extra$List$Extra$find,
-							function (_v3) {
-								var id = _v3.id;
+							function (_v4) {
+								var id = _v4.id;
 								return _Utils_eq(
 									$elm$core$Maybe$Just(id),
 									parent);
@@ -12164,6 +12422,21 @@ var $author$project$Main$update = F2(
 					}),
 				newNodes),
 			model.nodes);
+		var graphState = $gampleman$elm_visualization$Force$simulation(
+			_List_fromArray(
+				[
+					A2($gampleman$elm_visualization$Force$center, 0, 0),
+					A2($gampleman$elm_visualization$Force$customLinks, 1, model.edges),
+					A2(
+					$gampleman$elm_visualization$Force$manyBodyStrength,
+					-0.002,
+					A2(
+						$elm$core$List$map,
+						function ($) {
+							return $.id;
+						},
+						nodes))
+				]));
 		var simulatedNodes = A2(
 			$elm$core$List$map,
 			function (a) {
@@ -12172,57 +12445,26 @@ var $author$project$Main$update = F2(
 					a,
 					{x: x});
 			},
-			A2(
-				$gampleman$elm_visualization$Force$computeSimulation,
-				$gampleman$elm_visualization$Force$simulation(
-					_List_fromArray(
-						[
-							A2($gampleman$elm_visualization$Force$center, 0, 0),
-							A2($gampleman$elm_visualization$Force$customLinks, 1, model.edges),
-							A2(
-							$gampleman$elm_visualization$Force$manyBodyStrength,
-							-0.002,
-							A2(
-								$elm$core$List$map,
-								function ($) {
-									return $.id;
-								},
-								nodes))
-						])),
-				nodes));
-		var edges = _Utils_ap(
+			A2($gampleman$elm_visualization$Force$computeSimulation, graphState, nodes));
+		var edges = $elm$core$List$concat(
 			$elm_community$maybe_extra$Maybe$Extra$values(
 				A2(
 					$elm$core$List$map,
 					function (_v1) {
 						var state = _v1.a;
-						var parent = _v1.b.parent;
+						var children = _v1.b.children;
 						var pathCost = _v1.b.pathCost;
 						return A2(
 							$elm$core$Maybe$map,
-							function (parent_) {
-								return {
-									distance: pathCost - A2(
-										$elm$core$Maybe$withDefault,
-										0,
-										A2(
-											$elm$core$Maybe$map,
-											function ($) {
-												return $.pathCost;
-											},
-											A2(
-												$elm$core$Dict$get,
-												m.problem.stateToComparable(parent_),
-												m.explored))),
-									source: parent_,
-									strength: $elm$core$Maybe$Nothing,
-									target: state
-								};
-							},
-							parent);
+							$elm$core$List$map(
+								function (_v2) {
+									var childPathCost = _v2.a;
+									var childState = _v2.b;
+									return {distance: childPathCost - pathCost, source: state, strength: $elm$core$Maybe$Nothing, target: childState};
+								}),
+							children);
 					},
-					newNodes)),
-			model.edges);
+					$elm$core$Dict$toList(model.searchModel.explored))));
 		return _Utils_Tuple2(
 			_Utils_update(
 				model,
@@ -12256,7 +12498,7 @@ var $author$project$Main$main = $elm$browser$Browser$document(
 		}
 	});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Search.Model":{"args":["a","b"],"type":"{ strategy : Search.Strategy a b, queue : Search.Queue a b, problem : Search.Problem a b, explored : Dict.Dict b (Search.Problem.Node a), frontier : List.List a, solution : Search.Result.Result ( a, Search.Problem.Node a ), maxPathCost : Basics.Float }"},"Search.Problem.Node":{"args":["a"],"type":"{ state : a, parent : Maybe.Maybe a, pathCost : Basics.Float, children : Maybe.Maybe (List.List ( Basics.Float, a )) }"},"Search.Problem":{"args":["a","b"],"type":"Search.Problem.Problem a b"},"Search.Problem.Problem":{"args":["a","comparable"],"type":"{ initialState : a, actions : a -> List.List ( Basics.Float, a ), heuristic : a -> Basics.Float, goalTest : a -> Basics.Bool, stateToComparable : a -> comparable }"},"Search.Queue":{"args":["a","b"],"type":"{ pop : Dict.Dict b (Search.Problem.Node a) -> List.List a -> Maybe.Maybe ( a, List.List a ) }"},"Main.State":{"args":[],"type":"List.List ( Basics.Int, Basics.Int )"},"Search.Strategy":{"args":["a","b"],"type":"{ frontier : Search.Problem a b -> Dict.Dict b (Search.Problem.Node a) -> List.List ( a, Search.Problem.Node a ) -> a -> List.List a -> List.List ( a, Search.Problem.Node a ) }"}},"unions":{"Main.Msg":{"args":[],"tags":{"NewModel":["Search.Model Main.State Main.State"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Search.Result.Result":{"args":["a"],"tags":{"Pending":[],"Solution":["a"],"Failure":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Main.Msg","aliases":{"Search.Model":{"args":["a","b"],"type":"{ strategy : Search.Strategy a b, queue : Search.Queue a b, problem : Search.Problem a b, explored : Dict.Dict b (Search.Problem.Node a), frontier : List.List a, solution : Search.Result.Result ( a, Search.Problem.Node a ), maxPathCost : Basics.Float }"},"Search.Problem.Node":{"args":["a"],"type":"{ state : a, parent : Maybe.Maybe a, pathCost : Basics.Float, children : Maybe.Maybe (List.List ( Basics.Float, a )) }"},"Search.Problem":{"args":["a","b"],"type":"Search.Problem.Problem a b"},"Search.Problem.Problem":{"args":["a","comparable"],"type":"{ initialState : a, actions : a -> List.List ( Basics.Float, a ), heuristic : a -> Basics.Float, goalTest : a -> Basics.Bool, stateToComparable : a -> comparable }"},"Search.Queue":{"args":["a","b"],"type":"{ pop : Dict.Dict b (Search.Problem.Node a) -> List.List a -> Maybe.Maybe ( a, List.List a ) }"},"Main.State":{"args":[],"type":"String.String"},"Search.Strategy":{"args":["a","b"],"type":"{ frontier : Search.Problem a b -> Dict.Dict b (Search.Problem.Node a) -> List.List ( a, Search.Problem.Node a ) -> a -> List.List a -> List.List ( a, Search.Problem.Node a ) }"}},"unions":{"Main.Msg":{"args":[],"tags":{"NewModel":["Search.Model Main.State Main.State"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Search.Result.Result":{"args":["a"],"tags":{"Pending":[],"Solution":["a"],"Failure":[]}},"String.String":{"args":[],"tags":{"String":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
 
   var app = Elm.Main.init({ node: document.getElementById("elm") });
 }
