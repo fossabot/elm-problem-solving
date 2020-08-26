@@ -59,7 +59,24 @@ down s =
 
 horizontal : Int -> State -> Maybe State
 horizontal d state =
-    elemIndex 0 state |> Maybe.map (\a -> swapAt a (a + d) state) |> Maybe.join
+    let
+        zeroPos =
+            elemIndex 0 state
+
+        n =
+            sideLength state
+    in
+    zeroPos
+        |> Maybe.map
+            (\z ->
+                -- check: is position after swap in same row?
+                if z // n == (z + d) // n then
+                    swapAt z (z + d) state
+
+                else
+                    Nothing
+            )
+        |> Maybe.join
 
 
 left : State -> Maybe State
