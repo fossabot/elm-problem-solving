@@ -120,7 +120,9 @@ obstacleStates states obstacle =
         [] ->
             states |> List.unique
 
-
+{-| 
+This example is inspired by an animation by user Subh83 [on Wikimedia](https://commons.wikimedia.org/wiki/File:Astar_progress_animation.gif). The animation is licensed under a Creative Commons Attribution 3.0 Unported license. 
+-}
 simpleConfig : Config
 simpleConfig =
     { size = ( 20, 18 )
