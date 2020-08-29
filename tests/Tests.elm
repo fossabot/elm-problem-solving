@@ -1,17 +1,14 @@
 module Tests exposing (..)
 
 import Expect
-import Games exposing (..)
-import Games.TicTacToe exposing (..)
-import Search exposing (..)
-import Search.Problem exposing (..)
-import Search.Problem.Graph exposing (routeFinding)
-import Search.Problem.KnuthConjecture exposing (..)
-import Search.Problem.MotionPlanning as MotionPlanning
-import Search.Problem.NPuzzle exposing (..)
-import Search.Problem.NQueens exposing (..)
-import Search.Problem.Romania exposing (distance)
-import Search.Problem.VacuumWorld exposing (..)
+import Problem.Search exposing (..)
+import Problem exposing (..)
+import Problem.Example.Graph exposing (..)
+import Problem.Example.KnuthConjecture exposing (..)
+import Problem.Example.MotionPlanning as MotionPlanning
+import Problem.Example.NPuzzle exposing (..)
+import Problem.Example.NQueens exposing (..)
+import Problem.Example.VacuumWorld exposing (..)
 import Test exposing (..)
 
 
@@ -25,8 +22,6 @@ suite =
             , describe "greedy search" cfs
             , describe "best-first search" ass
             ]
-        , describe "games"
-            [ describe "maximin" maximin ]
         ]
 
 
@@ -37,7 +32,7 @@ suite =
 {-| Performs n search steps, and produces a list of snapshots of the states in the frontier after each step.
 -}
 scanFrontierStates :
-    Search.Model a comparable
+    Model a
     -> Int
     -> List (List a)
     -> List (List a)
@@ -53,7 +48,7 @@ scanFrontierStates model n frontiers =
         frontiers
 
 
-solvesWithPath : Search.Model a comparable -> List ( Float, a ) -> Expect.Expectation
+solvesWithPath : Model a -> List ( Float, a ) -> Expect.Expectation
 solvesWithPath searchModel path_ =
     Expect.equal
         (let
@@ -87,7 +82,7 @@ bfs =
       test "expands nodes correctly in route finding" <|
         \_ ->
             Expect.equal
-                (scanFrontierStates (breadthFirst (routeFinding "Arad" "Bucharest" distance)) 21 [])
+                (scanFrontierStates (breadthFirst (routeFinding identity "Arad" "Bucharest" romania.distance)) 21 [])
                 [ [ "Timisoara", "Sibiu", "Zerind" ]
                 , [ "Oradea", "Timisoara", "Sibiu" ]
                 , [ "Rimnicu Vilcea", "Fagaras", "Oradea", "Timisoara" ]
@@ -142,7 +137,7 @@ bfs =
     , test "finds route from arad to bucharest" <|
         \_ ->
             solvesWithPath
-                (breadthFirst <| routeFinding "Arad" "Bucharest" distance)
+                (breadthFirst <| routeFinding identity "Arad" "Bucharest" romania.distance)
                 [ ( 0, "Arad" )
                 , ( 140, "Sibiu" )
                 , ( 239, "Fagaras" )
@@ -159,7 +154,7 @@ bfs =
         \_ ->
             solvesWithState
                 (breadthFirst incrementalEightQueens)
-                Search.Problem.NQueens.visualize
+                Problem.Example.NQueens.visualize
                 [ [ 0, 0, 0, 1, 0, 0, 0, 0 ]
                 , [ 0, 1, 0, 0, 0, 0, 0, 0 ]
                 , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
@@ -216,7 +211,7 @@ dfs =
       test "expands nodes correctly in route finding" <|
         \_ ->
             Expect.equal
-                (scanFrontierStates (depthFirst (routeFinding "Arad" "Bucharest" distance)) 21 [])
+                (scanFrontierStates (depthFirst (routeFinding identity "Arad" "Bucharest" romania.distance)) 21 [])
                 [ [ "Timisoara", "Sibiu", "Zerind" ]
                 , [ "Lugoj", "Sibiu", "Zerind" ]
                 , [ "Mehadia", "Sibiu", "Zerind" ]
@@ -252,7 +247,7 @@ dfs =
     , test "finds route from arad to bucharest" <|
         \_ ->
             solvesWithPath
-                (depthFirst <| routeFinding "Arad" "Bucharest" distance)
+                (depthFirst <| routeFinding identity "Arad" "Bucharest" romania.distance)
                 [ ( 0, "Arad" )
                 , ( 118, "Timisoara" )
                 , ( 229, "Lugoj" )
@@ -268,7 +263,7 @@ dfs =
         \_ ->
             solvesWithState
                 (depthFirst incrementalEightQueens)
-                Search.Problem.NQueens.visualize
+                Problem.Example.NQueens.visualize
                 [ [ 0, 0, 0, 0, 1, 0, 0, 0 ]
                 , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
                 , [ 0, 1, 0, 0, 0, 0, 0, 0 ]
@@ -319,7 +314,7 @@ ucs =
       test "expands nodes correctly in route finding" <|
         \_ ->
             Expect.equal
-                (scanFrontierStates (uniformCost (routeFinding "Arad" "Bucharest" distance)) 21 [])
+                (scanFrontierStates (uniformCost (routeFinding identity "Arad" "Bucharest" romania.distance)) 21 [])
                 [ [ "Timisoara", "Sibiu", "Zerind" ]
                 , [ "Oradea", "Timisoara", "Sibiu" ]
                 , [ "Lugoj", "Oradea", "Sibiu" ]
@@ -364,7 +359,7 @@ ucs =
     , test "finds route from arad to bucharest" <|
         \_ ->
             solvesWithPath
-                (uniformCost <| routeFinding "Arad" "Bucharest" distance)
+                (uniformCost <| routeFinding identity "Arad" "Bucharest" romania.distance)
                 [ ( 0, "Arad" )
                 , ( 140, "Sibiu" )
                 , ( 239, "Fagaras" )
@@ -381,7 +376,7 @@ ucs =
         \_ ->
             solvesWithState
                 (uniformCost incrementalEightQueens)
-                Search.Problem.NQueens.visualize
+                Problem.Example.NQueens.visualize
                 [ [ 0, 0, 0, 0, 0, 1, 0, 0 ]
                 , [ 0, 0, 0, 1, 0, 0, 0, 0 ]
                 , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
@@ -438,7 +433,7 @@ cfs =
       test "expands nodes correctly in route finding" <|
         \_ ->
             Expect.equal
-                (scanFrontierStates (greedy (routeFinding "Arad" "Bucharest" distance)) 21 [])
+                (scanFrontierStates (greedy (routeFinding identity "Arad" "Bucharest" distance)) 21 [])
                 [ [ "Timisoara", "Sibiu", "Zerind" ]
                 , [ "Lugoj", "Sibiu", "Zerind" ]
                 , [ "Mehadia", "Sibiu", "Zerind" ]
@@ -474,7 +469,7 @@ cfs =
     , test "finds route from arad to bucharest" <|
         \_ ->
             solvesWithPath
-                (greedy <| routeFinding "Arad" "Bucharest" distance)
+                (greedy <| routeFinding identity "Arad" "Bucharest" distance)
                 [ ( 0, "Arad" )
                 , ( 118, "Timisoara" )
                 , ( 229, "Lugoj" )
@@ -495,7 +490,7 @@ cfs =
         \_ ->
             solvesWithState
                 (greedy incrementalEightQueens)
-                Search.Problem.NQueens.visualize
+                Problem.Example.NQueens.visualize
                 [ [ 0, 0, 0, 0, 1, 0, 0, 0 ]
                 , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
                 , [ 0, 1, 0, 0, 0, 0, 0, 0 ]
@@ -546,7 +541,7 @@ ass =
       test "expands nodes correctly in route finding" <|
         \_ ->
             Expect.equal
-                (scanFrontierStates (bestFirst (routeFinding "Arad" "Bucharest" distance)) 21 [])
+                (scanFrontierStates (bestFirst (routeFinding identity "Arad" "Bucharest" distance)) 21 [])
                 [ [ "Timisoara", "Sibiu", "Zerind" ]
                 , [ "Oradea", "Timisoara", "Sibiu" ]
                 , [ "Lugoj", "Oradea", "Sibiu" ]
@@ -591,7 +586,7 @@ ass =
     , test "finds route from arad to bucharest" <|
         \_ ->
             solvesWithPath
-                (bestFirst <| routeFinding "Arad" "Bucharest" distance)
+                (bestFirst <| routeFinding identity "Arad" "Bucharest" distance)
                 [ ( 0, "Arad" )
                 , ( 140, "Sibiu" )
                 , ( 239, "Fagaras" )
@@ -608,7 +603,7 @@ ass =
         \_ ->
             solvesWithState
                 (bestFirst incrementalEightQueens)
-                Search.Problem.NQueens.visualize
+                Problem.Example.NQueens.visualize
                 [ [ 0, 0, 0, 0, 0, 1, 0, 0 ]
                 , [ 0, 0, 0, 1, 0, 0, 0, 0 ]
                 , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
@@ -694,66 +689,4 @@ ass =
                 |○⋅⋅                 |
                 ╰────────────────────╯
                 """
-    ]
-
-
-
--- GAMES
-
-
-maximin =
-    [ test "fills in, recognizes utility 0" <|
-        \_ ->
-            Expect.equal
-                (minimaxDecision ticTacToe
-                    [ [ 'x', 'x', 'o' ]
-                    , [ 'o', 'o', 'x' ]
-                    , [ 'x', 'o', ' ' ]
-                    ]
-                    Nothing
-                )
-                (Just
-                    ( 0
-                    , [ [ 'x', 'x', 'o' ]
-                      , [ 'o', 'o', 'x' ]
-                      , [ 'x', 'o', 'x' ]
-                      ]
-                    )
-                )
-    , test "fills in, recognizes utility 1" <|
-        \_ ->
-            Expect.equal
-                (minimaxDecision ticTacToe
-                    [ [ 'x', 'x', ' ' ]
-                    , [ 'o', 'o', ' ' ]
-                    , [ ' ', ' ', ' ' ]
-                    ]
-                    Nothing
-                )
-                (Just
-                    ( 1
-                    , [ [ 'x', 'x', 'x' ]
-                      , [ 'o', 'o', ' ' ]
-                      , [ ' ', ' ', ' ' ]
-                      ]
-                    )
-                )
-    , test "fills in, recognizes utility -1" <|
-        \_ ->
-            Expect.equal
-                (minimaxDecision ticTacToe
-                    [ [ 'x', 'x', 'o' ]
-                    , [ 'o', 'o', ' ' ]
-                    , [ ' ', ' ', 'x' ]
-                    ]
-                    Nothing
-                )
-                (Just
-                    ( -1
-                    , [ [ 'x', 'x', 'o' ]
-                      , [ 'o', 'o', 'x' ]
-                      , [ ' ', ' ', 'x' ]
-                      ]
-                    )
-                )
     ]

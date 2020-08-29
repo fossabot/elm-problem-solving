@@ -1,2 +1,4 @@
+.coverage/
+benchmarks/
 elm-stuff/
 *.log
