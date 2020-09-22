@@ -1,10 +1,12 @@
-![](elm-ai.png)
+# ![elm-problem-solving](elm-problem-solving.png)
 
-# elm-ai
+[![Github actions elm-test status](https://github.com/davidpomerenke/elm-problem-solving/workflows/elm-test/badge.svg)](https://github.com/davidpomerenke/elm-problem-solving/actions?query=workflow%3Aelm-test)
 
-Artificial intelligence in [Elm](https://elm-lang.org/).
+Problem solving in [Elm](https://elm-lang.org/).
 
-This module roughly follows the standard textbook [*Artificial Intelligence - A Modern Approach*](http://aima.cs.berkeley.edu/) (*AIMA*) by Stuart Russell and Peter Norvig. The module is also influenced by [aima.js](https://github.com/davidpomerenke/aima.js).
+## Related work
+
+This module roughly follows the standard textbook [*Artificial Intelligence - A Modern Approach*](http://aima.cs.berkeley.edu/) (*AIMA*) by Stuart Russell and Peter Norvig.
 
 ## Structure
 
@@ -12,7 +14,3 @@ Problem
 Problem.Example
 Problem.Search
 Problem.Search.Visualization
-Game
-Game.Example
-Game.Decision
-Game.Decision.Visualization
