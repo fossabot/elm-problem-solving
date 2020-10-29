@@ -9,7 +9,7 @@ import Problem exposing (Problem)
 
 
 type alias Graph comparable =
-    Dict comparable (List ( Float, comparable ))
+    Dict comparable (List { stepCost : Float, result : comparable })
 
 
 routeFinding : (comparable -> String) -> comparable -> comparable -> Graph comparable -> Problem comparable
@@ -22,51 +22,58 @@ routeFinding nodeToString root goal graph =
     }
 
 
-touring : (comparable -> String) -> comparable -> Graph comparable -> Problem (List comparable)
-touring nodeToString root graph =
-    { initialState = [ root ]
-    , actions =
-        \a ->
-            List.head a
-                |> Maybe.map
-                    (\h ->
-                        Dict.get h graph
-                            |> Maybe.withDefault []
-                            |> List.map (\( pathCost, state ) -> ( pathCost, state :: a ))
-                    )
-                |> Maybe.withDefault []
-    , heuristic = \_ -> 0
-    , goalTest = \a -> graph |> Dict.keys |> List.all (\city -> List.member city a)
-    , stateToString = List.map nodeToString >> list string >> encode 0
-    }
+
+{-
+   touring : (comparable -> String) -> comparable -> Graph comparable -> Problem (List comparable)
+   touring nodeToString root graph =
+       { initialState = [ root ]
+       , actions =
+           \a ->
+               List.head a
+                   |> Maybe.map
+                       (\h ->
+                           Dict.get h graph
+                               |> Maybe.withDefault []
+                               |> List.map (\( pathCost, state ) -> ( pathCost, state :: a ))
+                       )
+                   |> Maybe.withDefault []
+       , heuristic = \_ -> 0
+       , goalTest = \a -> graph |> Dict.keys |> List.all (\city -> List.member city a)
+       , stateToString = List.map nodeToString >> list string >> encode 0
+       }
 
 
-{-| Lifts any state-space-problem to a touring problem in the state space. For example, lifts the route-finding problem between cities to a touring problem between cities. Not sure for which problems other than the route-finding problem it would make sense to apply this, but we could do it. Instead of lifting the route-finding problem it is recommended to use the `touring` problem creator directly, though, as it contains optimizations.
+   {-| Lifts any state-space-problem to a touring problem in the state space. For example, lifts the route-finding problem between cities to a touring problem between cities. Not sure for which problems other than the route-finding problem it would make sense to apply this, but we could do it. Instead of lifting the route-finding problem it is recommended to use the `touring` problem creator directly, though, as it contains optimizations.
+   -}
+   toTouring : Problem a -> Problem (List a)
+   toTouring problem =
+       { initialState = [ problem.initialState ]
+       , actions =
+           \l ->
+               List.head l
+                   |> Maybe.map
+                       (\h ->
+                           problem.actions h
+                               |> List.map (\( pathCost, state ) -> ( pathCost, state :: l ))
+                       )
+                   |> Maybe.withDefault []
+       , heuristic = \_ -> 0
+       , goalTest =
+           \l ->
+               l
+                   |> List.all
+                       (\a ->
+                           problem.actions a |> List.all (\( _, child ) -> List.member child l)
+                       )
+       , stateToString = List.map problem.stateToString >> list string >> encode 0
+       }
+
+
+simpleTouring : Problem (List String)
+simpleTouring =
+    touring identity "Arad" romania.distance
+
 -}
-toTouring : Problem a -> Problem (List a)
-toTouring problem =
-    { initialState = [ problem.initialState ]
-    , actions =
-        \l ->
-            List.head l
-                |> Maybe.map
-                    (\h ->
-                        problem.actions h
-                            |> List.map (\( pathCost, state ) -> ( pathCost, state :: l ))
-                    )
-                |> Maybe.withDefault []
-    , heuristic = \_ -> 0
-    , goalTest =
-        \l ->
-            l
-                |> List.all
-                    (\a ->
-                        problem.actions a |> List.all (\( _, child ) -> List.member child l)
-                    )
-    , stateToString = List.map problem.stateToString >> list string >> encode 0
-    }
-
-
 
 --
 
@@ -75,9 +82,8 @@ simpleRouteFinding : Problem String
 simpleRouteFinding =
     routeFinding identity "Arad" "Bucharest" romania.distance
 
-simpleTouring : Problem (List String)
-simpleTouring =
-    touring identity "Arad" romania.distance
+
+
 
 
 -- ROMANIA
@@ -87,12 +93,11 @@ simpleTouring =
 -}
 toDict =
     Dict.groupBy .from
-        >> Dict.map (\k v -> v |> List.map (\{ data, to } -> ( data, to )))
+        >> Dict.map (\k v -> v |> List.map (\{ data, to } -> { stepCost = data, result = to }))
 
 
 romania =
     { distance = distance
-    , straightLineDistance = straightLineDistance
     , bucharestDistance = bucharestDistance
     }
 
@@ -160,7 +165,7 @@ bucharestDistance : String -> Float
 bucharestDistance a =
     straightLineDistance
         |> Dict.get "Bucharest"
-        |> Maybe.map (List.find (\( _, city ) -> city == a))
+        |> Maybe.map (List.find (\{ result } -> result == a))
         |> Maybe.join
-        |> Maybe.map (\( dist, _ ) -> dist)
+        |> Maybe.map .stepCost
         |> Maybe.withDefault 1000

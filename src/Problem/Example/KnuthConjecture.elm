@@ -25,13 +25,13 @@ knuthConjecture goal =
     , actions =
         \n ->
             if toFloat (round n) == n then
-                [ ( 1, sqrt n )
-                , ( 1, toFloat (factorial (round n)) )
+                [ { stepCost = 1, result = sqrt n }
+                , { stepCost = 1, result = toFloat (factorial (round n)) }
                 ]
 
             else
-                [ ( 1, toFloat (floor n) )
-                , ( 1, sqrt n )
+                [ { stepCost = 1, result = toFloat (floor n) }
+                , { stepCost = 1, result = sqrt n }
                 ]
     , heuristic = \_ -> 0
     , goalTest = \n -> n == goal

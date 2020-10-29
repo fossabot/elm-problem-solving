@@ -6,8 +6,8 @@ import Problem exposing (..)
 import Problem.Example.Graph exposing (..)
 import Problem.Example.KnuthConjecture exposing (..)
 import Problem.Example.MotionPlanning as MotionPlanning
-import Problem.Example.NPuzzle exposing (..)
-import Problem.Example.NQueens exposing (..)
+import Problem.Example.SlidingPuzzle exposing (..)
+import Problem.Example.Queens exposing (..)
 import Problem.Example.VacuumWorld exposing (..)
 import Test exposing (..)
 

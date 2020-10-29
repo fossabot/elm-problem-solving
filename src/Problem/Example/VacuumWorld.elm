@@ -1,4 +1,4 @@
-module Problem.Example.VacuumWorld exposing (Condition(..), Location(..), vacuumWorld)
+module Problem.Example.VacuumWorld exposing (vacuumWorld, State)
 
 import Problem exposing (Problem)
 
@@ -78,7 +78,7 @@ vacuumWorld =
         , a = Dirty
         , b = Dirty
         }
-    , actions = \state -> List.map (\f -> ( 1, f state )) [ left, right, suck ]
+    , actions = \state -> List.map (\f -> {stepCost= 1, result = f state }) [ left, right, suck ]
     , heuristic = \_ -> 0
     , goalTest = \state -> state.a == Clean && state.b == Clean
     , stateToString = stateToString

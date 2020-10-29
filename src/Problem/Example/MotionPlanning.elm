@@ -1,4 +1,4 @@
-module Problem.Example.MotionPlanning exposing (State, problem, simpleConfig, simpleProblem, stateToString)
+module Problem.Example.MotionPlanning exposing (Config, State, problem, simpleConfig, simpleProblem, stateToString)
 
 import Dict
 import List.Extra as List
@@ -37,17 +37,21 @@ problem { size, obstacles, start, goal } =
     { initialState = start
     , actions =
         \( x, y ) ->
-            [ ( 1, ( x + 1, y ) )
-            , ( 1, ( x, y + 1 ) )
-            , ( 1, ( x - 1, y ) )
-            , ( 1, ( x, y - 1 ) )
-            , ( sqrt 2, ( x + 1, y + 1 ) )
-            , ( sqrt 2, ( x + 1, y - 1 ) )
-            , ( sqrt 2, ( x - 1, y + 1 ) )
-            , ( sqrt 2, ( x - 1, y - 1 ) )
+            [ { stepCost = 1, result = ( x + 1, y ) }
+            , { stepCost = 1, result = ( x, y + 1 ) }
+            , { stepCost = 1, result = ( x - 1, y ) }
+            , { stepCost = 1, result = ( x, y - 1 ) }
+            , { stepCost = sqrt 2, result = ( x + 1, y + 1 ) }
+            , { stepCost = sqrt 2, result = ( x + 1, y - 1 ) }
+            , { stepCost = sqrt 2, result = ( x - 1, y + 1 ) }
+            , { stepCost = sqrt 2, result = ( x - 1, y - 1 ) }
             ]
                 |> List.filter
-                    (\( _, ( x_, y_ ) ) ->
+                    (\{ result } ->
+                        let
+                            ( x_, y_ ) =
+                                result
+                        in
                         x_
                             >= 0
                             && y_
@@ -164,9 +168,9 @@ stateToString { size, obstacles } searchModel =
             horizontal "\n╰" "╯\n"
 
         path =
-            case searchModel.solution of
-                Search.Solution ( state, node ) ->
-                    Search.path searchModel ( state, node )
+            case searchModel.result of
+                Search.Solution a ->
+                    Search.path searchModel a
                         |> List.map Tuple.second
 
                 _ ->
@@ -185,7 +189,7 @@ stateToString { size, obstacles } searchModel =
                             ++ (List.range 0 (width - 1)
                                     |> List.map
                                         (\x ->
-                                            if searchModel.solution |> Search.resultHasState ( x, y ) then
+                                            if searchModel.result |> Search.resultHasState ( x, y ) then
                                                 "●"
 
                                             else if ( x, y ) == searchModel.problem.initialState then

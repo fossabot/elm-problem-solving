@@ -1,12 +1,13 @@
-module Problem.Example.NPuzzle exposing
+module Problem.Example.SlidingPuzzle exposing
     ( NPuzzleError(..)
     , complexEightPuzzle
     , fromList
     , mediumEightPuzzle
-    , nPuzzle
     , random
     , simpleEightPuzzle
+    , slidingPuzzle
     , visualize
+    , State
     )
 
 import Html exposing (Html, table, td, text, tr)
@@ -14,8 +15,8 @@ import Html.Attributes exposing (style)
 import List exposing (all, concat, length, map, member, range, sum)
 import List.Extra exposing (elemIndex, getAt, groupsOf, setAt)
 import Maybe.Extra as Maybe
-import Random
 import Problem exposing (Problem)
+import Random
 
 
 type alias State =
@@ -125,10 +126,10 @@ manhattanDist p q state =
         + abs ((p // s) - (q // s))
 
 
-{-| Unsafe generation from list.
+{-| Unsafe-ish generation from list.
 -}
-nPuzzle : State -> Problem State
-nPuzzle validState =
+slidingPuzzle : State -> Problem State
+slidingPuzzle validState =
     let
         s =
             sideLength validState
@@ -139,7 +140,7 @@ nPuzzle validState =
             [ up s, down s, left, right ]
                 |> map (\f -> f state)
                 |> Maybe.values
-                |> map (\a -> ( 1, a ))
+                |> map (\a -> { stepCost = 1, result = a })
     , heuristic =
         \state ->
             state
@@ -157,24 +158,11 @@ nPuzzle validState =
     }
 
 
-
-{--
-empty : Problem State
-empty =
-    { initialState = []
-    , actions = \_ -> []
-    , heuristic = \_ -> 0
-    , goalTest = \_ -> False
-    , stateToString = List.map String.fromInt >> String.concat
-    }
-    --}
-
-
 {-| Safe generation from list.
 -}
 fromList : List Int -> Result NPuzzleError (Problem State)
 fromList l =
-    Result.map nPuzzle (checkState l)
+    Result.map slidingPuzzle (checkState l)
 
 
 
@@ -183,7 +171,7 @@ fromList l =
 
 simpleEightPuzzle : Problem State
 simpleEightPuzzle =
-    nPuzzle <|
+    slidingPuzzle <|
         concat
             [ [ 1, 4, 2 ]
             , [ 3, 0, 5 ]
@@ -193,7 +181,7 @@ simpleEightPuzzle =
 
 mediumEightPuzzle : Problem State
 mediumEightPuzzle =
-    nPuzzle <|
+    slidingPuzzle <|
         concat
             [ [ 1, 4, 2 ]
             , [ 3, 5, 8 ]
@@ -203,7 +191,7 @@ mediumEightPuzzle =
 
 complexEightPuzzle : Problem State
 complexEightPuzzle =
-    nPuzzle <|
+    slidingPuzzle <|
         concat
             [ [ 7, 2, 4 ]
             , [ 5, 0, 6 ]
@@ -237,7 +225,7 @@ random : Int -> Int -> Int -> Problem State
 random length steps seed =
     List.Extra.initialize length identity
         |> randomLoop (round (sqrt (toFloat length))) (Random.initialSeed seed) steps
-        |> nPuzzle
+        |> slidingPuzzle
 
 
 
