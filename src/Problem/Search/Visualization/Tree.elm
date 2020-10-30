@@ -4,7 +4,7 @@ import Color exposing (black)
 import Dict
 import Dict.Extra as Dict
 import List.Extra as List
-import Problem.Search as Search exposing (Model(..), Node(..), Result(..))
+import Problem.Search as Search exposing (Model, Result(..))
 import Svg.Keyed as Keyed
 import TypedSvg exposing (..)
 import TypedSvg.Attributes exposing (..)
@@ -33,7 +33,7 @@ makeTreeLikeVis :
     Layout a
     -> Model a
     -> Svg msg
-makeTreeLikeVis layout ((Model { explored, problem }) as model) =
+makeTreeLikeVis layout ({ explored, problem } as model) =
     svg
         [ width (px 500)
         , height (px 500)
@@ -61,7 +61,7 @@ makeTreeLikeVis layout ((Model { explored, problem }) as model) =
                         )
                     )
                 |> List.map
-                    (\( Node node, acc ) ->
+                    (\( node, acc ) ->
                         ( problem.stateToString node.state
                         , rect
                             [ x (px acc.x)
@@ -123,7 +123,7 @@ treeMapLayout _ ( pathCost, _, ( m, n ) ) { x, y, width, height, toggle } =
 
 
 treeLayout : Layout a
-treeLayout (Model model) ( pathCost, _, ( m, n ) ) { x, width, toggle, parentPathCost } =
+treeLayout model ( pathCost, _, ( m, n ) ) { x, width, toggle, parentPathCost } =
     let
         w =
             width / n

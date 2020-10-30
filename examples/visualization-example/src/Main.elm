@@ -5,14 +5,10 @@ import Browser.Events
 import Dict exposing (Dict)
 import Html exposing (p, text)
 import Json.Decode
+import Problem.Example exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle, slidingPuzzleVisual, routeFinding)
+import Problem.Search as Search exposing (Result(..))
+import Problem.Search.Visual as Visual
 import Process
-import Search
-import Search.Problem.Graph exposing (routeFinding)
-import Search.Problem.NPuzzle as NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle, visualize)
-import Search.Problem.Romania as Romania
-import Search.Result exposing (Result(..))
-import Search.Visualization.ScatterPlot as ScatterPlot
-import Search.Visualization.TreeMap as TreeMap
 import Task
 
 
@@ -21,15 +17,14 @@ type alias State =
 
 
 type Msg
-    = NewModel (Search.Model State State)
+    = NewModel (Search.Model State)
     | Show (Maybe ( Float, State ))
     | Move { x : Float, y : Float }
 
 
-
 type alias Model =
-    { searchModel : Search.Model State State
-    , tooltip : TreeMap.Tooltip State
+    { searchModel : Search.Model State 
+    , tooltip : Visual.Tooltip State 
     }
 
 
@@ -38,7 +33,7 @@ main =
         { view =
             \{ tooltip, searchModel } ->
                 { title = "Search of 8-Puzzle"
-                , body = [ ScatterPlot.vis searchModel ]
+                , body = [ Visual.scatter searchModel ]
                 }
         , init = init
         , update = update
@@ -85,9 +80,9 @@ decodeMove =
         (Json.Decode.field "pageY" Json.Decode.float)
 
 
-searchTask : Search.Model State State -> Cmd Msg
+searchTask : Search.Model State -> Cmd Msg
 searchTask model =
-    case model.solution of
+    case model.result of
         Pending ->
             Task.perform
                 NewModel

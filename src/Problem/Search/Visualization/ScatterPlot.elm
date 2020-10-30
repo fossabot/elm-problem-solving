@@ -5,7 +5,7 @@ import Color exposing (black)
 import Dict exposing (Dict)
 import Dict.Extra as Dict
 import List.Extra as List
-import Problem.Search as Search exposing (Model(..), Node(..), Result(..))
+import Problem.Search as Search exposing (Result(..))
 import Scale
 import TypedSvg exposing (..)
 import TypedSvg.Attributes as Attributes exposing (..)
@@ -14,14 +14,14 @@ import TypedSvg.Types exposing (..)
 
 
 scatterPlot : Search.Model a -> Svg msg
-scatterPlot ((Model { result, problem, maxPathCost, explored }) as model) =
+scatterPlot ({ result, problem, maxPathCost, explored } as model) =
     let
         dots : Dict ( Float, Float ) (List a)
         dots =
             explored
                 |> Dict.toList
                 |> List.map
-                    (\( _, Node node ) ->
+                    (\( _, node ) ->
                         ( ( node.pathCost, problem.heuristic node.state ), [ node.state ] )
                     )
                 |> Dict.fromListDedupe (++)

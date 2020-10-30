@@ -1,8 +1,8 @@
-module Problem.Search.Visual exposing (info, scatter, tree, treeMap, graph, tooltip)
+module Problem.Search.Visual exposing (info, scatter, tree, treeMap, graph, tooltip, Tooltip)
 
 {-|
 
-@docs info, scatter, tree, treeMap, graph, tooltip
+@docs info, scatter, tree, treeMap, graph, tooltip, Tooltip
 
 -}
 

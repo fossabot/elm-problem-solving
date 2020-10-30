@@ -56,7 +56,7 @@ type alias Tooltip a =
         }
     }
 
-
+ 
 tooltip : Problem a -> (a -> Html msg) -> Tooltip a -> Element msg
 tooltip problem visualizeState { node, position } =
     case node of

@@ -3,52 +3,51 @@ module Main exposing (..)
 import Browser
 import Dict
 import Html exposing (p, text)
+import Problem.Example.SlidingPuzzle exposing (mediumEightPuzzle)
+import Problem.Search
 import Process
-import Search
-import Search.Result
-import Search.Problem.NPuzzle exposing (complexEightPuzzle, mediumEightPuzzle)
 import Task
 
 
 type alias State =
-    List Int 
+    List Int
 
 
 type Msg
-    = NewModel (Search.Model State State)
+    = NewModel (Problem.Search.Model State)
 
 
 searchTask model =
-    case model.solution of
-        Search.Result.Pending ->
+    case model.result of
+        Problem.Search.Pending ->
             Task.perform
                 NewModel
-                (Process.sleep 0
+                (Process.sleep 10
                     |> Task.andThen
-                        (\_ -> Task.succeed (Search.nextN 500 model))
+                        (\_ -> Task.succeed (Problem.Search.next model))
                 )
 
         _ ->
             Cmd.none
 
 
-init : () -> ( Search.Model State State, Cmd Msg )
+init : () -> ( Problem.Search.Model State, Cmd Msg )
 init =
     \_ ->
         let
             initialModel =
-                Search.bestFirst complexEightPuzzle
+                Problem.Search.bestFirst mediumEightPuzzle
         in
         ( initialModel, searchTask initialModel )
 
- 
+
 main =
     Browser.document
         { view =
             \model ->
                 { title = "Breadth-first search of 8-Puzzle"
                 , body =
-                    [ p [] [ text (model.solution |> Search.Result.map Tuple.first |> Debug.toString) ]
+                    [ p [] [ text (model.result |> Debug.toString) ]
                     , p [] [ text (model.explored |> Dict.size |> String.fromInt) ]
                     ]
                 }

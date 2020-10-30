@@ -1,6 +1,6 @@
 module Problem.Example exposing
     ( vacuumWorld
-    , slidingPuzzle, simpleEightPuzzle, mediumEightPuzzle, complexEightPuzzle
+    , slidingPuzzle, simpleEightPuzzle, mediumEightPuzzle, complexEightPuzzle, slidingPuzzleVisual
     , queens
     , knuth
     , Graph, romania, routeFinding, simpleRouteFinding
@@ -20,7 +20,7 @@ module Problem.Example exposing
 
 ## Sliding Puzzle
 
-@docs slidingPuzzle, simpleEightPuzzle, mediumEightPuzzle, complexEightPuzzle
+@docs slidingPuzzle, simpleEightPuzzle, mediumEightPuzzle, complexEightPuzzle, slidingPuzzleVisual
 
 
 ## N-Queens Problem
@@ -51,6 +51,7 @@ In order to solve any problem, we use search techniques that create a graph. But
 
 import Dict exposing (Dict)
 import Element.Font exposing (medium)
+import Html exposing (Html)
 import Problem exposing (Problem)
 import Problem.Example.Graph exposing (bucharestDistance, straightLineDistance)
 import Problem.Example.KnuthConjecture
@@ -211,6 +212,11 @@ mediumEightPuzzle =
 complexEightPuzzle : Problem Problem.Example.SlidingPuzzle.State
 complexEightPuzzle =
     Problem.Example.SlidingPuzzle.complexEightPuzzle
+
+
+slidingPuzzleVisual : Problem.Example.SlidingPuzzle.State -> Html msg
+slidingPuzzleVisual =
+    Problem.Example.SlidingPuzzle.visualize
 
 
 {-| On an n times n chess board, place 8 queens without any queen attacking another.

@@ -2,9 +2,9 @@ module Problem.Search exposing
     ( breadthFirst, depthFirst, uniformCost
     , greedy, bestFirst
     , treeBreadthFirst, treeDepthFirst, treeUniformCost, treeGreedy, treeBestFirst
-    , Model(..), next, nextN, solve, exhaust, exhaustBoundary
+    , Model, next, nextN, solve, exhaust, exhaustBoundary
     , Result(..), mapResult, resultWithDefault, resultHasState
-    , Node(..), expand, path, pathWithPosition, unestrangedChildren
+    , Node, expand, path, pathWithPosition, unestrangedChildren
     )
 
 {-| Intelligent search
@@ -76,9 +76,7 @@ import Problem exposing (Problem)
   - `Solution a`: A solution has been found
 
 -}
-type
-    Result a
-    -- todo multiple solutions
+type Result a
     = Pending
     | Solution a
     | Failure
@@ -116,34 +114,35 @@ resultWithDefault default result =
 resultHasState : a -> Result (Node a) -> Bool
 resultHasState state_ result =
     case result of
-        Solution (Node { state }) ->
+        Solution { state } ->
             state == state_
 
         _ ->
             False
 
+
+
 -- NODE INFRASTRUCTURE
 
 
 {-| -}
-type Node a
-    = Node
-        { state : a
-        , parent : Maybe a
-        , pathCost : Float
-        , children :
-            Maybe
-                (List
-                    { pathCost : Float
-                    , state : a
-                    }
-                )
-        }
+type alias Node a =
+    { state : a
+    , parent : Maybe a
+    , pathCost : Float
+    , children :
+        Maybe
+            (List
+                { pathCost : Float
+                , state : a
+                }
+            )
+    }
 
 
 {-| -}
 expand : Problem a -> Node a -> { updatedParent : Node a, children : List (Node a) }
-expand problem (Node ({ state, pathCost } as node)) =
+expand problem ({ state, pathCost } as node) =
     let
         actions =
             problem.actions state
@@ -151,23 +150,21 @@ expand problem (Node ({ state, pathCost } as node)) =
         children =
             List.map
                 (\{ stepCost, result } ->
-                    Node
-                        { state = result
-                        , parent = Just state
-                        , pathCost = pathCost + stepCost
-                        , children = Nothing
-                        }
+                    { state = result
+                    , parent = Just state
+                    , pathCost = pathCost + stepCost
+                    , children = Nothing
+                    }
                 )
                 actions
 
         updatedParent =
-            Node
-                { node
-                    | children =
-                        children
-                            |> List.map (\(Node child) -> { pathCost = child.pathCost, state = child.state })
-                            |> Just
-                }
+            { node
+                | children =
+                    children
+                        |> List.map (\child -> { pathCost = child.pathCost, state = child.state })
+                        |> Just
+            }
     in
     { updatedParent = updatedParent, children = children }
 
@@ -234,13 +231,13 @@ graphSearch problem explored childNodes h =
     -- d) their state is not already in the frontier with a lower path cost
     childNodes
         |> List.filter
-            (\(Node { state, pathCost }) ->
+            (\{ state, pathCost } ->
                 -- check parent
                 not (state == h)
                     -- check sibling
                     && not
                         (List.any
-                            (\(Node sibling) ->
+                            (\sibling ->
                                 sibling.state
                                     == state
                                     && pathCost
@@ -269,16 +266,15 @@ Initialize your model with `searchInit` (see below).
 -- and having the children is useful for performant visualization, where we want to reconstruct the search tree
 
 -}
-type Model a
-    = Model
-        { strategy : Strategy a
-        , queue : QueuePopper a
-        , problem : Problem a
-        , explored : Dict String (Node a)
-        , frontier : List a
-        , result : Result (Node a)
-        , maxPathCost : Float
-        }
+type alias Model a =
+    { strategy : Strategy a
+    , queue : QueuePopper a
+    , problem : Problem a
+    , explored : Dict String (Node a)
+    , frontier : List a
+    , result : Result (Node a)
+    , maxPathCost : Float
+    }
 
 
 {-| Initializes your model of the search algorithm. It takes a `Problem state` as parameter, because it needs to know the `initialState` of the search problem for initializing the frontier, and also the whole other information about the search problem for running the search algorithm later.
@@ -289,25 +285,23 @@ init :
     -> Problem a
     -> Model a
 init strategy queue problem =
-    Model
-        { strategy = strategy
-        , queue = queue
-        , problem = problem
-        , explored =
-            Dict.fromList
-                [ ( problem.stateToString problem.initialState
-                  , Node
-                        { state = problem.initialState
-                        , pathCost = 0
-                        , parent = Nothing
-                        , children = Nothing
-                        }
-                  )
-                ]
-        , frontier = [ problem.initialState ]
-        , result = Pending
-        , maxPathCost = 0
-        }
+    { strategy = strategy
+    , queue = queue
+    , problem = problem
+    , explored =
+        Dict.fromList
+            [ ( problem.stateToString problem.initialState
+              , { state = problem.initialState
+                , pathCost = 0
+                , parent = Nothing
+                , children = Nothing
+                }
+              )
+            ]
+    , frontier = [ problem.initialState ]
+    , result = Pending
+    , maxPathCost = 0
+    }
 
 
 searchStep :
@@ -316,7 +310,7 @@ searchStep :
     -> (Node a -> Bool)
     -> Model a
     -> Model a
-searchStep strategy pop boundary (Model ({ problem, explored } as model)) =
+searchStep strategy pop boundary ({ problem, explored } as model) =
     case pop explored model.frontier of
         Just ( h, t ) ->
             case Dict.get (problem.stateToString h) explored of
@@ -329,52 +323,51 @@ searchStep strategy pop boundary (Model ({ problem, explored } as model)) =
                             strategy problem explored children h
                                 |> List.filter boundary
                     in
-                    Model
-                        { model
-                            | result =
-                                case List.find (\(Node { state }) -> problem.goalTest state) children of
-                                    Just (Node newSolution) ->
-                                        -- always keep the first solution (a questionable design choice, maybe to be revised)
-                                        case model.result of
-                                            Solution _ ->
-                                                model.result
+                    { model
+                        | result =
+                            case List.find (\{ state } -> problem.goalTest state) children of
+                                Just newSolution ->
+                                    -- always keep the first solution (a questionable design choice, maybe to be revised)
+                                    case model.result of
+                                        Solution _ ->
+                                            model.result
 
-                                            _ ->
-                                                Solution (Node newSolution)
+                                        _ ->
+                                            Solution newSolution
 
-                                    Nothing ->
-                                        model.result
-                            , frontier =
-                                (filteredChildren
-                                    |> List.map (\(Node n) -> n.state)
-                                    |> List.reverse
+                                Nothing ->
+                                    model.result
+                        , frontier =
+                            (filteredChildren
+                                |> List.map .state
+                                |> List.reverse
+                            )
+                                ++ t
+                        , explored =
+                            List.foldl
+                                (\node_ ->
+                                    Dict.insertDedupe
+                                        (\original new ->
+                                            if new.pathCost > original.pathCost then
+                                                original
+
+                                            else
+                                                new
+                                        )
+                                        (problem.stateToString node_.state)
+                                        node_
                                 )
-                                    ++ t
-                            , explored =
-                                List.foldl
-                                    (\(Node node_) ->
-                                        Dict.insertDedupe
-                                            (\(Node original) (Node new) ->
-                                                if new.pathCost > original.pathCost then
-                                                    Node original
-
-                                                else
-                                                    Node new
-                                            )
-                                            (problem.stateToString node_.state)
-                                            (Node node_)
-                                    )
-                                    explored
-                                    (updatedParent :: children)
-                            , maxPathCost = List.foldl max model.maxPathCost (List.map (\(Node n) -> n.pathCost) children)
-                        }
+                                explored
+                                (updatedParent :: children)
+                        , maxPathCost = List.foldl max model.maxPathCost (List.map (\n -> n.pathCost) children)
+                    }
 
                 -- will never occur, since the `h` state *must* be in the `explored` dictionary
                 Nothing ->
-                    Model { model | result = Failure }
+                    { model | result = Failure }
 
         Nothing ->
-            Model { model | result = Failure }
+            { model | result = Failure }
 
 
 
@@ -388,13 +381,13 @@ noBoundary _ =
 
 {-| -}
 next : Model a -> Model a
-next ((Model { strategy, queue }) as model) =
+next ({ strategy, queue } as model) =
     searchStep strategy queue noBoundary model
 
 
 {-| -}
 nextN : Int -> Model a -> Model a
-nextN n ((Model { strategy, queue }) as model) =
+nextN n ({ strategy, queue } as model) =
     if n > 0 then
         searchStep strategy queue noBoundary model |> nextN (n - 1)
 
@@ -404,7 +397,7 @@ nextN n ((Model { strategy, queue }) as model) =
 
 {-| -}
 solve : Model a -> ( Maybe (Node a), Model a )
-solve ((Model { result }) as model) =
+solve ({ result } as model) =
     case result of
         Solution a ->
             ( Just a, model )
@@ -420,28 +413,28 @@ solve ((Model { result }) as model) =
 exhaust : Model a -> Model a
 exhaust model =
     let
-        (Model new) =
+        new =
             next model
     in
     if new.frontier == [] then
-        Model new
+        new
 
     else
-        exhaust (Model new)
+        exhaust new
 
 
 {-| -}
 exhaustBoundary : (Node a -> Bool) -> Model a -> Model a
-exhaustBoundary boundary ((Model { strategy, queue }) as model) =
+exhaustBoundary boundary ({ strategy, queue } as model) =
     let
-        (Model new) =
+        new =
             searchStep strategy queue boundary model
     in
     if new.frontier == [] then
-        Model new
+        new
 
     else
-        exhaust (Model new)
+        exhaust new
 
 
 
@@ -481,7 +474,7 @@ uniformCost_ strategy problem =
             (\explored state ->
                 explored
                     |> Dict.get (problem.stateToString state)
-                    |> Maybe.map (\(Node n) -> n.pathCost)
+                    |> Maybe.map .pathCost
                     -- default will never be used, since the state *must* be in the `explored` dictionary
                     |> Maybe.withDefault 0
             )
@@ -531,7 +524,7 @@ bestFirst_ strategy problem =
             (\explored state ->
                 (explored
                     |> Dict.get (problem.stateToString state)
-                    |> Maybe.map (\(Node n) -> n.pathCost)
+                    |> Maybe.map .pathCost
                     -- default will never be used, since the state *must* be in the `explored` dictionary
                     |> Maybe.withDefault 0
                 )
@@ -562,7 +555,7 @@ path : Model a -> Node a -> List ( Float, a )
 path model node =
     let
         stacksafePath : Model a -> Node a -> List ( Float, a ) -> List ( Float, a )
-        stacksafePath ((Model { problem, explored }) as model_) (Node { state, pathCost, parent }) stack =
+        stacksafePath ({ problem, explored } as model_) { state, pathCost, parent } stack =
             case parent of
                 Just parentState ->
                     case Dict.get (problem.stateToString parentState) explored of
@@ -584,7 +577,7 @@ pathWithPosition : Model a -> Node a -> List ( Float, a, ( Int, Int ) )
 pathWithPosition model node =
     let
         stacksafePathWithPosition : Model a -> Node a -> List ( Float, a, ( Int, Int ) ) -> List ( Float, a, ( Int, Int ) )
-        stacksafePathWithPosition ((Model { problem, explored }) as model_) (Node { state, pathCost, parent }) stack =
+        stacksafePathWithPosition ({ problem, explored } as model_) { state, pathCost, parent } stack =
             case parent of
                 Just parentState ->
                     case Dict.get (problem.stateToString parentState) explored of
@@ -625,7 +618,7 @@ pathWithPosition model node =
 
 {-| -}
 unestrangedChildren : Model a -> Node a -> Maybe (List a)
-unestrangedChildren ((Model { problem, explored }) as model) (Node node) =
+unestrangedChildren { problem, explored } node =
     node.children
         |> Maybe.map
             (\children ->
@@ -635,6 +628,6 @@ unestrangedChildren ((Model { problem, explored }) as model) (Node node) =
                             Dict.get (problem.stateToString child.state) explored
                         )
                     |> Maybe.values
-                    |> List.filter (\(Node child) -> child.parent == Just node.state)
-                    |> List.map (\(Node n) -> n.state)
+                    |> List.filter (\child -> child.parent == Just node.state)
+                    |> List.map .state
             )

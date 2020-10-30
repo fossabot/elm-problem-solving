@@ -51,7 +51,7 @@ init problem =
 
 
 update : Model -> Search.Model a -> Model
-update model (Search.Model searchModel) =
+update model searchModel =
     let
         newNodes : List ( String, Search.Node a )
         newNodes =
@@ -63,7 +63,7 @@ update model (Search.Model searchModel) =
         nodes =
             (newNodes
                 |> List.indexedMap
-                    (\i ( state, Search.Node { parent } ) ->
+                    (\i ( state, { parent } ) ->
                         let
                             parentNode =
                                 parent
@@ -102,7 +102,7 @@ update model (Search.Model searchModel) =
             searchModel.explored
                 |> Dict.toList
                 |> List.map
-                    (\( state, Search.Node { children, pathCost } ) ->
+                    (\( state, { children, pathCost } ) ->
                         Maybe.map
                             (List.map
                                 (\child ->
