@@ -4,22 +4,26 @@ import Color exposing (black)
 import Dict
 import Dict.Extra as Dict
 import List.Extra as List
-import Problem.Search as Search exposing (Result(..))
+import Problem.Search as Search exposing (Model(..), Node(..), Result(..))
+import Svg.Keyed as Keyed
 import TypedSvg exposing (..)
 import TypedSvg.Attributes exposing (..)
 import TypedSvg.Core exposing (Svg)
 import TypedSvg.Types exposing (..)
-import Svg.Keyed as Keyed
 
 
-tree : Search.Model a -> Svg msg
-tree = makeTreeLikeVis treeLayout
+tree : Model a -> Svg msg
+tree =
+    makeTreeLikeVis treeLayout
 
-treeMap : Search.Model a -> Svg msg
-treeMap = makeTreeLikeVis treeMapLayout
+
+treeMap : Model a -> Svg msg
+treeMap =
+    makeTreeLikeVis treeMapLayout
+
 
 type alias Layout a =
-    Search.Model a
+    Model a
     -> ( Float, a, ( Float, Float ) )
     -> Rect
     -> Rect
@@ -27,9 +31,9 @@ type alias Layout a =
 
 makeTreeLikeVis :
     Layout a
-    -> Search.Model a
+    -> Model a
     -> Svg msg
-makeTreeLikeVis layout model =
+makeTreeLikeVis layout ((Model { explored, problem }) as model) =
     svg
         [ width (px 500)
         , height (px 500)
@@ -38,12 +42,12 @@ makeTreeLikeVis layout model =
         ]
         [ Keyed.node "g"
             []
-            (model.explored
+            (explored
                 |> Dict.toList
                 |> List.map
                     (\( _, node ) ->
                         ( node
-                        , Search.pathWithPosition model ( node.state, node )
+                        , Search.pathWithPosition model node
                             |> List.reverse
                             |> List.map (\( pathCost, state, ( m, n ) ) -> ( pathCost, state, ( toFloat m, toFloat n ) ))
                             |> List.foldl (layout model)
@@ -57,8 +61,8 @@ makeTreeLikeVis layout model =
                         )
                     )
                 |> List.map
-                    (\( node, acc ) ->
-                        ( model.problem.stateToString node.state
+                    (\( Node node, acc ) ->
+                        ( problem.stateToString node.state
                         , rect
                             [ x (px acc.x)
                             , y (px acc.y)
@@ -119,15 +123,15 @@ treeMapLayout _ ( pathCost, _, ( m, n ) ) { x, y, width, height, toggle } =
 
 
 treeLayout : Layout a
-treeLayout model ( pathCost, _, ( m, n ) ) { x, width, toggle, parentPathCost } =
-        let
-            w =
-                width / n
-        in
-        { x = x + m * w
-        , y = parentPathCost / model.maxPathCost
-        , width = w
-        , height = (pathCost - parentPathCost) / model.maxPathCost
-        , toggle = not toggle
-        , parentPathCost = pathCost
-        }
+treeLayout (Model model) ( pathCost, _, ( m, n ) ) { x, width, toggle, parentPathCost } =
+    let
+        w =
+            width / n
+    in
+    { x = x + m * w
+    , y = parentPathCost / model.maxPathCost
+    , width = w
+    , height = (pathCost - parentPathCost) / model.maxPathCost
+    , toggle = not toggle
+    , parentPathCost = pathCost
+    }

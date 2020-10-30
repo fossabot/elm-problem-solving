@@ -51,9 +51,9 @@ init problem =
 
 
 update : Model -> Search.Model a -> Model
-update model searchModel =
+update model (Search.Model searchModel) =
     let
-        newNodes : List ( String, Problem.Node a )
+        newNodes : List ( String, Search.Node a )
         newNodes =
             searchModel.explored
                 |> Dict.filter (\k _ -> not <| Set.member k model.existingStates)
@@ -63,7 +63,7 @@ update model searchModel =
         nodes =
             (newNodes
                 |> List.indexedMap
-                    (\i ( state, { parent } ) ->
+                    (\i ( state, Search.Node { parent } ) ->
                         let
                             parentNode =
                                 parent
@@ -102,10 +102,17 @@ update model searchModel =
             searchModel.explored
                 |> Dict.toList
                 |> List.map
-                    (\( state, { children, pathCost } ) ->
+                    (\( state, Search.Node { children, pathCost } ) ->
                         Maybe.map
                             (List.map
-                                (\( childPathCost, childState ) ->
+                                (\child ->
+                                    let
+                                        childPathCost =
+                                            child.pathCost
+
+                                        childState =
+                                            child.state
+                                    in
                                     { source = state
                                     , target = searchModel.problem.stateToString childState
                                     , distance = childPathCost - pathCost

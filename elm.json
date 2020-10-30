@@ -6,7 +6,9 @@
     "version": "0.0.1",
     "exposed-modules": [
         "Problem",
-        "Problem.Example"
+        "Problem.Example",
+        "Problem.Search",
+        "Problem.Search.Visual"
     ],
     "elm-version": "0.19.0 <= v < 1.0.0",
     "dependencies": {

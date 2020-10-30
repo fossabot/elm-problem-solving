@@ -2,9 +2,9 @@ module Problem.Search exposing
     ( breadthFirst, depthFirst, uniformCost
     , greedy, bestFirst
     , treeBreadthFirst, treeDepthFirst, treeUniformCost, treeGreedy, treeBestFirst
-    , Model, next, nextN, solve, exhaust, exhaustBoundary
+    , Model(..), next, nextN, solve, exhaust, exhaustBoundary
     , Result(..), mapResult, resultWithDefault, resultHasState
-    , Node, expand, path, pathWithPosition, unestrangedChildren
+    , Node(..), expand, path, pathWithPosition, unestrangedChildren
     )
 
 {-| Intelligent search

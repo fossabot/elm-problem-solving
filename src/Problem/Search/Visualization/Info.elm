@@ -6,6 +6,7 @@ import Element.Border as Border
 import Element.Font as Font
 import Html exposing (Html)
 import Html.Attributes exposing (style)
+import Problem exposing (Problem)
 import Problem.Search as Search exposing (Result(..))
 
 
@@ -14,11 +15,11 @@ import Problem.Search as Search exposing (Result(..))
 
 
 info :
-    Search.Model a
+    Problem a
     -> (a -> Html msg)
     -> ( Float, a )
     -> Element msg
-info searchModel visualizeState ( pathCost, state ) =
+info problem visualizeState ( pathCost, state ) =
     column
         [ spacing 20
         , centerX
@@ -29,8 +30,8 @@ info searchModel visualizeState ( pathCost, state ) =
             (Element.html (visualizeState state))
         , column [ spacing 2, Font.size 12 ]
             [ infoRow "Path cost" pathCost
-            , infoRow "Heuristic" (searchModel.problem.heuristic state)
-            , infoRow "Sum" (pathCost + searchModel.problem.heuristic state)
+            , infoRow "Heuristic" (problem.heuristic state)
+            , infoRow "Sum" (pathCost + problem.heuristic state)
             ]
         ]
 
@@ -56,8 +57,8 @@ type alias Tooltip a =
     }
 
 
-tooltip : Search.Model a -> (a -> Html msg) -> Tooltip a -> Element msg
-tooltip model visualizeState { node, position } =
+tooltip : Problem a -> (a -> Html msg) -> Tooltip a -> Element msg
+tooltip problem visualizeState { node, position } =
     case node of
         Just n ->
             Element.el
@@ -76,7 +77,7 @@ tooltip model visualizeState { node, position } =
                     , Border.glow (rgb 0.4 0.4 0.4) 2
                     , padding 10
                     ]
-                    (info model visualizeState n)
+                    (info problem visualizeState n)
                 )
 
         Nothing ->

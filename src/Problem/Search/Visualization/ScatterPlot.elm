@@ -5,8 +5,8 @@ import Color exposing (black)
 import Dict exposing (Dict)
 import Dict.Extra as Dict
 import List.Extra as List
+import Problem.Search as Search exposing (Model(..), Node(..), Result(..))
 import Scale
-import Problem.Search as Search exposing (Result(..))
 import TypedSvg exposing (..)
 import TypedSvg.Attributes as Attributes exposing (..)
 import TypedSvg.Core exposing (Svg)
@@ -14,15 +14,15 @@ import TypedSvg.Types exposing (..)
 
 
 scatterPlot : Search.Model a -> Svg msg
-scatterPlot model =
+scatterPlot ((Model { result, problem, maxPathCost, explored }) as model) =
     let
         dots : Dict ( Float, Float ) (List a)
         dots =
-            model.explored
+            explored
                 |> Dict.toList
                 |> List.map
-                    (\( _, node ) ->
-                        ( ( node.pathCost, model.problem.heuristic node.state ), [ node.state ] )
+                    (\( _, Node node ) ->
+                        ( ( node.pathCost, problem.heuristic node.state ), [ node.state ] )
                     )
                 |> Dict.fromListDedupe (++)
 
@@ -48,11 +48,8 @@ scatterPlot model =
                 |> toFloat
                 |> sqrt
 
-        maxPathCost =
-            model.maxPathCost
-
         maxHeuristic =
-            model.problem.heuristic model.problem.initialState
+            problem.heuristic problem.initialState
 
         pathCostScale =
             Scale.linear ( 0, 500 ) ( 0, maxPathCost )
@@ -97,7 +94,7 @@ scatterPlot model =
                                     ]
                             )
                    )
-                ++ (case model.solution of
+                ++ (case result of
                         Solution a ->
                             [ TypedSvg.path
                                 [ fill PaintNone
@@ -110,7 +107,7 @@ scatterPlot model =
                                                 |> Search.path model
                                                 |> List.map
                                                     (\( pathCost, state ) ->
-                                                        "L" ++ String.fromFloat (pathCost / maxPathCost) ++ " " ++ String.fromFloat (model.problem.heuristic state / maxHeuristic)
+                                                        "L" ++ String.fromFloat (pathCost / maxPathCost) ++ " " ++ String.fromFloat (problem.heuristic state / maxHeuristic)
                                                     )
                                                 |> List.foldl (++) ""
                                            )
