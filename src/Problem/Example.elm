@@ -339,7 +339,7 @@ simpleRouteFinding =
 -}
 motionPlanning : Problem.Example.MotionPlanning.Config -> Problem Problem.Example.MotionPlanning.State
 motionPlanning =
-    Problem.Example.MotionPlanning.problem
+    Problem.Example.MotionPlanning.motionPlanning
 
 
 {-| This example is inspired by an animation by user Subh83 [on Wikimedia](https://commons.wikimedia.org/wiki/File:Astar_progress_animation.gif). The animation is licensed under a Creative Commons Attribution 3.0 Unported license. It shows the problem configuration, and how the problem is solved by using A\* search.

@@ -1,6 +1,6 @@
-module Problem.Example.MotionPlanning exposing (Config, State, problem, simpleConfig, simpleProblem, stateToString)
+module Problem.Example.MotionPlanning exposing (Config, State, motionPlanning, simpleConfig, simpleProblem, stateToString)
 
-import Dict
+import Dict exposing (Dict)
 import List.Extra as List
 import Problem exposing (Problem)
 import Problem.Search as Search exposing (Result(..))
@@ -22,8 +22,8 @@ type alias Config =
     }
 
 
-problem : Config -> Problem State
-problem { size, obstacles, start, goal } =
+motionPlanning : Config -> Problem State
+motionPlanning { size, obstacles, start, goal } =
     let
         ( width, height ) =
             size
@@ -146,14 +146,17 @@ simpleConfig =
 
 simpleProblem : Problem State
 simpleProblem =
-    problem simpleConfig
+    motionPlanning simpleConfig
 
 
 stateToString :
     Config
+    -> Problem State
+    -> Result (Search.Node State)
+    -> Dict String (Search.Node State)
     -> Search.Model State
     -> String
-stateToString { size, obstacles } searchModel =
+stateToString { size, obstacles } problem result explored searchModel =
     let
         ( width, height ) =
             size
@@ -168,7 +171,7 @@ stateToString { size, obstacles } searchModel =
             horizontal "\n╰" "╯\n"
 
         path =
-            case searchModel.result of
+            case result of
                 Search.Solution a ->
                     Search.path searchModel a
                         |> List.map Tuple.second
@@ -189,16 +192,16 @@ stateToString { size, obstacles } searchModel =
                             ++ (List.range 0 (width - 1)
                                     |> List.map
                                         (\x ->
-                                            if searchModel.result |> Search.resultHasState ( x, y ) then
+                                            if result |> Search.resultHasState ( x, y ) then
                                                 "●"
 
-                                            else if ( x, y ) == searchModel.problem.initialState then
+                                            else if ( x, y ) == problem.initialState then
                                                 "○"
 
                                             else if List.member ( x, y ) path then
                                                 "•"
 
-                                            else if Dict.member (searchModel.problem.stateToString ( x, y )) searchModel.explored then
+                                            else if Dict.member (problem.stateToString ( x, y )) explored then
                                                 "⋅"
 
                                             else if List.member ( x, y ) obstacleStates_ then
