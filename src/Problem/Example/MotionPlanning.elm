@@ -151,12 +151,9 @@ simpleProblem =
 
 stateToString :
     Config
-    -> Problem State
-    -> Result (Search.Node State)
-    -> Dict String (Search.Node State)
     -> Search.Model State
     -> String
-stateToString { size, obstacles } problem result explored searchModel =
+stateToString { size, obstacles } ({ problem, explored, result } as searchModel) =
     let
         ( width, height ) =
             size

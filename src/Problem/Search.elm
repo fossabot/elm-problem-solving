@@ -564,12 +564,12 @@ path model node =
 
                         -- never occurs, since the state *must* be in the `explored` dictionary
                         Nothing ->
-                            stack
+                            ( pathCost, state ) :: stack
 
                 Nothing ->
-                    stack
+                    ( pathCost, state ) :: stack
     in
-    stacksafePath model node []
+    stacksafePath model node [] |> List.reverse
 
 
 {-| -}

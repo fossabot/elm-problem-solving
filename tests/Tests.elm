@@ -10,8 +10,8 @@ import Problem.Example.SlidingPuzzle exposing (..)
 import Problem.Example.Queens exposing (..)
 import Problem.Example.VacuumWorld exposing (..)
 import Test exposing (..)
-
-
+ 
+  
 suite : Test
 suite =
     describe "elm-ai"
@@ -53,20 +53,20 @@ solvesWithPath searchModel path_ =
     Expect.equal
         (let
             ( solution, model ) =
-                nextGoal searchModel
+                solve searchModel
          in
          Maybe.map (path model) solution
         )
-        (Just (List.reverse path_))
+        (Just (List.reverse path_)) 
 
 
 solvesWithState searchModel visualize state =
     Expect.equal
         (let
             ( solution, _ ) =
-                nextGoal searchModel
+                solve searchModel
          in
-         Maybe.map (Tuple.first >> visualize) solution
+         Maybe.map (.state >> visualize) solution
         )
         (Just state)
 
@@ -132,7 +132,7 @@ bfs =
                 [ ( 0, { a = Dirty, b = Dirty, location = A } )
                 , ( 1, { a = Clean, b = Dirty, location = A } )
                 , ( 2, { a = Clean, b = Dirty, location = B } )
-                , ( 3, { a = Clean, b = Clean, location = B } )
+                , ( 3, { a = Clean, b = Clean, location = B } ) 
                 ]
     , test "finds route from arad to bucharest" <|
         \_ ->
@@ -154,7 +154,7 @@ bfs =
         \_ ->
             solvesWithState
                 (breadthFirst incrementalEightQueens)
-                Problem.Example.NQueens.visualize
+                Problem.Example.Queens.visualize
                 [ [ 0, 0, 0, 1, 0, 0, 0, 0 ]
                 , [ 0, 1, 0, 0, 0, 0, 0, 0 ]
                 , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
@@ -176,10 +176,10 @@ bfs =
         \_ ->
             Expect.equal
                 (breadthFirst MotionPlanning.simpleProblem
-                    |> nextGoal
+                    |> solve 
                     |> Tuple.second
                     |> MotionPlanning.stateToString MotionPlanning.simpleConfig
-                    |> addSpaces 16
+                    |> addSpaces 16 
                 )
                 """
                 ╭────────────────────╮
@@ -263,7 +263,7 @@ dfs =
         \_ ->
             solvesWithState
                 (depthFirst incrementalEightQueens)
-                Problem.Example.NQueens.visualize
+                Problem.Example.Queens.visualize
                 [ [ 0, 0, 0, 0, 1, 0, 0, 0 ]
                 , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
                 , [ 0, 1, 0, 0, 0, 0, 0, 0 ]
@@ -279,7 +279,7 @@ dfs =
         \_ ->
             Expect.equal
                 (depthFirst MotionPlanning.simpleProblem
-                    |> nextGoal
+                    |> solve
                     |> Tuple.second
                     |> MotionPlanning.stateToString MotionPlanning.simpleConfig
                     |> addSpaces 16
@@ -376,7 +376,7 @@ ucs =
         \_ ->
             solvesWithState
                 (uniformCost incrementalEightQueens)
-                Problem.Example.NQueens.visualize
+                Problem.Example.Queens.visualize
                 [ [ 0, 0, 0, 0, 0, 1, 0, 0 ]
                 , [ 0, 0, 0, 1, 0, 0, 0, 0 ]
                 , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
@@ -398,7 +398,7 @@ ucs =
         \_ ->
             Expect.equal
                 (uniformCost MotionPlanning.simpleProblem
-                    |> nextGoal
+                    |> solve
                     |> Tuple.second
                     |> MotionPlanning.stateToString MotionPlanning.simpleConfig
                     |> addSpaces 16
@@ -490,7 +490,7 @@ cfs =
         \_ ->
             solvesWithState
                 (greedy incrementalEightQueens)
-                Problem.Example.NQueens.visualize
+                Problem.Example.Queens.visualize
                 [ [ 0, 0, 0, 0, 1, 0, 0, 0 ]
                 , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
                 , [ 0, 1, 0, 0, 0, 0, 0, 0 ]
@@ -506,7 +506,7 @@ cfs =
         \_ ->
             Expect.equal
                 (greedy MotionPlanning.simpleProblem
-                    |> nextGoal
+                    |> solve
                     |> Tuple.second
                     |> MotionPlanning.stateToString MotionPlanning.simpleConfig
                     |> addSpaces 16
@@ -603,7 +603,7 @@ ass =
         \_ ->
             solvesWithState
                 (bestFirst incrementalEightQueens)
-                Problem.Example.NQueens.visualize
+                Problem.Example.Queens.visualize
                 [ [ 0, 0, 0, 0, 0, 1, 0, 0 ]
                 , [ 0, 0, 0, 1, 0, 0, 0, 0 ]
                 , [ 0, 0, 0, 0, 0, 0, 1, 0 ]
@@ -662,7 +662,7 @@ ass =
         \_ ->
             Expect.equal
                 (bestFirst MotionPlanning.simpleProblem
-                    |> nextGoal
+                    |> solve
                     |> Tuple.second
                     |> MotionPlanning.stateToString MotionPlanning.simpleConfig
                     |> addSpaces 16

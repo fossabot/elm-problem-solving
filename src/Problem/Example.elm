@@ -214,6 +214,7 @@ complexEightPuzzle =
     Problem.Example.SlidingPuzzle.complexEightPuzzle
 
 
+{-| -}
 slidingPuzzleVisual : Problem.Example.SlidingPuzzle.State -> Html msg
 slidingPuzzleVisual =
     Problem.Example.SlidingPuzzle.visualize

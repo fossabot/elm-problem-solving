@@ -1,4 +1,4 @@
-module Problem.Example.VacuumWorld exposing (vacuumWorld, State)
+module Problem.Example.VacuumWorld exposing (vacuumWorld, State, Condition(..), Location(..))
 
 import Problem exposing (Problem)
 
