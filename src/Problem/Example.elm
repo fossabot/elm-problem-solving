@@ -1,10 +1,10 @@
 module Problem.Example exposing
-    ( vacuumWorld
-    , slidingPuzzle, simpleEightPuzzle, mediumEightPuzzle, complexEightPuzzle, slidingPuzzleVisual
-    , queens
-    , knuth
+    ( VacuumWorld, vacuumWorld
+    , SlidingPuzzle, slidingPuzzle, simpleEightPuzzle, mediumEightPuzzle, complexEightPuzzle, slidingPuzzleVisual
+    , Queens, queens
+    , Knuth, knuth
     , Graph, romania, routeFinding, simpleRouteFinding
-    , motionPlanning
+    , MotionPlanning, motionPlanning
     )
 
 {-| Examples
@@ -15,22 +15,22 @@ module Problem.Example exposing
 
 ## Vacuum World
 
-@docs vacuumWorld
+@docs VacuumWorld, vacuumWorld
 
 
 ## Sliding Puzzle
 
-@docs slidingPuzzle, simpleEightPuzzle, mediumEightPuzzle, complexEightPuzzle, slidingPuzzleVisual
+@docs SlidingPuzzle, slidingPuzzle, simpleEightPuzzle, mediumEightPuzzle, complexEightPuzzle, slidingPuzzleVisual
 
 
 ## N-Queens Problem
 
-@docs queens
+@docs Queens, queens
 
 
 ## Knuth Conjecture
 
-@docs knuth
+@docs Knuth, knuth
 
 
 # Real-world problems
@@ -45,7 +45,7 @@ In order to solve any problem, we use search techniques that create a graph. But
 
 ## Motion planning
 
-@docs motionPlanning
+@docs MotionPlanning, motionPlanning
 
 -}
 
@@ -59,6 +59,11 @@ import Problem.Example.MotionPlanning
 import Problem.Example.Queens
 import Problem.Example.SlidingPuzzle
 import Problem.Example.VacuumWorld
+
+
+{-| -}
+type alias VacuumWorld =
+    Problem.Example.VacuumWorld.State
 
 
 {-| This is the simplest example problem: The world of a vacuum cleaner.
@@ -142,9 +147,14 @@ The objective of our vacuum cleaner robot is to clean both locations:
         \state -> state.a == Clean && state.b == Clean
 
 -}
-vacuumWorld : Problem Problem.Example.VacuumWorld.State
+vacuumWorld : Problem VacuumWorld
 vacuumWorld =
     Problem.Example.VacuumWorld.vacuumWorld
+
+
+{-| -}
+type alias SlidingPuzzle =
+    Problem.Example.SlidingPuzzle.State
 
 
 {-| Sliding Puzzle
@@ -161,7 +171,7 @@ A sliding puzzle is represented internally as a simple list. The positions where
 It could be represented as a list of lists of equal lengths alternatively. (Then it is harder to deal with the equal-length assumption, though.)
 
 -}
-slidingPuzzle : Problem.Example.SlidingPuzzle.State -> Problem Problem.Example.SlidingPuzzle.State
+slidingPuzzle : SlidingPuzzle -> Problem SlidingPuzzle
 slidingPuzzle =
     Problem.Example.SlidingPuzzle.slidingPuzzle
 
@@ -177,7 +187,7 @@ slidingPuzzle =
                 ]
 
 -}
-simpleEightPuzzle : Problem Problem.Example.SlidingPuzzle.State
+simpleEightPuzzle : Problem SlidingPuzzle
 simpleEightPuzzle =
     Problem.Example.SlidingPuzzle.simpleEightPuzzle
 
@@ -193,7 +203,7 @@ simpleEightPuzzle =
                 ]
 
 -}
-mediumEightPuzzle : Problem Problem.Example.SlidingPuzzle.State
+mediumEightPuzzle : Problem SlidingPuzzle
 mediumEightPuzzle =
     Problem.Example.SlidingPuzzle.mediumEightPuzzle
 
@@ -209,15 +219,20 @@ mediumEightPuzzle =
                 ]
 
 -}
-complexEightPuzzle : Problem Problem.Example.SlidingPuzzle.State
+complexEightPuzzle : Problem SlidingPuzzle
 complexEightPuzzle =
     Problem.Example.SlidingPuzzle.complexEightPuzzle
 
 
 {-| -}
-slidingPuzzleVisual : Problem.Example.SlidingPuzzle.State -> Html msg
+slidingPuzzleVisual : SlidingPuzzle -> Html msg
 slidingPuzzleVisual =
     Problem.Example.SlidingPuzzle.visualize
+
+
+{-| -}
+type alias Queens =
+    Problem.Example.Queens.State
 
 
 {-| On an n times n chess board, place 8 queens without any queen attacking another.
@@ -226,9 +241,14 @@ slidingPuzzleVisual =
         List ( Int, Int )
 
 -}
-queens : Int -> Problem Problem.Example.Queens.State
+queens : Int -> Problem Queens
 queens =
     Problem.Example.Queens.incrementalNQueens
+
+
+{-| -}
+type alias Knuth =
+    Problem.Example.KnuthConjecture.State
 
 
 {-| Knuth conjecture.
@@ -271,7 +291,7 @@ For a complex Knuth conjecture, try to arrive at 5.
         knuthConjecture 5
 
 -}
-knuth : Float -> Problem Problem.Example.KnuthConjecture.State
+knuth : Float -> Problem Knuth
 knuth =
     Problem.Example.KnuthConjecture.knuthConjecture
 
@@ -326,6 +346,11 @@ simpleRouteFinding =
     Problem.Example.Graph.simpleRouteFinding
 
 
+{-| -}
+type alias MotionPlanning =
+    Problem.Example.MotionPlanning.State
+
+
 {-| Planning a movement on a rectangular grid. (Such as they occur in old computer games, for example.)
 
     type alias Config =
@@ -344,7 +369,7 @@ simpleRouteFinding =
 [On improving grid representations.](https://www.redblobgames.com/pathfinding/grids/algorithms.html)
 
 -}
-motionPlanning : Problem.Example.MotionPlanning.Config -> Problem Problem.Example.MotionPlanning.State
+motionPlanning : Problem.Example.MotionPlanning.Config -> Problem MotionPlanning
 motionPlanning =
     Problem.Example.MotionPlanning.motionPlanning
 
@@ -354,6 +379,6 @@ motionPlanning =
 ![Motion planning visualization](https://commons.wikimedia.org/wiki/File:Astar_progress_animation.gif)
 
 -}
-simpleMotionPlanning : Problem Problem.Example.MotionPlanning.State
+simpleMotionPlanning : Problem MotionPlanning
 simpleMotionPlanning =
     Problem.Example.MotionPlanning.simpleProblem
