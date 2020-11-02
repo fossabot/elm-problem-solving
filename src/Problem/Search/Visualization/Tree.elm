@@ -24,7 +24,7 @@ treeMap =
 
 type alias Layout a =
     Model a
-    -> ( Float, a, ( Float, Float ) )
+    -> ( Float, ( Float, Float ) )
     -> Rect
     -> Rect
 
@@ -47,9 +47,8 @@ makeTreeLikeVis layout ({ explored, problem } as model) =
                 |> List.map
                     (\( _, node ) ->
                         ( node
-                        , Search.pathWithPosition model node
-                            |> List.reverse
-                            |> List.map (\( pathCost, state, ( m, n ) ) -> ( pathCost, state, ( toFloat m, toFloat n ) ))
+                        , Search.reversePathWithPosition model node
+                            |> List.map (\( pathCost, _, ( m, n ) ) -> ( pathCost, ( toFloat m, toFloat n ) ))
                             |> List.foldl (layout model)
                                 { x = 0
                                 , y = 0
@@ -70,7 +69,9 @@ makeTreeLikeVis layout ({ explored, problem } as model) =
                             , height (px acc.height)
                             , fill (Paint black)
                             , opacity (Opacity 0.1)
+                            , stroke (Paint black)
                             , strokeWidth (px 0.002)
+                            , strokeOpacity (Opacity 1)
                             ]
                             []
                         )
@@ -90,7 +91,7 @@ type alias Rect =
 
 
 treeMapLayout : Layout a
-treeMapLayout _ ( pathCost, _, ( m, n ) ) { x, y, width, height, toggle } =
+treeMapLayout _ ( pathCost, ( m, n ) ) { x, y, width, height, toggle } =
     let
         c =
             1.05
@@ -123,15 +124,15 @@ treeMapLayout _ ( pathCost, _, ( m, n ) ) { x, y, width, height, toggle } =
 
 
 treeLayout : Layout a
-treeLayout model ( pathCost, _, ( m, n ) ) { x, width, toggle, parentPathCost } =
+treeLayout model ( pathCost, ( m, n ) ) { x, width, toggle, parentPathCost } =
     let
         w =
             width / n
     in
     { x = x + m * w
-    , y = parentPathCost / model.maxPathCost
+    , y = pathCost / model.maxPathCost
     , width = w
     , height = (pathCost - parentPathCost) / model.maxPathCost
-    , toggle = not toggle
+    , toggle = toggle
     , parentPathCost = pathCost
     }

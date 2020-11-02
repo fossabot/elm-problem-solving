@@ -4,7 +4,7 @@ module Problem.Search exposing
     , treeBreadthFirst, treeDepthFirst, treeUniformCost, treeGreedy, treeBestFirst
     , Model, next, nextN, solve, exhaust, exhaustBoundary
     , Result(..), mapResult, resultWithDefault, resultHasState
-    , Node, expand, path, pathWithPosition, unestrangedChildren
+    , Node, expand, path, reversePathWithPosition, unestrangedChildren
     )
 
 {-| Intelligent search
@@ -552,15 +552,15 @@ treeBestFirst =
 
 {-| -}
 path : Model a -> Node a -> List ( Float, a )
-path model node =
+path ({ problem, explored }) node =
     let
-        stacksafePath : Model a -> Node a -> List ( Float, a ) -> List ( Float, a )
-        stacksafePath ({ problem, explored } as model_) { state, pathCost, parent } stack =
+        stacksafePath : Node a -> List ( Float, a ) -> List ( Float, a )
+        stacksafePath { state, pathCost, parent } stack =
             case parent of
                 Just parentState ->
                     case Dict.get (problem.stateToString parentState) explored of
                         Just parentNode ->
-                            stacksafePath model_ parentNode (( pathCost, state ) :: stack)
+                            stacksafePath parentNode (( pathCost, state ) :: stack)
 
                         -- never occurs, since the state *must* be in the `explored` dictionary
                         Nothing ->
@@ -569,28 +569,28 @@ path model node =
                 Nothing ->
                     ( pathCost, state ) :: stack
     in
-    stacksafePath model node [] |> List.reverse
+    stacksafePath node [] |> List.reverse
 
 
 {-| -}
-pathWithPosition : Model a -> Node a -> List ( Float, a, ( Int, Int ) )
-pathWithPosition model node =
+reversePathWithPosition : Model a -> Node a -> List ( Float, a, ( Int, Int ) )
+reversePathWithPosition ({ problem, explored } as model) node =
     let
-        stacksafePathWithPosition : Model a -> Node a -> List ( Float, a, ( Int, Int ) ) -> List ( Float, a, ( Int, Int ) )
-        stacksafePathWithPosition ({ problem, explored } as model_) { state, pathCost, parent } stack =
+        stacksafePathWithPosition : Node a -> List ( Float, a, ( Int, Int ) ) -> List ( Float, a, ( Int, Int ) )
+        stacksafePathWithPosition { state, pathCost, parent } stack =
             case parent of
                 Just parentState ->
                     case Dict.get (problem.stateToString parentState) explored of
                         Just parentNode ->
                             let
                                 unestrangedSiblings =
-                                    unestrangedChildren model_ parentNode
+                                    unestrangedChildren model parentNode
 
                                 enumeratedUnestrangedSiblings =
                                     unestrangedSiblings
                                         |> Maybe.map (List.indexedMap Tuple.pair)
                             in
-                            stacksafePathWithPosition model_
+                            stacksafePathWithPosition
                                 parentNode
                                 (( pathCost
                                  , state
@@ -608,12 +608,12 @@ pathWithPosition model node =
 
                         -- never occurs, since the state *must* be in the `explored` dictionary
                         Nothing ->
-                            [ ( pathCost, state, ( 0, 1 ) ) ]
+                            ( pathCost, state, ( 0, 1 ) ) :: stack
 
                 Nothing ->
-                    [ ( pathCost, state, ( 0, 1 ) ) ]
+                    ( pathCost, state, ( 0, 1 ) ) :: stack
     in
-    stacksafePathWithPosition model node []
+    stacksafePathWithPosition node []
 
 
 {-| -}
