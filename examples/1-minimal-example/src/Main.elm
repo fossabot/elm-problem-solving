@@ -36,7 +36,7 @@ init =
     \_ ->
         let
             initialModel =
-                Problem.Search.bestFirst mediumEightPuzzle
+                Problem.Search.breadthFirst mediumEightPuzzle
         in
         ( initialModel, searchTask initialModel )
 
