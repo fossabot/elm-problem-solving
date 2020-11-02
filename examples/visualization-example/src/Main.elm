@@ -3,44 +3,66 @@ module Main exposing (..)
 import Browser
 import Browser.Events
 import Dict exposing (Dict)
-import Html exposing (p, text)
+import Html exposing (..)
 import Json.Decode
-import Problem.Example exposing (complexEightPuzzle, mediumEightPuzzle, simpleEightPuzzle, slidingPuzzleVisual, routeFinding)
+import Problem.Example exposing (Queens, SlidingPuzzle, complexEightPuzzle, mediumEightPuzzle, queens, routeFinding, simpleEightPuzzle, slidingPuzzleVisual)
 import Problem.Search as Search exposing (Result(..))
 import Problem.Search.Visual as Visual
 import Process
 import Task
 
 
-type alias State =
-    List Int
+type alias ProblemState =
+    SlidingPuzzle
 
 
 type Msg
-    = NewModel (Search.Model State)
-    | Show (Maybe ( Float, State ))
-    | Move { x : Float, y : Float }
+    = NewModel1 (Search.Model ProblemState)
+    | NewModel2 (Search.Model ProblemState)
+    | NewModel3 (Search.Model ProblemState)
 
 
 type alias Model =
-    { searchModel : Search.Model State 
-    , tooltip : Visual.Tooltip State 
+    { searchModel1 : Search.Model ProblemState
+    , searchModel2 : Search.Model ProblemState
+    , searchModel3 : Search.Model ProblemState
     }
 
 
 main =
     Browser.document
         { view =
-            \{ tooltip, searchModel } ->
+            \{ searchModel1, searchModel2, searchModel3 } ->
                 { title = "Search of 8-Puzzle"
-                , body = [ Visual.scatter searchModel ]
+                , body =
+                    [ table []
+                        [ tr []
+                            [ th [] [ text "Uniform-cost" ]
+                            , th [] [ text "Best-first" ]
+                            , th [] [ text "Greedy" ]
+                            ]
+                        , tr []
+                            [ td [] [ Visual.scatter searchModel1 ]
+                            , td [] [ Visual.scatter searchModel2 ]
+                            , td [] [ Visual.scatter searchModel3 ]
+                            ]
+                        , tr []
+                            [ td [] [ Visual.tree searchModel1 ]
+                            , td [] [ Visual.tree searchModel2 ]
+                            , td [] [ Visual.tree searchModel3 ]
+                            ]
+                        , tr []
+                            [ td [] [ Visual.treeMap searchModel1 ]
+                            , td [] [ Visual.treeMap searchModel2 ]
+                            , td [] [ Visual.treeMap searchModel3 ]
+                            ]
+                        ]
+                    ]
                 }
         , init = init
         , update = update
         , subscriptions =
             \_ -> Sub.none
-
-        --Browser.Events.onMouseMove (Json.Decode.map Move decodeMove)
         }
 
 
@@ -48,45 +70,50 @@ init : () -> ( Model, Cmd Msg )
 init =
     \_ ->
         let
-            initialModel =
-                Search.greedy complexEightPuzzle
+            problem =
+                complexEightPuzzle
+
+            m1 =
+                Search.uniformCost problem
+
+            m2 =
+                Search.bestFirst problem
+
+            m3 =
+                Search.greedy problem
         in
-        ( { searchModel = initialModel
-          , tooltip = { node = Nothing, position = { x = 0, y = 0 } }
+        ( { searchModel1 = m1
+          , searchModel2 = m2
+          , searchModel3 = m3
           }
-        , searchTask initialModel
+        , Cmd.batch
+            [ searchTask NewModel1 m1
+            , searchTask NewModel2 m2
+            , searchTask NewModel3 m3
+            ]
         )
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update msg ({ tooltip } as model) =
+update msg model =
     case msg of
-        NewModel m ->
-            ( { model | searchModel = m }
-            , searchTask m
-            )
+        NewModel1 m ->
+            ( { model | searchModel1 = m }, searchTask NewModel1 m )
 
-        Show s ->
-            ( { model | tooltip = { tooltip | node = s } }, Cmd.none )
+        NewModel2 m ->
+            ( { model | searchModel2 = m }, searchTask NewModel2 m )
 
-        Move p ->
-            ( { model | tooltip = { tooltip | position = p } }, Cmd.none )
+        NewModel3 m ->
+            ( { model | searchModel3 = m }, searchTask NewModel3 m )
 
 
-decodeMove : Json.Decode.Decoder { x : Float, y : Float }
-decodeMove =
-    Json.Decode.map2 (\a b -> { x = a, y = b })
-        (Json.Decode.field "pageX" Json.Decode.float)
-        (Json.Decode.field "pageY" Json.Decode.float)
-
-
-searchTask : Search.Model State -> Cmd Msg
-searchTask model =
+searchTask : (Search.Model ProblemState -> Msg) -> Search.Model ProblemState -> Cmd Msg
+searchTask msg model =
     case model.result of
         Pending ->
             Task.perform
-                NewModel
-                (Process.sleep 300
+                msg
+                (Process.sleep 1000
                     |> Task.andThen
                         (\_ -> Task.succeed (Search.next model))
                 )
