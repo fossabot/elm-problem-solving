@@ -1,6 +1,6 @@
 module Problem.Search.Visualization.Tree exposing (tree, treeMap)
 
-import Color exposing (black)
+import Color exposing (black, red)
 import Dict
 import Dict.Extra as Dict
 import List.Extra as List
@@ -55,7 +55,7 @@ makeTreeLikeVis layout ({ explored, problem } as model) =
                                 , width = 1
                                 , height = 1
                                 , toggle = True
-                                , parentPathCost = 0
+                                , parentPathCost = -1
                                 }
                         )
                     )
@@ -67,7 +67,7 @@ makeTreeLikeVis layout ({ explored, problem } as model) =
                             , y (px acc.y)
                             , width (px acc.width)
                             , height (px acc.height)
-                            , fill (Paint black)
+                            , fill (Paint black) --(if node.pathCost == 0 then (Paint red) else (Paint black))
                             , opacity (Opacity 0.1)
                             , stroke (Paint black)
                             , strokeWidth (px 0.002)
@@ -91,17 +91,31 @@ type alias Rect =
 
 
 treeMapLayout : Layout a
-treeMapLayout _ ( pathCost, ( m, n ) ) { x, y, width, height, toggle } =
+treeMapLayout _ ( pathCost, ( m, n ) ) { x, y, width, height, toggle, parentPathCost } =
     let
+        topLevel =
+            parentPathCost == -1
+
+        space =
+            if topLevel then
+                0
+
+            else
+                1
+
         c =
-            1.05
+            if topLevel then
+                1
+
+            else
+                1.05
     in
     if toggle then
         let
             w =
-                width / (c * n + 1)
+                width / (c * n + space)
         in
-        { x = x + c * (m + 1) * w
+        { x = x + c * (m + space) * w
         , y = y
         , width = w
         , height = height
@@ -130,9 +144,9 @@ treeLayout model ( pathCost, ( m, n ) ) { x, width, toggle, parentPathCost } =
             width / n
     in
     { x = x + m * w
-    , y = pathCost / model.maxPathCost
+    , y = pathCost / (model.maxPathCost + 1)
     , width = w
-    , height = (pathCost - parentPathCost) / model.maxPathCost
+    , height = (pathCost - parentPathCost) / (model.maxPathCost + 1)
     , toggle = toggle
     , parentPathCost = pathCost
     }
