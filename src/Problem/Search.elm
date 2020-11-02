@@ -7,11 +7,9 @@ module Problem.Search exposing
     , Node, expand, path, reversePathWithPosition, unestrangedChildren
     )
 
-{-| Intelligent search
+{-| These search algorithms will solve our `Problem`, if it's soluble and not too hard. They all have different advantages and drawbacks.
 
 [For an introduction to search algorithms, read through this wonderful interactive visualization.](https://www.redblobgames.com/pathfinding/a-star/introduction.html)
-
-These search algorithms will solve our `Problem`, if it's soluble and not too hard. They all have different advantages and drawbacks.
 
 (I plan to add some precise information about their runtime complexity and space complexity.)
 
@@ -45,6 +43,8 @@ Tree search is usually slightly more efficient than graph search (how much exact
 
 # Performing the search
 
+The functions above only initialize a search model. We can use one of the functions in here to run the search model.
+
 @docs Model, next, nextN, solve, exhaust, exhaustBoundary
 
 
@@ -55,7 +55,9 @@ Tree search is usually slightly more efficient than graph search (how much exact
 
 # Building your own visualizations
 
-@docs Node, expand, path, pathWithPosition, unestrangedChildren
+Before using these more low-level functions, check out the ready-made visualizations in the `Problem.Search.Visual` submodule.
+
+@docs Node, expand, path, reversePathWithPosition, unestrangedChildren
 
 -}
 
@@ -261,10 +263,6 @@ The type parameter `a` refers to the `State` type of the search problem. For exa
 
 Initialize your model with `searchInit` (see below).
 
--- technically it would suffice to store only explored states and not their children
--- but there is no noticeable difference in performance (TODO benchmarks)
--- and having the children is useful for performant visualization, where we want to reconstruct the search tree
-
 -}
 type alias Model a =
     { strategy : Strategy a
@@ -379,13 +377,15 @@ noBoundary _ =
     True
 
 
-{-| -}
+{-| Performs a single step of the search algorithm. Returns a new search model.
+-}
 next : Model a -> Model a
 next ({ strategy, queue } as model) =
     searchStep strategy queue noBoundary model
 
 
-{-| -}
+{-| Performs n steps of the search algorithm. Returns a new search model.
+-}
 nextN : Int -> Model a -> Model a
 nextN n ({ strategy, queue } as model) =
     if n > 0 then
@@ -395,7 +395,8 @@ nextN n ({ strategy, queue } as model) =
         model
 
 
-{-| -}
+{-| Tries to solve the search. Returns a pair of the result (if it can find one), and the search model.
+-}
 solve : Model a -> ( Maybe (Node a), Model a )
 solve ({ result } as model) =
     case result of
@@ -409,7 +410,8 @@ solve ({ result } as model) =
             solve (next model)
 
 
-{-| -}
+{-| Searches through the complete search space without stopping at solutions. Returns a new search model. Note that the complete search space is usually very large.
+-}
 exhaust : Model a -> Model a
 exhaust model =
     let
@@ -423,7 +425,8 @@ exhaust model =
         exhaust new
 
 
-{-| -}
+{-| Searches through the search space until the boundary condition is no longer fulfilled. Returns a new search model. Could perhaps be used to implement IDA\*, but I have not attempted yet. **Experimental.**
+-}
 exhaustBoundary : (Node a -> Bool) -> Model a -> Model a
 exhaustBoundary boundary ({ strategy, queue } as model) =
     let
@@ -465,8 +468,7 @@ treeDepthFirst =
     init treeSearch lifo
 
 
-{-| Dijkstra's algorithm.
--}
+{-| -}
 uniformCost_ : Strategy a -> Problem a -> Model a
 uniformCost_ strategy problem =
     init strategy
@@ -482,7 +484,8 @@ uniformCost_ strategy problem =
         problem
 
 
-{-| -}
+{-| Dijkstra's algorithm.
+-}
 uniformCost : Problem a -> Model a
 uniformCost =
     uniformCost_ graphSearch
@@ -514,8 +517,7 @@ treeGreedy =
     greedy_ treeSearch
 
 
-{-| A\* search.
--}
+{-| -}
 bestFirst_ : Strategy a -> Problem a -> Model a
 bestFirst_ strategy problem =
     init
@@ -534,7 +536,8 @@ bestFirst_ strategy problem =
         problem
 
 
-{-| -}
+{-| A\* search.
+-}
 bestFirst : Problem a -> Model a
 bestFirst =
     bestFirst_ graphSearch
@@ -552,7 +555,7 @@ treeBestFirst =
 
 {-| -}
 path : Model a -> Node a -> List ( Float, a )
-path ({ problem, explored }) node =
+path { problem, explored } node =
     let
         stacksafePath : Node a -> List ( Float, a ) -> List ( Float, a )
         stacksafePath { state, pathCost, parent } stack =
