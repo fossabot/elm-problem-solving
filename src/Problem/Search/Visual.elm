@@ -1,8 +1,8 @@
-module Problem.Search.Visual exposing (info, scatter, tree, treeMap, graph, tooltip, Tooltip)
+module Problem.Search.Visual exposing (info, scatter, tree, treeMap, GraphModel, graph, tooltip, Tooltip)
 
 {-|
 
-@docs info, scatter, tree, treeMap, graph, tooltip, Tooltip
+@docs info, scatter, tree, treeMap, GraphModel, graph, tooltip, Tooltip
 
 -}
 
@@ -54,6 +54,11 @@ tree =
 treeMap : Search.Model a -> Svg msg
 treeMap =
     Tree.treeMap
+
+
+{-| -}
+type alias GraphModel =
+    Graph.Model
 
 
 {-| -}
