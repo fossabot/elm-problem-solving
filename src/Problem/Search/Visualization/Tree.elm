@@ -3,21 +3,24 @@ module Problem.Search.Visualization.Tree exposing (tree, treeMap)
 import Color exposing (black, red)
 import Dict
 import Dict.Extra as Dict
+import Html.Events exposing (onMouseEnter, onMouseOver)
 import List.Extra as List
 import Problem.Search as Search exposing (Model, Result(..))
+import Problem.Search.Visualization.Tooltip as Tooltip
 import Svg.Keyed as Keyed
 import TypedSvg exposing (..)
 import TypedSvg.Attributes exposing (..)
 import TypedSvg.Core exposing (Svg)
 import TypedSvg.Types exposing (..)
+import Html.Events exposing (onMouseLeave)
 
 
-tree : Model a -> Svg msg
+tree : Maybe (Tooltip.Model msg a) -> Model a -> Svg msg
 tree =
     makeTreeLikeVis treeLayout
 
 
-treeMap : Model a -> Svg msg
+treeMap : Maybe (Tooltip.Model msg a) -> Model a -> Svg msg
 treeMap =
     makeTreeLikeVis treeMapLayout
 
@@ -29,11 +32,8 @@ type alias Layout a =
     -> Rect
 
 
-makeTreeLikeVis :
-    Layout a
-    -> Model a
-    -> Svg msg
-makeTreeLikeVis layout ({ explored, problem } as model) =
+makeTreeLikeVis : Layout a -> Maybe (Tooltip.Model msg a) -> Model a -> Svg msg
+makeTreeLikeVis layout tooltip ({ explored, problem } as model) =
     svg
         [ width (px 500)
         , height (px 500)
@@ -63,16 +63,26 @@ makeTreeLikeVis layout ({ explored, problem } as model) =
                     (\( node, acc ) ->
                         ( problem.stateToString node.state
                         , rect
-                            [ x (px acc.x)
-                            , y (px acc.y)
-                            , width (px acc.width)
-                            , height (px acc.height)
-                            , fill (Paint black) --(if node.pathCost == 0 then (Paint red) else (Paint black))
-                            , opacity (Opacity 0.1)
-                            , stroke (Paint black)
-                            , strokeWidth (px 0.002)
-                            , strokeOpacity (Opacity 1)
-                            ]
+                            ([ x (px acc.x)
+                             , y (px acc.y)
+                             , width (px acc.width)
+                             , height (px acc.height)
+                             , fill (Paint black) --(if node.pathCost == 0 then (Paint red) else (Paint black))
+                             , opacity (Opacity 0.1)
+                             , stroke (Paint black)
+                             , strokeWidth (px 0.002)
+                             , strokeOpacity (Opacity 1)
+                             ]
+                                ++ (case tooltip of
+                                        Just t ->
+                                            [ onMouseEnter (t.msg (Just node))
+                                            , onMouseLeave (t.msg Nothing)
+                                            ]
+
+                                        _ ->
+                                            []
+                                   )
+                            )
                             []
                         )
                     )
