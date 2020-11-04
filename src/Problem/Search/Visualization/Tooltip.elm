@@ -1,15 +1,20 @@
 module Problem.Search.Visualization.Tooltip exposing (..)
 
 import Browser.Events
+import Color exposing (red)
 import Element exposing (..)
 import Element.Background as Background
 import Element.Border as Border
 import Element.Font as Font
 import Html exposing (Html)
 import Html.Attributes exposing (style)
+import Html.Events exposing (onMouseOut, onMouseOver)
 import Json.Decode
 import Problem exposing (Problem)
 import Problem.Search as Search
+import TypedSvg.Attributes exposing (fill)
+import TypedSvg.Core
+import TypedSvg.Types exposing (Paint(..))
 
 
 
@@ -40,7 +45,7 @@ info problem visualizeState { pathCost, state } =
 
 infoRow : String -> Float -> Element msg
 infoRow description number =
-    row [ width fill, spacing 20 ]
+    row [ width Element.fill, spacing 20 ]
         [ el [ alignLeft ] (text description)
         , el [ alignRight ] (text <| String.fromFloat number)
         ]
@@ -74,7 +79,7 @@ init problem msg vis =
 
 view : Model msg a -> Html msg
 view { problem, node, position, vis } =
-    layout [ width shrink, height shrink]
+    layout [ width shrink, height shrink ]
         (case node of
             Just n ->
                 Element.el
@@ -111,3 +116,30 @@ decodeMove =
     Json.Decode.map2 (\a b -> { x = a, y = b })
         (Json.Decode.field "pageX" Json.Decode.float)
         (Json.Decode.field "pageY" Json.Decode.float)
+
+
+
+-- INTERNAL
+
+
+properties : Maybe (Model msg a) -> List (Search.Node a) -> List (TypedSvg.Core.Attribute msg)
+properties tooltip nodes =
+    case ( tooltip, nodes ) of
+        ( Just t, h :: _ ) ->
+            [ onMouseOver (t.msg (Just h))
+            , onMouseOut (t.msg Nothing)
+            ]
+                ++ (case t.node of
+                        Just n ->
+                            if List.any (\node -> node.state == n.state) nodes then
+                                [ TypedSvg.Attributes.fill (Paint red) ]
+
+                            else
+                                []
+
+                        _ ->
+                            []
+                   )
+
+        _ ->
+            []

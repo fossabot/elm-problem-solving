@@ -6,6 +6,7 @@ import Dict exposing (Dict)
 import Dict.Extra as Dict
 import List.Extra as List
 import Problem.Search as Search exposing (Result(..))
+import Problem.Search.Visualization.Tooltip as Tooltip
 import Scale
 import TypedSvg exposing (..)
 import TypedSvg.Attributes as Attributes exposing (..)
@@ -13,16 +14,16 @@ import TypedSvg.Core exposing (Svg)
 import TypedSvg.Types exposing (..)
 
 
-scatterPlot : Search.Model a -> Svg msg
-scatterPlot ({ result, problem, maxPathCost, explored } as model) =
+scatterPlot : Maybe (Tooltip.Model msg a) -> Search.Model a -> Svg msg
+scatterPlot tooltip ({ result, problem, maxPathCost, explored } as model) =
     let
-        dots : Dict ( Float, Float ) (List a)
+        dots : Dict ( Float, Float ) (List (Search.Node a))
         dots =
             explored
                 |> Dict.toList
                 |> List.map
                     (\( _, node ) ->
-                        ( ( node.pathCost, problem.heuristic node.state ), [ node.state ] )
+                        ( ( node.pathCost, problem.heuristic node.state ), [ node ] )
                     )
                 |> Dict.fromListDedupe (++)
 
@@ -74,22 +75,24 @@ scatterPlot ({ result, problem, maxPathCost, explored } as model) =
                 ++ (dots
                         |> Dict.toList
                         |> List.map
-                            (\( ( pathCost, heuristic ), states ) ->
+                            (\( ( pathCost, heuristic ), nodes ) ->
                                 g []
                                     [ circle
-                                        [ cx (px (pathCost / maxPathCost))
-                                        , cy (px (heuristic / maxHeuristic))
-                                        , r
+                                        ([ cx (px (pathCost / maxPathCost))
+                                         , cy (px (heuristic / maxHeuristic))
+                                         , r
                                             (px
                                                 (Basics.min 0.05
-                                                    (sqrt (toFloat (List.length states))
+                                                    (sqrt (toFloat (List.length nodes))
                                                         / maxDotSize
                                                         / toFloat (Basics.max nX nY)
                                                         / 2
                                                     )
                                                 )
                                             )
-                                        ]
+                                         ]
+                                            ++ Tooltip.properties tooltip nodes
+                                        )
                                         []
                                     ]
                             )

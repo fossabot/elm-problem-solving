@@ -56,7 +56,7 @@ Y-Axis: Heuristic.
 Size of dot: Number of explored search states.
 When the search is finished, also displays the path from the root to the goal state.
 -}
-scatter : Search.Model a -> Svg msg
+scatter : Maybe (TooltipModel msg a) -> Search.Model a -> Svg msg
 scatter =
     ScatterPlot.scatterPlot
 

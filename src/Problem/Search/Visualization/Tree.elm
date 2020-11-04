@@ -1,6 +1,6 @@
 module Problem.Search.Visualization.Tree exposing (tree, treeMap)
 
-import Color exposing (black, red)
+import Color exposing (black)
 import Dict
 import Dict.Extra as Dict
 import Html.Events exposing (..)
@@ -72,36 +72,13 @@ makeTreeLikeVis layout tooltip ({ explored, problem } as model) =
                              , strokeWidth (px 0.002)
                              , strokeOpacity (Opacity 1)
                              ]
-                                ++ tooltipProperties tooltip node
+                                ++ Tooltip.properties tooltip [node]
                             )
                             []
                         )
                     )
             )
         ]
-
-
-tooltipProperties : Maybe (Tooltip.Model msg a) -> Search.Node a -> List (TypedSvg.Core.Attribute msg)
-tooltipProperties tooltip node =
-    case tooltip of
-        Just t ->
-            [ onMouseOver (t.msg (Just node))
-            , onMouseOut (t.msg Nothing)
-            ]
-                ++ (case t.node of
-                        Just n ->
-                            if n.state == node.state then
-                                [ fill (Paint red) ]
-
-                            else
-                                []
-
-                        _ ->
-                            []
-                   )
-
-        _ ->
-            []
 
 
 type alias Rect =

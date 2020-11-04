@@ -110,8 +110,6 @@ type alias Problem state =
     { -- init
         initialState : state
     , 
-    -- view / update
-    -- -> is it possible to extract messages from html, so that html could indeed be used for the view?
     actions :
         state
         ->
