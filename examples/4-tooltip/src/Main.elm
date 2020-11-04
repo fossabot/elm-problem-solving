@@ -96,7 +96,7 @@ init =
         ( { searchModel1 = m1
           , searchModel2 = m2
           , searchModel3 = m3
-          , tooltipModel = Visual.tooltip.init problem Show Nothing
+          , tooltipModel = Visual.tooltip.init problem Show (Just Problem.Example.slidingPuzzleVisual)
           }
         , Cmd.batch
             [ searchTask NewModel1 m1
