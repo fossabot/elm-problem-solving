@@ -4,15 +4,16 @@ import Browser
 import Dict
 import Html exposing (p, text)
 import Problem.Example exposing (SlidingPuzzle, mediumEightPuzzle)
-import Problem.Search
-import Problem.Search.Visual exposing (GraphModel, graph)
+import Problem.Search as Search
+import Problem.Search.Visual as Visual
 import Process
 import Task
 
 
 type alias Model =
-    { searchModel : Problem.Search.Model ProblemState
-    , graphModel : GraphModel
+    { searchModel : Search.Model ProblemState
+    , graphModel : Visual.GraphModel ProblemState
+    , tooltipModel : Visual.TooltipModel Msg ProblemState
     }
 
 
@@ -21,17 +22,19 @@ type alias ProblemState =
 
 
 type Msg
-    = NewModel (Problem.Search.Model ProblemState)
+    = NewModel (Search.Model ProblemState)
+    | Show (Maybe (Search.Node ProblemState))
+    | Move { x : Float, y : Float }
 
 
 searchTask model =
     case model.result of
-        Problem.Search.Pending ->
+        Search.Pending ->
             Task.perform
                 NewModel
                 (Process.sleep 10
                     |> Task.andThen
-                        (\_ -> Task.succeed (Problem.Search.next model))
+                        (\_ -> Task.succeed (Search.next model))
                 )
 
         _ ->
@@ -46,10 +49,11 @@ init =
                 mediumEightPuzzle
 
             initialSearchModel =
-                Problem.Search.breadthFirst problem
+                Search.breadthFirst problem
         in
         ( { searchModel = initialSearchModel
-          , graphModel = graph.init problem
+          , graphModel = Visual.graph.init problem
+          , tooltipModel = Visual.tooltip.init problem Show (Just Problem.Example.slidingPuzzleVisual)
           }
         , searchTask initialSearchModel
         )
@@ -58,24 +62,31 @@ init =
 main =
     Browser.document
         { view =
-            \model ->
+            \{ searchModel, tooltipModel, graphModel } ->
                 { title = "Breadth-first search of 8-Puzzle"
                 , body =
-                    [ p [] [ text (model.searchModel.result |> Debug.toString) ]
-                    , p [] [ text (model.searchModel.explored |> Dict.size |> String.fromInt) ]
-                    , graph.view model.graphModel
+                    [ p [] [ text (searchModel.result |> Debug.toString) ]
+                    , p [] [ text (searchModel.explored |> Dict.size |> String.fromInt) ]
+                    , Visual.tooltip.view tooltipModel
+                    , Visual.graph.view (Just tooltipModel) graphModel
                     ]
                 }
         , init = init
         , update =
-            \msg model ->
+            \msg ({ tooltipModel } as model) ->
                 case msg of
                     NewModel m ->
                         ( { model
                             | searchModel = m
-                            , graphModel = graph.update model.graphModel m
+                            , graphModel = Visual.graph.update model.graphModel m
                           }
                         , searchTask m
                         )
-        , subscriptions = \_ -> Sub.none
+
+                    Show s ->
+                        ( { model | tooltipModel = { tooltipModel | node = s } }, Cmd.none )
+
+                    Move p ->
+                        ( { model | tooltipModel = { tooltipModel | position = p } }, Cmd.none )
+        , subscriptions = \_ -> Visual.tooltip.sub Move
         }

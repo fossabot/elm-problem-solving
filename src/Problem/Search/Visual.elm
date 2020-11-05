@@ -81,23 +81,23 @@ treeMap =
 
 {-| A good graph visualization is computationally a bit more complicated, and therefore this visualization has its own data model that needs to be updated and queried. We need to embed it as a kind of sub-model into our application.
 -}
-type alias GraphModel =
-    Graph.Model
+type alias GraphModel a =
+    Graph.Model a
 
 
 {-| We use these three functions to initialize and update the graph data model, and finally, to display the actual graph.
 -}
 graph :
-    { init : Problem a -> Graph.Model
-    , update : Graph.Model -> Search.Model a -> Graph.Model
-    , view : Graph.Model -> Html msg
+    { init : Problem a -> GraphModel a
+    , update : GraphModel a -> Search.Model a -> GraphModel a
+    , view : Maybe (TooltipModel msg a) -> GraphModel a -> Html msg
     }
 graph =
     { init = Graph.init
     , update = Graph.update
     , view = Graph.view
     }
-
+ 
 
 
 -- TOOLTIP

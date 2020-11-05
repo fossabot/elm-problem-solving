@@ -8,6 +8,7 @@ import List.Extra as List
 import Maybe.Extra as Maybe
 import Problem exposing (Problem)
 import Problem.Search as Search
+import Problem.Search.Visualization.Tooltip as Tooltip
 import Set exposing (Set)
 import Svg.PathD exposing (..)
 import TypedSvg exposing (..)
@@ -24,33 +25,43 @@ type alias Edge =
     }
 
 
-type alias Model =
+type alias Entity a =
+    Force.Entity String { node : Search.Node a }
+
+
+type alias Model a =
     { existingStates : Set String
-    , nodes : List (Force.Entity String {})
+    , nodes : List (Entity a)
     , edges : List Edge
     }
 
 
-init : Problem a -> Model
+init : Problem a -> Model a
 init problem =
     let
-        initialState =
+        initialStateString =
             problem.stateToString problem.initialState
     in
-    { existingStates = Set.fromList [ initialState ]
+    { existingStates = Set.fromList [ initialStateString ]
     , nodes =
-        [ { id = initialState
+        [ { id = initialStateString
           , x = 0
           , y = 0
           , vx = 0
           , vy = 0
+          , node =
+                { state = problem.initialState
+                , parent = Nothing
+                , pathCost = 0
+                , children = Nothing
+                }
           }
         ]
     , edges = []
     }
 
 
-update : Model -> Search.Model a -> Model
+update : Model a -> Search.Model a -> Model a
 update model searchModel =
     let
         newNodes : List ( String, Search.Node a )
@@ -59,11 +70,11 @@ update model searchModel =
                 |> Dict.filter (\k _ -> not <| Set.member k model.existingStates)
                 |> Dict.toList
 
-        nodes : List (Force.Entity String {})
+        nodes : List (Entity a)
         nodes =
             (newNodes
                 |> List.indexedMap
-                    (\i ( state, { parent } ) ->
+                    (\i ( state, { parent } as node ) ->
                         let
                             parentNode =
                                 parent
@@ -93,6 +104,7 @@ update model searchModel =
                                 + 0.01
                         , vx = 0
                         , vy = 0
+                        , node = node
                         }
                     )
             )
@@ -133,7 +145,7 @@ update model searchModel =
                 ]
 
         -- |> iterations 300
-        simulatedNodes : List (Force.Entity String {})
+        simulatedNodes : List (Entity a)
         simulatedNodes =
             Force.computeSimulation
                 graphState
@@ -153,8 +165,8 @@ update model searchModel =
     }
 
 
-view : Model -> Html msg
-view model =
+view : Maybe (Tooltip.Model msg a) -> Model a -> Html msg
+view tooltip model =
     let
         minX =
             List.minimumBy .x model.nodes |> Maybe.map .x |> Maybe.withDefault 0
@@ -178,8 +190,8 @@ view model =
             c * (a - d)
     in
     svg
-        [ width (px 900)
-        , height (px 900)
+        [ width (px 500)
+        , height (px 500)
         , viewBox 0 0 1 1
         , Attributes.style "border: 1px dotted black"
         ]
@@ -187,11 +199,10 @@ view model =
             |> List.map
                 (\entity ->
                     g
-                        [ transform [ Translate (pos entity.x) (pos entity.y) ] ]
-                        [ circle
-                            [ r (px 0.002)
-                            ]
-                            []
+                        ([ transform [ Translate (pos entity.x) (pos entity.y) ] ]
+                            ++ Tooltip.properties tooltip [ entity.node ]
+                        )
+                        [ circle [ r (px 0.01) ] []
 
                         {--
                         , Svg.text_
@@ -226,6 +237,6 @@ path_ pos e1 e2 =
                 , L ( pos e2.x, pos e2.y )
                 ]
         , stroke (Paint black)
-        , strokeWidth (px 0.0002)
+        , strokeWidth (px 0.0005)
         ]
         []
