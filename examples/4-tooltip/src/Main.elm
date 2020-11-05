@@ -3,7 +3,6 @@ module Main exposing (..)
 import Browser
 import Browser.Events
 import Dict exposing (Dict)
-import Element exposing (layout)
 import Html exposing (..)
 import Json.Decode
 import Problem exposing (Problem)

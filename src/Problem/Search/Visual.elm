@@ -39,7 +39,6 @@ This is not yet supported for all problems and search diagrams.
 
 -}
 
-import Element exposing (Element)
 import Html exposing (Html)
 import Problem exposing (Problem)
 import Problem.Search as Search

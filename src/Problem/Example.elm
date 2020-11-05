@@ -50,7 +50,6 @@ In order to solve any problem, we use search techniques that create a graph. But
 -}
 
 import Dict exposing (Dict)
-import Element.Font exposing (medium)
 import Html exposing (Html)
 import Problem exposing (Problem)
 import Problem.Example.Graph exposing (bucharestDistance, straightLineDistance)

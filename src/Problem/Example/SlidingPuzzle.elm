@@ -249,12 +249,13 @@ visualize state =
                                 , style "width" "1em"
                                 , style "background-color"
                                     (if a == 0 then
-                                        "rgb(200, 200, 200)"
+                                        "white"
 
                                      else
                                         "rgb(230, 230, 230)"
                                     )
                                 , style "text-align" "center"
+                                , style "font-size" "1.3em"
                                 ]
                     )
                 )
