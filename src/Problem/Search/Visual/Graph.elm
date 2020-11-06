@@ -1,4 +1,4 @@
-module Problem.Search.Visualization.Graph exposing (Model, init, update, view)
+module Problem.Search.Visual.Graph exposing (Model, init, update, view)
 
 import Color exposing (black)
 import Dict
@@ -8,7 +8,7 @@ import List.Extra as List
 import Maybe.Extra as Maybe
 import Problem exposing (Problem)
 import Problem.Search as Search
-import Problem.Search.Visualization.Tooltip as Tooltip
+import Problem.Search.Visual.Tooltip as Tooltip
 import Set exposing (Set)
 import Svg.PathD exposing (..)
 import TypedSvg exposing (..)

@@ -8,7 +8,8 @@
         "Problem",
         "Problem.Example",
         "Problem.Search",
-        "Problem.Search.Visual"
+        "Problem.Search.Visual",
+        "Problem.Search.Dashboard"
     ],
     "elm-version": "0.19.1 <= v <= 0.20.0",
     "dependencies": {

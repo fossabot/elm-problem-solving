@@ -1,4 +1,4 @@
-module Problem.Search.Visualization.Tree exposing (tree, treeMap)
+module Problem.Search.Visual.Tree exposing (tree, treeMap)
 
 import Color exposing (black)
 import Dict
@@ -6,7 +6,7 @@ import Dict.Extra as Dict
 import Html.Events exposing (..)
 import List.Extra as List
 import Problem.Search as Search exposing (Model, Result(..))
-import Problem.Search.Visualization.Tooltip as Tooltip
+import Problem.Search.Visual.Tooltip as Tooltip
 import Svg.Keyed as Keyed
 import TypedSvg exposing (..)
 import TypedSvg.Attributes exposing (..)
@@ -72,7 +72,7 @@ makeTreeLikeVis layout tooltip ({ explored, problem } as model) =
                              , strokeWidth (px 0.002)
                              , strokeOpacity (Opacity 1)
                              ]
-                                ++ Tooltip.properties tooltip [node]
+                                ++ Tooltip.properties tooltip [ node ]
                             )
                             []
                         )

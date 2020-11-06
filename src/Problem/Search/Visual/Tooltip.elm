@@ -1,4 +1,4 @@
-module Problem.Search.Visualization.Tooltip exposing (..)
+module Problem.Search.Visual.Tooltip exposing (..)
 
 import Browser.Events
 import Color exposing (red)

@@ -1,4 +1,4 @@
-module Problem.Search.Visualization.ScatterPlot exposing (..)
+module Problem.Search.Visual.ScatterPlot exposing (..)
 
 import Axis exposing (tickSizeInner)
 import Color exposing (black)
@@ -6,7 +6,7 @@ import Dict exposing (Dict)
 import Dict.Extra as Dict
 import List.Extra as List
 import Problem.Search as Search exposing (Result(..))
-import Problem.Search.Visualization.Tooltip as Tooltip
+import Problem.Search.Visual.Tooltip as Tooltip
 import Scale
 import TypedSvg exposing (..)
 import TypedSvg.Attributes as Attributes exposing (..)

@@ -42,10 +42,10 @@ This is not yet supported for all problems and search diagrams.
 import Html exposing (Html)
 import Problem exposing (Problem)
 import Problem.Search as Search
-import Problem.Search.Visualization.Graph as Graph
-import Problem.Search.Visualization.ScatterPlot as ScatterPlot
-import Problem.Search.Visualization.Tooltip as Tooltip
-import Problem.Search.Visualization.Tree as Tree
+import Problem.Search.Visual.Graph as Graph
+import Problem.Search.Visual.ScatterPlot as ScatterPlot
+import Problem.Search.Visual.Tooltip as Tooltip
+import Problem.Search.Visual.Tree as Tree
 import Svg exposing (Svg)
 
 
@@ -72,7 +72,7 @@ tree =
 treeMap : Maybe (TooltipModel msg a) -> Search.Model a -> Svg msg
 treeMap =
     Tree.treeMap
- 
+
 
 
 -- GRAPH
@@ -96,7 +96,7 @@ graph =
     , update = Graph.update
     , view = Graph.view
     }
- 
+
 
 
 -- TOOLTIP
@@ -107,7 +107,7 @@ type alias TooltipModel msg a =
     Tooltip.Model msg a
 
 
-{-| -} 
+{-| -}
 tooltip :
     { init :
         Problem a

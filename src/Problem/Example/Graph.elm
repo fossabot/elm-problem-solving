@@ -12,7 +12,7 @@ type alias Graph comparable =
     Dict comparable (List { stepCost : Float, result : comparable })
 
 
-routeFinding : (comparable -> String) -> comparable -> comparable -> Graph comparable -> Problem comparable
+routeFinding : (comparable -> String) -> comparable -> comparable  -> Graph comparable -> Problem comparable
 routeFinding nodeToString root goal graph =
     { initialState = root
     , actions = \a -> Dict.get a graph |> Maybe.withDefault []

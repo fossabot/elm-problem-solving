@@ -328,6 +328,8 @@ The implementation is very straightforward:
         , stateToString = nodeToString
         }
 
+Heuristics are not yet supported, unfortunately. (The reason is that I am not sure how best to deal with heuristics that are only defined for a subset of nodes, such as `romania.bucharestDistance`.)
+
 -}
 routeFinding : (comparable -> String) -> comparable -> comparable -> Graph comparable -> Problem comparable
 routeFinding =
