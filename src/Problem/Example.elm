@@ -2,9 +2,9 @@ module Problem.Example exposing
     ( VacuumWorld, vacuumWorld
     , SlidingPuzzle, slidingPuzzle, simpleEightPuzzle, mediumEightPuzzle, complexEightPuzzle, slidingPuzzleVisual
     , Queens, queens
-    , Knuth, knuth
+    , Knuth, knuth, simpleKnuth, complexKnuth
     , Graph, romania, routeFinding, simpleRouteFinding
-    , MotionPlanning, motionPlanning
+    , MotionPlanning, motionPlanning, simpleMotionPlanning
     )
 
 {-| Examples
@@ -30,7 +30,7 @@ module Problem.Example exposing
 
 ## Knuth Conjecture
 
-@docs Knuth, knuth
+@docs Knuth, knuth, simpleKnuth, complexKnuth
 
 
 # Real-world problems
@@ -45,7 +45,7 @@ In order to solve any problem, we use search techniques that create a graph. But
 
 ## Motion planning
 
-@docs MotionPlanning, motionPlanning
+@docs MotionPlanning, motionPlanning, simpleMotionPlanning
 
 -}
 
@@ -53,7 +53,7 @@ import Dict exposing (Dict)
 import Html exposing (Html)
 import Problem exposing (Problem)
 import Problem.Example.Graph exposing (bucharestDistance, straightLineDistance)
-import Problem.Example.KnuthConjecture
+import Problem.Example.KnuthConjecture exposing (simpleKnuthConjecture)
 import Problem.Example.MotionPlanning
 import Problem.Example.Queens
 import Problem.Example.SlidingPuzzle
@@ -279,20 +279,32 @@ Internally, this looks like so:
                 , { stepCost = 1, result = sqrt n }
                 ]
 
-For a simple Knuth conjecture, try to arrive at 1.
-
-    simpleKnuthConjecture =
-        knuthConjecture 1
-
-For a complex Knuth conjecture, try to arrive at 5.
-
-    complexKnuthConjecture =
-        knuthConjecture 5
-
 -}
 knuth : Float -> Problem Knuth
 knuth =
     Problem.Example.KnuthConjecture.knuthConjecture
+
+
+{-|
+
+    simpleKnuth =
+        knuth 1
+
+-}
+simpleKnuth : Problem Knuth
+simpleKnuth =
+    knuth 1
+
+
+{-|
+
+    complexKnuth =
+        knuth 5
+
+-}
+complexKnuth : Problem Knuth
+complexKnuth =
+    knuth 5
 
 
 {-| A graph is represented as a dictionary for our purposes. The keys are the start nodes, and the values are lists of all the reachable end nodes and the distance between the start and end node.

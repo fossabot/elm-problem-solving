@@ -5035,6 +5035,9 @@ var $elm$core$Basics$LT = {$: 'LT'};
 var $author$project$Problem$Search$Dashboard$BestFirst = {$: 'BestFirst'};
 var $author$project$Problem$Search$Dashboard$Graph = {$: 'Graph'};
 var $author$project$Problem$Search$Dashboard$Greedy = {$: 'Greedy'};
+var $elm$core$Maybe$Just = function (a) {
+	return {$: 'Just', a: a};
+};
 var $author$project$Problem$Search$Dashboard$Scatter = {$: 'Scatter'};
 var $author$project$Problem$Search$Dashboard$Tree = {$: 'Tree'};
 var $author$project$Problem$Search$Dashboard$TreeMap = {$: 'TreeMap'};
@@ -5065,9 +5068,6 @@ var $elm$json$Json$Decode$OneOf = function (a) {
 };
 var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Basics$add = _Basics_add;
-var $elm$core$Maybe$Just = function (a) {
-	return {$: 'Just', a: a};
-};
 var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$String$all = _String_all;
 var $elm$core$Basics$and = _Basics_and;
@@ -13069,37 +13069,40 @@ var $author$project$Problem$Search$Visual$Tooltip$view = function (_v0) {
 	}
 };
 var $author$project$Problem$Search$Visual$tooltip = {init: $author$project$Problem$Search$Visual$Tooltip$init, sub: $author$project$Problem$Search$Visual$Tooltip$sub, view: $author$project$Problem$Search$Visual$Tooltip$view};
-var $author$project$Problem$Search$Dashboard$init = F3(
-	function (visuals, searches, problem) {
-		var searchAndGraphModels = A2(
-			$elm$core$List$map,
-			function (s) {
-				var _v0 = $author$project$Problem$Search$Dashboard$fromSearch(s);
-				var name = _v0.a;
-				var search = _v0.b;
-				return {
-					graph: $author$project$Problem$Search$Visual$graph.init(problem),
-					name: name,
-					search: search(problem)
-				};
-			},
-			searches);
-		return _Utils_Tuple2(
-			{
-				searchesAndGraphs: searchAndGraphModels,
-				tooltip: A3($author$project$Problem$Search$Visual$tooltip.init, problem, $author$project$Problem$Search$Dashboard$Show, $elm$core$Maybe$Nothing),
-				visuals: visuals
-			},
+var $author$project$Problem$Search$Dashboard$init = function (_v0) {
+	var visuals = _v0.visuals;
+	var searches = _v0.searches;
+	var problem = _v0.problem;
+	var problemStateToHtml = _v0.problemStateToHtml;
+	var searchAndGraphModels = A2(
+		$elm$core$List$map,
+		function (s) {
+			var _v1 = $author$project$Problem$Search$Dashboard$fromSearch(s);
+			var name = _v1.a;
+			var search = _v1.b;
+			return {
+				graph: $author$project$Problem$Search$Visual$graph.init(problem),
+				name: name,
+				search: search(problem)
+			};
+		},
+		searches);
+	return _Utils_Tuple2(
+		{
+			searchesAndGraphs: searchAndGraphModels,
+			tooltip: A3($author$project$Problem$Search$Visual$tooltip.init, problem, $author$project$Problem$Search$Dashboard$Show, problemStateToHtml),
+			visuals: visuals
+		},
+		A2(
+			$author$project$Problem$Search$Dashboard$searchTask,
+			$author$project$Problem$Search$Dashboard$NewModels,
 			A2(
-				$author$project$Problem$Search$Dashboard$searchTask,
-				$author$project$Problem$Search$Dashboard$NewModels,
-				A2(
-					$elm$core$List$map,
-					function ($) {
-						return $.search;
-					},
-					searchAndGraphModels)));
-	});
+				$elm$core$List$map,
+				function ($) {
+					return $.search;
+				},
+				searchAndGraphModels)));
+};
 var $elm$core$Tuple$pair = F2(
 	function (a, b) {
 		return _Utils_Tuple2(a, b);
@@ -14286,16 +14289,13 @@ var $author$project$Problem$Search$Dashboard$view = function (_v0) {
 					visuals)))
 		]);
 };
-var $author$project$Problem$Search$Dashboard$document = function (_v0) {
-	var visuals = _v0.visuals;
-	var searches = _v0.searches;
-	var problem = _v0.problem;
+var $author$project$Problem$Search$Dashboard$document = function (config) {
 	return $elm$browser$Browser$document(
 		{
-			init: function (_v1) {
-				return A3($author$project$Problem$Search$Dashboard$init, visuals, searches, problem);
+			init: function (_v0) {
+				return $author$project$Problem$Search$Dashboard$init(config);
 			},
-			subscriptions: function (_v2) {
+			subscriptions: function (_v1) {
 				return $author$project$Problem$Search$Visual$tooltip.sub($author$project$Problem$Search$Dashboard$Move);
 			},
 			update: $author$project$Problem$Search$Dashboard$update,
@@ -14307,160 +14307,379 @@ var $author$project$Problem$Search$Dashboard$document = function (_v0) {
 			}
 		});
 };
-var $elm_community$dict_extra$Dict$Extra$groupBy = F2(
-	function (keyfn, list) {
-		return A3(
-			$elm$core$List$foldr,
-			F2(
-				function (x, acc) {
-					return A3(
-						$elm$core$Dict$update,
-						keyfn(x),
-						A2(
-							$elm$core$Basics$composeR,
-							$elm$core$Maybe$map(
-								$elm$core$List$cons(x)),
-							A2(
-								$elm$core$Basics$composeR,
-								$elm$core$Maybe$withDefault(
-									_List_fromArray(
-										[x])),
-								$elm$core$Maybe$Just)),
-						acc);
-				}),
-			$elm$core$Dict$empty,
-			list);
-	});
-var $author$project$Problem$Example$Graph$toDict = A2(
-	$elm$core$Basics$composeR,
-	$elm_community$dict_extra$Dict$Extra$groupBy(
-		function ($) {
-			return $.from;
-		}),
-	$elm$core$Dict$map(
-		F2(
-			function (k, v) {
-				return A2(
-					$elm$core$List$map,
-					function (_v0) {
-						var data = _v0.data;
-						var to = _v0.to;
-						return {result: to, stepCost: data};
-					},
-					v);
-			})));
-var $author$project$Problem$Example$Graph$straightLineDistance = $author$project$Problem$Example$Graph$toDict(
-	_List_fromArray(
-		[
-			{data: 366, from: 'Bucharest', to: 'Arad'},
-			{data: 241, from: 'Bucharest', to: 'Mehadia'},
-			{data: 0, from: 'Bucharest', to: 'Bucharest'},
-			{data: 234, from: 'Bucharest', to: 'Neamt'},
-			{data: 160, from: 'Bucharest', to: 'Craiova'},
-			{data: 380, from: 'Bucharest', to: 'Oradea'},
-			{data: 242, from: 'Bucharest', to: 'Drobeta'},
-			{data: 100, from: 'Bucharest', to: 'Pitesti'},
-			{data: 161, from: 'Bucharest', to: 'Eforie'},
-			{data: 193, from: 'Bucharest', to: 'Rimnicu Vilcea'},
-			{data: 176, from: 'Bucharest', to: 'Fagaras'},
-			{data: 253, from: 'Bucharest', to: 'Sibiu'},
-			{data: 77, from: 'Bucharest', to: 'Giurgiu'},
-			{data: 329, from: 'Bucharest', to: 'Timisoara'},
-			{data: 151, from: 'Bucharest', to: 'Hirsova'},
-			{data: 80, from: 'Bucharest', to: 'Urziceni'},
-			{data: 226, from: 'Bucharest', to: 'Iasi'},
-			{data: 199, from: 'Bucharest', to: 'Vaslui'},
-			{data: 244, from: 'Bucharest', to: 'Lugoj'},
-			{data: 374, from: 'Bucharest', to: 'Zerind'}
-		]));
-var $author$project$Problem$Example$Graph$bucharestDistance = function (a) {
-	return A2(
-		$elm$core$Maybe$withDefault,
-		1000,
-		A2(
-			$elm$core$Maybe$map,
-			function ($) {
-				return $.stepCost;
-			},
-			$elm_community$maybe_extra$Maybe$Extra$join(
-				A2(
-					$elm$core$Maybe$map,
-					$elm_community$list_extra$List$Extra$find(
-						function (_v0) {
-							var result = _v0.result;
-							return _Utils_eq(result, a);
-						}),
-					A2($elm$core$Dict$get, 'Bucharest', $author$project$Problem$Example$Graph$straightLineDistance)))));
+var $elm_community$list_extra$List$Extra$elemIndex = function (x) {
+	return $elm_community$list_extra$List$Extra$findIndex(
+		$elm$core$Basics$eq(x));
 };
-var $author$project$Problem$Example$Graph$distance = $author$project$Problem$Example$Graph$toDict(
-	A2(
-		$elm$core$List$concatMap,
-		function (a) {
-			var from = a.from;
-			var to = a.to;
-			var data = a.data;
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm_community$list_extra$List$Extra$getAt = F2(
+	function (idx, xs) {
+		return (idx < 0) ? $elm$core$Maybe$Nothing : $elm$core$List$head(
+			A2($elm$core$List$drop, idx, xs));
+	});
+var $elm$core$List$takeReverse = F3(
+	function (n, list, kept) {
+		takeReverse:
+		while (true) {
+			if (n <= 0) {
+				return kept;
+			} else {
+				if (!list.b) {
+					return kept;
+				} else {
+					var x = list.a;
+					var xs = list.b;
+					var $temp$n = n - 1,
+						$temp$list = xs,
+						$temp$kept = A2($elm$core$List$cons, x, kept);
+					n = $temp$n;
+					list = $temp$list;
+					kept = $temp$kept;
+					continue takeReverse;
+				}
+			}
+		}
+	});
+var $elm$core$List$takeTailRec = F2(
+	function (n, list) {
+		return $elm$core$List$reverse(
+			A3($elm$core$List$takeReverse, n, list, _List_Nil));
+	});
+var $elm$core$List$takeFast = F3(
+	function (ctr, n, list) {
+		if (n <= 0) {
+			return _List_Nil;
+		} else {
+			var _v0 = _Utils_Tuple2(n, list);
+			_v0$1:
+			while (true) {
+				_v0$5:
+				while (true) {
+					if (!_v0.b.b) {
+						return list;
+					} else {
+						if (_v0.b.b.b) {
+							switch (_v0.a) {
+								case 1:
+									break _v0$1;
+								case 2:
+									var _v2 = _v0.b;
+									var x = _v2.a;
+									var _v3 = _v2.b;
+									var y = _v3.a;
+									return _List_fromArray(
+										[x, y]);
+								case 3:
+									if (_v0.b.b.b.b) {
+										var _v4 = _v0.b;
+										var x = _v4.a;
+										var _v5 = _v4.b;
+										var y = _v5.a;
+										var _v6 = _v5.b;
+										var z = _v6.a;
+										return _List_fromArray(
+											[x, y, z]);
+									} else {
+										break _v0$5;
+									}
+								default:
+									if (_v0.b.b.b.b && _v0.b.b.b.b.b) {
+										var _v7 = _v0.b;
+										var x = _v7.a;
+										var _v8 = _v7.b;
+										var y = _v8.a;
+										var _v9 = _v8.b;
+										var z = _v9.a;
+										var _v10 = _v9.b;
+										var w = _v10.a;
+										var tl = _v10.b;
+										return (ctr > 1000) ? A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A2($elm$core$List$takeTailRec, n - 4, tl))))) : A2(
+											$elm$core$List$cons,
+											x,
+											A2(
+												$elm$core$List$cons,
+												y,
+												A2(
+													$elm$core$List$cons,
+													z,
+													A2(
+														$elm$core$List$cons,
+														w,
+														A3($elm$core$List$takeFast, ctr + 1, n - 4, tl)))));
+									} else {
+										break _v0$5;
+									}
+							}
+						} else {
+							if (_v0.a === 1) {
+								break _v0$1;
+							} else {
+								break _v0$5;
+							}
+						}
+					}
+				}
+				return list;
+			}
+			var _v1 = _v0.b;
+			var x = _v1.a;
 			return _List_fromArray(
-				[
-					a,
-					{data: data, from: to, to: from}
-				]);
+				[x]);
+		}
+	});
+var $elm$core$List$take = F2(
+	function (n, list) {
+		return A3($elm$core$List$takeFast, 0, n, list);
+	});
+var $elm_community$list_extra$List$Extra$updateAt = F3(
+	function (index, fn, list) {
+		if (index < 0) {
+			return list;
+		} else {
+			var tail = A2($elm$core$List$drop, index, list);
+			var head = A2($elm$core$List$take, index, list);
+			if (tail.b) {
+				var x = tail.a;
+				var xs = tail.b;
+				return _Utils_ap(
+					head,
+					A2(
+						$elm$core$List$cons,
+						fn(x),
+						xs));
+			} else {
+				return list;
+			}
+		}
+	});
+var $elm_community$list_extra$List$Extra$setAt = F2(
+	function (index, value) {
+		return A2(
+			$elm_community$list_extra$List$Extra$updateAt,
+			index,
+			$elm$core$Basics$always(value));
+	});
+var $author$project$Problem$Example$SlidingPuzzle$swapAt = F3(
+	function (x, y, l) {
+		var b = A2($elm_community$list_extra$List$Extra$getAt, y, l);
+		var a = A2($elm_community$list_extra$List$Extra$getAt, x, l);
+		return A3(
+			$elm$core$Maybe$map2,
+			F2(
+				function (a_, b_) {
+					return A3(
+						$elm_community$list_extra$List$Extra$setAt,
+						y,
+						a_,
+						A3($elm_community$list_extra$List$Extra$setAt, x, b_, l));
+				}),
+			a,
+			b);
+	});
+var $author$project$Problem$Example$SlidingPuzzle$vertical = F2(
+	function (d, state) {
+		return $elm_community$maybe_extra$Maybe$Extra$join(
+			A2(
+				$elm$core$Maybe$map,
+				function (a) {
+					return A3($author$project$Problem$Example$SlidingPuzzle$swapAt, a, a + d, state);
+				},
+				A2($elm_community$list_extra$List$Extra$elemIndex, 0, state)));
+	});
+var $author$project$Problem$Example$SlidingPuzzle$down = function (s) {
+	return $author$project$Problem$Example$SlidingPuzzle$vertical(s);
+};
+var $author$project$Problem$Example$SlidingPuzzle$goal = function (state) {
+	return A2(
+		$elm$core$List$range,
+		0,
+		$elm$core$List$length(state) - 1);
+};
+var $author$project$Problem$Example$SlidingPuzzle$sideLength = function (state) {
+	return $elm$core$Basics$round(
+		$elm$core$Basics$sqrt(
+			$elm$core$List$length(state)));
+};
+var $author$project$Problem$Example$SlidingPuzzle$horizontal = F2(
+	function (d, state) {
+		var zeroPos = A2($elm_community$list_extra$List$Extra$elemIndex, 0, state);
+		var n = $author$project$Problem$Example$SlidingPuzzle$sideLength(state);
+		return $elm_community$maybe_extra$Maybe$Extra$join(
+			A2(
+				$elm$core$Maybe$map,
+				function (z) {
+					return _Utils_eq((z / n) | 0, ((z + d) / n) | 0) ? A3($author$project$Problem$Example$SlidingPuzzle$swapAt, z, z + d, state) : $elm$core$Maybe$Nothing;
+				},
+				zeroPos));
+	});
+var $author$project$Problem$Example$SlidingPuzzle$left = $author$project$Problem$Example$SlidingPuzzle$horizontal(-1);
+var $elm$core$Basics$modBy = _Basics_modBy;
+var $author$project$Problem$Example$SlidingPuzzle$manhattanDist = F3(
+	function (p, q, state) {
+		var s = $author$project$Problem$Example$SlidingPuzzle$sideLength(state);
+		return $elm$core$Basics$abs(
+			A2($elm$core$Basics$modBy, s, p) - A2($elm$core$Basics$modBy, s, q)) + $elm$core$Basics$abs(((p / s) | 0) - ((q / s) | 0));
+	});
+var $author$project$Problem$Example$SlidingPuzzle$right = $author$project$Problem$Example$SlidingPuzzle$horizontal(1);
+var $elm$core$List$sum = function (numbers) {
+	return A3($elm$core$List$foldl, $elm$core$Basics$add, 0, numbers);
+};
+var $author$project$Problem$Example$SlidingPuzzle$up = function (s) {
+	return $author$project$Problem$Example$SlidingPuzzle$vertical(-s);
+};
+var $author$project$Problem$Example$SlidingPuzzle$slidingPuzzle = function (validState) {
+	var s = $author$project$Problem$Example$SlidingPuzzle$sideLength(validState);
+	return {
+		actions: function (state) {
+			return A2(
+				$elm$core$List$map,
+				function (a) {
+					return {result: a, stepCost: 1};
+				},
+				$elm_community$maybe_extra$Maybe$Extra$values(
+					A2(
+						$elm$core$List$map,
+						function (f) {
+							return f(state);
+						},
+						_List_fromArray(
+							[
+								$author$project$Problem$Example$SlidingPuzzle$up(s),
+								$author$project$Problem$Example$SlidingPuzzle$down(s),
+								$author$project$Problem$Example$SlidingPuzzle$left,
+								$author$project$Problem$Example$SlidingPuzzle$right
+							]))));
 		},
+		goalTest: function (state) {
+			return _Utils_eq(
+				state,
+				$author$project$Problem$Example$SlidingPuzzle$goal(validState));
+		},
+		heuristic: function (state) {
+			return $elm$core$List$sum(
+				A2(
+					$elm$core$List$indexedMap,
+					F2(
+						function (i, n) {
+							return A3(
+								$author$project$Problem$Example$SlidingPuzzle$manhattanDist,
+								i,
+								A2(
+									$elm$core$Maybe$withDefault,
+									1000,
+									A2(
+										$elm_community$list_extra$List$Extra$elemIndex,
+										n,
+										$author$project$Problem$Example$SlidingPuzzle$goal(state))),
+								state);
+						}),
+					state));
+		},
+		initialState: validState,
+		stateToString: A2(
+			$elm$core$Basics$composeR,
+			$elm$core$List$map($elm$core$String$fromInt),
+			$elm$core$String$concat)
+	};
+};
+var $author$project$Problem$Example$SlidingPuzzle$mediumEightPuzzle = $author$project$Problem$Example$SlidingPuzzle$slidingPuzzle(
+	$elm$core$List$concat(
 		_List_fromArray(
 			[
-				{data: 75, from: 'Arad', to: 'Zerind'},
-				{data: 140, from: 'Arad', to: 'Sibiu'},
-				{data: 118, from: 'Arad', to: 'Timisoara'},
-				{data: 71, from: 'Zerind', to: 'Oradea'},
-				{data: 151, from: 'Oradea', to: 'Sibiu'},
-				{data: 99, from: 'Sibiu', to: 'Fagaras'},
-				{data: 80, from: 'Sibiu', to: 'Rimnicu Vilcea'},
-				{data: 211, from: 'Fagaras', to: 'Bucharest'},
-				{data: 85, from: 'Bucharest', to: 'Urziceni'},
-				{data: 90, from: 'Bucharest', to: 'Giurgiu'},
-				{data: 101, from: 'Bucharest', to: 'Pitesti'},
-				{data: 142, from: 'Urziceni', to: 'Vaslui'},
-				{data: 98, from: 'Urziceni', to: 'Hirsova'},
-				{data: 92, from: 'Vaslui', to: 'Iasi'},
-				{data: 87, from: 'Iasi', to: 'Neamt'},
-				{data: 86, from: 'Hirsova', to: 'Eforie'},
-				{data: 138, from: 'Pitesti', to: 'Craiova'},
-				{data: 97, from: 'Pitesti', to: 'Rimnicu Vilcea'},
-				{data: 120, from: 'Craiova', to: 'Drobeta'},
-				{data: 146, from: 'Craiova', to: 'Rimnicu Vilcea'},
-				{data: 75, from: 'Drobeta', to: 'Mehadia'},
-				{data: 70, from: 'Mehadia', to: 'Lugoj'},
-				{data: 111, from: 'Lugoj', to: 'Timisoara'}
+				_List_fromArray(
+				[1, 4, 2]),
+				_List_fromArray(
+				[3, 5, 8]),
+				_List_fromArray(
+				[0, 6, 7])
 			])));
-var $author$project$Problem$Example$Graph$romania = {bucharestDistance: $author$project$Problem$Example$Graph$bucharestDistance, distance: $author$project$Problem$Example$Graph$distance};
-var $author$project$Problem$Example$Graph$routeFinding = F4(
-	function (nodeToString, root, goal, graph) {
-		return {
-			actions: function (a) {
-				return A2(
-					$elm$core$Maybe$withDefault,
-					_List_Nil,
-					A2($elm$core$Dict$get, a, graph));
-			},
-			goalTest: $elm$core$Basics$eq(goal),
-			heuristic: function (_v0) {
-				return 0;
-			},
-			initialState: root,
-			stateToString: nodeToString
-		};
+var $author$project$Problem$Example$mediumEightPuzzle = $author$project$Problem$Example$SlidingPuzzle$mediumEightPuzzle;
+var $elm_community$list_extra$List$Extra$groupsOfWithStep = F3(
+	function (size, step, xs) {
+		var xs_ = A2($elm$core$List$drop, step, xs);
+		var thisGroup = A2($elm$core$List$take, size, xs);
+		var okayLength = _Utils_eq(
+			size,
+			$elm$core$List$length(thisGroup));
+		var okayArgs = (size > 0) && (step > 0);
+		return (okayArgs && okayLength) ? A2(
+			$elm$core$List$cons,
+			thisGroup,
+			A3($elm_community$list_extra$List$Extra$groupsOfWithStep, size, step, xs_)) : _List_Nil;
 	});
-var $author$project$Problem$Example$Graph$simpleRouteFinding = A4($author$project$Problem$Example$Graph$routeFinding, $elm$core$Basics$identity, 'Arad', 'Bucharest', $author$project$Problem$Example$Graph$romania.distance);
-var $author$project$Problem$Example$simpleRouteFinding = $author$project$Problem$Example$Graph$simpleRouteFinding;
+var $elm_community$list_extra$List$Extra$groupsOf = F2(
+	function (size, xs) {
+		return A3($elm_community$list_extra$List$Extra$groupsOfWithStep, size, size, xs);
+	});
+var $elm$core$List$singleton = function (value) {
+	return _List_fromArray(
+		[value]);
+};
+var $author$project$Problem$Example$SlidingPuzzle$visualize = function (state) {
+	return A2(
+		$elm$html$Html$table,
+		_List_Nil,
+		A2(
+			$elm$core$List$map,
+			$elm$html$Html$tr(_List_Nil),
+			A2(
+				$elm$core$List$map,
+				$elm$core$List$map(
+					function (a) {
+						return A2(
+							$elm$html$Html$td,
+							_List_fromArray(
+								[
+									A2($elm$html$Html$Attributes$style, 'height', '1em'),
+									A2($elm$html$Html$Attributes$style, 'width', '1em'),
+									A2(
+									$elm$html$Html$Attributes$style,
+									'background-color',
+									(!a) ? 'white' : 'rgb(230, 230, 230)'),
+									A2($elm$html$Html$Attributes$style, 'text-align', 'center'),
+									A2($elm$html$Html$Attributes$style, 'font-size', '1.3em')
+								]),
+							$elm$core$List$singleton(
+								$elm$html$Html$text(
+									$elm$core$String$fromInt(a))));
+					}),
+				A2(
+					$elm_community$list_extra$List$Extra$groupsOf,
+					$author$project$Problem$Example$SlidingPuzzle$sideLength(state),
+					state))));
+};
+var $author$project$Problem$Example$slidingPuzzleVisual = $author$project$Problem$Example$SlidingPuzzle$visualize;
 var $author$project$Main$main = $author$project$Problem$Search$Dashboard$document(
 	{
-		problem: $author$project$Problem$Example$simpleRouteFinding,
+		problem: $author$project$Problem$Example$mediumEightPuzzle,
+		problemStateToHtml: $elm$core$Maybe$Just($author$project$Problem$Example$slidingPuzzleVisual),
 		searches: _List_fromArray(
 			[$author$project$Problem$Search$Dashboard$UniformCost, $author$project$Problem$Search$Dashboard$BestFirst, $author$project$Problem$Search$Dashboard$Greedy]),
 		visuals: _List_fromArray(
 			[$author$project$Problem$Search$Dashboard$Scatter, $author$project$Problem$Search$Dashboard$Tree, $author$project$Problem$Search$Dashboard$TreeMap, $author$project$Problem$Search$Dashboard$Graph])
 	});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Problem.Search.Dashboard.Msg String.String","aliases":{"Problem.Search.Model":{"args":["a"],"type":"{ strategy : Problem.Search.Strategy a, queue : Problem.Search.QueuePopper a, problem : Problem.Problem a, explored : Dict.Dict String.String (Problem.Search.Node a), frontier : List.List a, result : Problem.Search.Result (Problem.Search.Node a), maxPathCost : Basics.Float }"},"Problem.Search.Node":{"args":["a"],"type":"{ state : a, parent : Maybe.Maybe a, pathCost : Basics.Float, children : Maybe.Maybe (List.List { pathCost : Basics.Float, state : a }) }"},"Problem.Problem":{"args":["state"],"type":"{ initialState : state, actions : state -> List.List { stepCost : Basics.Float, result : state }, goalTest : state -> Basics.Bool, heuristic : state -> Basics.Float, stateToString : state -> String.String }"},"Problem.Search.QueuePopper":{"args":["a"],"type":"Dict.Dict String.String (Problem.Search.Node a) -> List.List a -> Maybe.Maybe ( a, List.List a )"},"Problem.Search.Strategy":{"args":["a"],"type":"Problem.Problem a -> Dict.Dict String.String (Problem.Search.Node a) -> List.List (Problem.Search.Node a) -> a -> List.List (Problem.Search.Node a)"}},"unions":{"Problem.Search.Dashboard.Msg":{"args":["a"],"tags":{"NewModels":["List.List (Problem.Search.Model a)"],"Show":["Maybe.Maybe (Problem.Search.Node a)"],"Move":["{ x : Basics.Float, y : Basics.Float }"]}},"String.String":{"args":[],"tags":{"String":[]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"List.List":{"args":["a"],"tags":{}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Problem.Search.Result":{"args":["a"],"tags":{"Pending":[],"Solution":["a"],"Failure":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
+	$elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.1"},"types":{"message":"Problem.Search.Dashboard.Msg (List.List Basics.Int)","aliases":{"Problem.Search.Model":{"args":["a"],"type":"{ strategy : Problem.Search.Strategy a, queue : Problem.Search.QueuePopper a, problem : Problem.Problem a, explored : Dict.Dict String.String (Problem.Search.Node a), frontier : List.List a, result : Problem.Search.Result (Problem.Search.Node a), maxPathCost : Basics.Float }"},"Problem.Search.Node":{"args":["a"],"type":"{ state : a, parent : Maybe.Maybe a, pathCost : Basics.Float, children : Maybe.Maybe (List.List { pathCost : Basics.Float, state : a }) }"},"Problem.Problem":{"args":["state"],"type":"{ initialState : state, actions : state -> List.List { stepCost : Basics.Float, result : state }, goalTest : state -> Basics.Bool, heuristic : state -> Basics.Float, stateToString : state -> String.String }"},"Problem.Search.QueuePopper":{"args":["a"],"type":"Dict.Dict String.String (Problem.Search.Node a) -> List.List a -> Maybe.Maybe ( a, List.List a )"},"Problem.Search.Strategy":{"args":["a"],"type":"Problem.Problem a -> Dict.Dict String.String (Problem.Search.Node a) -> List.List (Problem.Search.Node a) -> a -> List.List (Problem.Search.Node a)"}},"unions":{"Basics.Int":{"args":[],"tags":{"Int":[]}},"List.List":{"args":["a"],"tags":{}},"Problem.Search.Dashboard.Msg":{"args":["a"],"tags":{"NewModels":["List.List (Problem.Search.Model a)"],"Show":["Maybe.Maybe (Problem.Search.Node a)"],"Move":["{ x : Basics.Float, y : Basics.Float }"]}},"Basics.Bool":{"args":[],"tags":{"True":[],"False":[]}},"Dict.Dict":{"args":["k","v"],"tags":{"RBNode_elm_builtin":["Dict.NColor","k","v","Dict.Dict k v","Dict.Dict k v"],"RBEmpty_elm_builtin":[]}},"Basics.Float":{"args":[],"tags":{"Float":[]}},"Maybe.Maybe":{"args":["a"],"tags":{"Just":["a"],"Nothing":[]}},"Problem.Search.Result":{"args":["a"],"tags":{"Pending":[],"Solution":["a"],"Failure":[]}},"String.String":{"args":[],"tags":{"String":[]}},"Dict.NColor":{"args":[],"tags":{"Red":[],"Black":[]}}}}})}});}(this));
 
   var app = Elm.Main.init({ node: document.getElementById("elm") });
 }

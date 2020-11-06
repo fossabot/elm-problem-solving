@@ -26,16 +26,17 @@ document :
     { problem : Problem a
     , searches : List Search
     , visuals : List Visual
+    , problemStateToHtml : Maybe (a -> Html (Msg a))
     }
     -> Program () (Model a) (Msg a)
-document { visuals, searches, problem } =
+document config =
     Browser.document
         { view =
             \model ->
                 { title = "Search"
                 , body = view model
                 }
-        , init = \_ -> init visuals searches problem
+        , init = \_ -> init config
         , update = update
         , subscriptions = \_ -> Visual.tooltip.sub Move
         }
@@ -119,8 +120,14 @@ type alias Model a =
     }
 
 
-init : List Visual -> List Search -> Problem a -> ( Model a, Cmd (Msg a) )
-init visuals searches problem =
+init :
+    { problem : Problem a
+    , searches : List Search
+    , visuals : List Visual
+    , problemStateToHtml : Maybe (a -> Html (Msg a))
+    }
+    -> ( Model a, Cmd (Msg a) )
+init {visuals, searches, problem, problemStateToHtml} =
     let
         searchAndGraphModels : List (SearchAndGraphModel a)
         searchAndGraphModels =
@@ -139,7 +146,7 @@ init visuals searches problem =
     in
     ( { searchesAndGraphs = searchAndGraphModels
       , visuals = visuals
-      , tooltip = Visual.tooltip.init problem Show Nothing --(Just Problem.Example.slidingPuzzleVisual)
+      , tooltip = Visual.tooltip.init problem Show problemStateToHtml
       }
     , searchTask NewModels (searchAndGraphModels |> List.map .search)
     )
