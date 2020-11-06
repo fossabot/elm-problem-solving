@@ -154,9 +154,9 @@ treeLayout =
                     width / n
             in
             { x = x + m * w
-            , y = pathCost / (model.maxPathCost + 1)
+            , y = parentPathCost / (model.maxPathCost + 1) 
             , width = w
-            , height = (pathCost - parentPathCost) / (model.maxPathCost + 1)
+            , height = (pathCost - parentPathCost) / (model.maxPathCost + 1) 
             , toggle = toggle
             , parentPathCost = pathCost
             }

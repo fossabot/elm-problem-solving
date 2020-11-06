@@ -14166,7 +14166,7 @@ var $author$project$Problem$Search$Visual$Tree$treeLayout = {
 			var toggle = _v2.toggle;
 			var parentPathCost = _v2.parentPathCost;
 			var w = width / n;
-			return {height: (pathCost - parentPathCost) / (model.maxPathCost + 1), parentPathCost: pathCost, toggle: toggle, width: w, x: x + (m * w), y: pathCost / (model.maxPathCost + 1)};
+			return {height: (pathCost - parentPathCost) / (model.maxPathCost + 1), parentPathCost: pathCost, toggle: toggle, width: w, x: x + (m * w), y: parentPathCost / (model.maxPathCost + 1)};
 		}),
 	sort: $elm$core$Basics$identity
 };
