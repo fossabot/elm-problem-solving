@@ -46,8 +46,8 @@
 
 ## Related work
 
-- This module roughly follows the standard textbook [*Artificial Intelligence - A Modern Approach*](http://aima.cs.berkeley.edu/) (*AIMA*) by Stuart Russell and Peter Norvig. Their [aima-javascript](https://github.com/aimacode/aima-javascript) project also contains some visualizations.
-
+- This module roughly follows the standard textbook [*Artificial Intelligence - A Modern Approach*](http://aima.cs.berkeley.edu/) (*AIMA*) by Stuart Russell and Peter Norvig. Their [aimacode/aima-javascript](https://github.com/aimacode/aima-javascript) project also contains some visualizations.
+- [the-sett/ai-search](https://github.com/the-sett/ai-search): Search algorithms in Elm, also including bounded search and iterative deepening. I found this when I had already written my algorithms, so it's independent.
 - [Guided implementations](https://www.redblobgames.com/pathfinding/a-star/implementation.html) of A\* search for Python, C++, and C#.
 
 [![Github actions elm-test status](https://github.com/davidpomerenke/elm-problem-solving/workflows/elm-test/badge.svg)](https://github.com/davidpomerenke/elm-problem-solving/actions?query=workflow%3Aelm-test)
