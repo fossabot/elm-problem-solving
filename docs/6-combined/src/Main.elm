@@ -12,6 +12,7 @@ import Problem.Search.Visual as Visual
 import Process
 import Task
 
+-- This can now be achieved in just 7 lines of code by using the `Problem.Search.Dashboard` submodule. This implementation here is nonetheless interesting, for learning how to combine the search models, graph model, tooltip model. Also check out the `Dashboard` implementation though!
 
 main =
     Browser.document

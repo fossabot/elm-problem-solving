@@ -11365,7 +11365,7 @@ var $author$project$Problem$Example$SlidingPuzzle$visualize = function (state) {
 					state))));
 };
 var $author$project$Problem$Example$slidingPuzzleVisual = $author$project$Problem$Example$SlidingPuzzle$visualize;
-var $author$project$Problem$Search$Visualization$Tooltip$init = F3(
+var $author$project$Problem$Search$Visual$Tooltip$init = F3(
 	function (problem, msg, vis) {
 		return {
 			msg: msg,
@@ -11378,7 +11378,7 @@ var $author$project$Problem$Search$Visualization$Tooltip$init = F3(
 				vis)
 		};
 	});
-var $author$project$Problem$Search$Visualization$Tooltip$decodeMove = A3(
+var $author$project$Problem$Search$Visual$Tooltip$decodeMove = A3(
 	$elm$json$Json$Decode$map2,
 	F2(
 		function (a, b) {
@@ -11560,11 +11560,11 @@ var $elm$browser$Browser$Events$on = F3(
 			A3($elm$browser$Browser$Events$MySub, node, name, decoder));
 	});
 var $elm$browser$Browser$Events$onMouseMove = A2($elm$browser$Browser$Events$on, $elm$browser$Browser$Events$Document, 'mousemove');
-var $author$project$Problem$Search$Visualization$Tooltip$sub = function (msg) {
+var $author$project$Problem$Search$Visual$Tooltip$sub = function (msg) {
 	return $elm$browser$Browser$Events$onMouseMove(
-		A2($elm$json$Json$Decode$map, msg, $author$project$Problem$Search$Visualization$Tooltip$decodeMove));
+		A2($elm$json$Json$Decode$map, msg, $author$project$Problem$Search$Visual$Tooltip$decodeMove));
 };
-var $author$project$Problem$Search$Visualization$Tooltip$infoRow = F2(
+var $author$project$Problem$Search$Visual$Tooltip$infoRow = F2(
 	function (description, number) {
 		return A2(
 			$elm$html$Html$div,
@@ -11601,7 +11601,7 @@ var $author$project$Problem$Search$Visualization$Tooltip$infoRow = F2(
 						]))
 				]));
 	});
-var $author$project$Problem$Search$Visualization$Tooltip$info = F3(
+var $author$project$Problem$Search$Visual$Tooltip$info = F3(
 	function (problem, visualizeState, _v0) {
 		var pathCost = _v0.pathCost;
 		var state = _v0.state;
@@ -11630,18 +11630,18 @@ var $author$project$Problem$Search$Visualization$Tooltip$info = F3(
 						[
 							visualizeState(state)
 						])),
-					A2($author$project$Problem$Search$Visualization$Tooltip$infoRow, 'Path cost', pathCost),
+					A2($author$project$Problem$Search$Visual$Tooltip$infoRow, 'Path cost', pathCost),
 					A2(
-					$author$project$Problem$Search$Visualization$Tooltip$infoRow,
+					$author$project$Problem$Search$Visual$Tooltip$infoRow,
 					'Heuristic',
 					problem.heuristic(state)),
 					A2(
-					$author$project$Problem$Search$Visualization$Tooltip$infoRow,
+					$author$project$Problem$Search$Visual$Tooltip$infoRow,
 					'Sum',
 					pathCost + problem.heuristic(state))
 				]));
 	});
-var $author$project$Problem$Search$Visualization$Tooltip$view = function (_v0) {
+var $author$project$Problem$Search$Visual$Tooltip$view = function (_v0) {
 	var problem = _v0.problem;
 	var node = _v0.node;
 	var position = _v0.position;
@@ -11675,14 +11675,14 @@ var $author$project$Problem$Search$Visualization$Tooltip$view = function (_v0) {
 						]),
 					_List_fromArray(
 						[
-							A3($author$project$Problem$Search$Visualization$Tooltip$info, problem, vis, n)
+							A3($author$project$Problem$Search$Visual$Tooltip$info, problem, vis, n)
 						]))
 				]));
 	} else {
 		return $elm$html$Html$text('');
 	}
 };
-var $author$project$Problem$Search$Visual$tooltip = {init: $author$project$Problem$Search$Visualization$Tooltip$init, sub: $author$project$Problem$Search$Visualization$Tooltip$sub, view: $author$project$Problem$Search$Visualization$Tooltip$view};
+var $author$project$Problem$Search$Visual$tooltip = {init: $author$project$Problem$Search$Visual$Tooltip$init, sub: $author$project$Problem$Search$Visual$Tooltip$sub, view: $author$project$Problem$Search$Visual$Tooltip$view};
 var $author$project$Problem$Search$uniformCost_ = F2(
 	function (strategy, problem) {
 		return A3(
@@ -12423,7 +12423,7 @@ var $elm$html$Html$Events$onMouseOver = function (msg) {
 		$elm$json$Json$Decode$succeed(msg));
 };
 var $avh4$elm_color$Color$red = A4($avh4$elm_color$Color$RgbaSpace, 204 / 255, 0 / 255, 0 / 255, 1.0);
-var $author$project$Problem$Search$Visualization$Tooltip$properties = F2(
+var $author$project$Problem$Search$Visual$Tooltip$properties = F2(
 	function (tooltip, nodes) {
 		var _v0 = _Utils_Tuple2(tooltip, nodes);
 		if ((_v0.a.$ === 'Just') && _v0.b.b) {
@@ -12639,7 +12639,7 @@ var $elm_community$typed_svg$TypedSvg$Attributes$width = function (length) {
 		'width',
 		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
 };
-var $author$project$Problem$Search$Visualization$ScatterPlot$scatterPlot = F2(
+var $author$project$Problem$Search$Visual$ScatterPlot$scatterPlot = F2(
 	function (tooltip, model) {
 		var result = model.result;
 		var problem = model.problem;
@@ -12789,7 +12789,7 @@ var $author$project$Problem$Search$Visualization$ScatterPlot$scatterPlot = F2(
 																	(($elm$core$Basics$sqrt(
 																		$elm$core$List$length(nodes)) / maxDotSize) / A2($elm$core$Basics$max, nX, nY)) / 2)))
 														]),
-													A2($author$project$Problem$Search$Visualization$Tooltip$properties, tooltip, nodes)),
+													A2($author$project$Problem$Search$Visual$Tooltip$properties, tooltip, nodes)),
 												_List_Nil)
 											]));
 								},
@@ -12833,7 +12833,7 @@ var $author$project$Problem$Search$Visualization$ScatterPlot$scatterPlot = F2(
 							}())))
 				]));
 	});
-var $author$project$Problem$Search$Visual$scatter = $author$project$Problem$Search$Visualization$ScatterPlot$scatterPlot;
+var $author$project$Problem$Search$Visual$scatter = $author$project$Problem$Search$Visual$ScatterPlot$scatterPlot;
 var $elm$html$Html$th = _VirtualDom_node('th');
 var $elm$virtual_dom$VirtualDom$keyedNodeNS = F2(
 	function (namespace, tag) {
@@ -12969,7 +12969,7 @@ var $elm_community$typed_svg$TypedSvg$Attributes$y = function (length) {
 		'y',
 		$elm_community$typed_svg$TypedSvg$TypesToStrings$lengthToString(length));
 };
-var $author$project$Problem$Search$Visualization$Tree$makeTreeLikeVis = F3(
+var $author$project$Problem$Search$Visual$Tree$makeTreeLikeVis = F3(
 	function (layout, tooltip, model) {
 		var explored = model.explored;
 		var problem = model.problem;
@@ -13022,7 +13022,7 @@ var $author$project$Problem$Search$Visualization$Tree$makeTreeLikeVis = F3(
 												$elm_community$typed_svg$TypedSvg$Types$Opacity(1))
 											]),
 										A2(
-											$author$project$Problem$Search$Visualization$Tooltip$properties,
+											$author$project$Problem$Search$Visual$Tooltip$properties,
 											tooltip,
 											_List_fromArray(
 												[node]))),
@@ -13055,7 +13055,7 @@ var $author$project$Problem$Search$Visualization$Tree$makeTreeLikeVis = F3(
 								$elm$core$Dict$toList(explored)))))
 				]));
 	});
-var $author$project$Problem$Search$Visualization$Tree$treeLayout = {
+var $author$project$Problem$Search$Visual$Tree$treeLayout = {
 	fold: F3(
 		function (model, _v0, _v2) {
 			var pathCost = _v0.a;
@@ -13067,14 +13067,14 @@ var $author$project$Problem$Search$Visualization$Tree$treeLayout = {
 			var toggle = _v2.toggle;
 			var parentPathCost = _v2.parentPathCost;
 			var w = width / n;
-			return {height: (pathCost - parentPathCost) / (model.maxPathCost + 1), parentPathCost: pathCost, toggle: toggle, width: w, x: x + (m * w), y: pathCost / (model.maxPathCost + 1)};
+			return {height: (pathCost - parentPathCost) / (model.maxPathCost + 1), parentPathCost: pathCost, toggle: toggle, width: w, x: x + (m * w), y: parentPathCost / (model.maxPathCost + 1)};
 		}),
 	sort: $elm$core$Basics$identity
 };
-var $author$project$Problem$Search$Visualization$Tree$tree = $author$project$Problem$Search$Visualization$Tree$makeTreeLikeVis($author$project$Problem$Search$Visualization$Tree$treeLayout);
-var $author$project$Problem$Search$Visual$tree = $author$project$Problem$Search$Visualization$Tree$tree;
+var $author$project$Problem$Search$Visual$Tree$tree = $author$project$Problem$Search$Visual$Tree$makeTreeLikeVis($author$project$Problem$Search$Visual$Tree$treeLayout);
+var $author$project$Problem$Search$Visual$tree = $author$project$Problem$Search$Visual$Tree$tree;
 var $elm$core$List$sortBy = _List_sortBy;
-var $author$project$Problem$Search$Visualization$Tree$treeMapLayout = {
+var $author$project$Problem$Search$Visual$Tree$treeMapLayout = {
 	fold: F3(
 		function (_v0, _v1, _v3) {
 			var pathCost = _v1.a;
@@ -13104,8 +13104,8 @@ var $author$project$Problem$Search$Visualization$Tree$treeMapLayout = {
 			return node.pathCost;
 		})
 };
-var $author$project$Problem$Search$Visualization$Tree$treeMap = $author$project$Problem$Search$Visualization$Tree$makeTreeLikeVis($author$project$Problem$Search$Visualization$Tree$treeMapLayout);
-var $author$project$Problem$Search$Visual$treeMap = $author$project$Problem$Search$Visualization$Tree$treeMap;
+var $author$project$Problem$Search$Visual$Tree$treeMap = $author$project$Problem$Search$Visual$Tree$makeTreeLikeVis($author$project$Problem$Search$Visual$Tree$treeMapLayout);
+var $author$project$Problem$Search$Visual$treeMap = $author$project$Problem$Search$Visual$Tree$treeMap;
 var $author$project$Main$view = function (_v0) {
 	var searchModel1 = _v0.searchModel1;
 	var searchModel2 = _v0.searchModel2;
