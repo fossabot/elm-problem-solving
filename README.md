@@ -5,13 +5,11 @@
 - Visualize the searched state space as a scatter plot, tree, tree map, or network graph; all live while searching. 
 - Use a low-code dashboard to get started.
 
-## Documentation
-
-_to be linked_
+## [Documentation](https://package.elm-lang.org/packages/davidpomerenke/elm-problem-solving/latest/Problem)
 
 ## Examples
 
-(These are from the `docs` folder. I plan to publish them as Ellies.)
+[Introductory example on Ellie.](https://ellie-app.com/btR6thN7Jcqa1)
 
 1. [[Live]](https://davidpomerenke.github.io/elm-problem-solving/1-dashboard/index.html)
    [[Code]](docs/1-dashboard/src/Main.elm)
@@ -31,6 +29,8 @@ _to be linked_
 6. [[Live]](https://davidpomerenke.github.io/elm-problem-solving/4-graph/index.html)
    [[Code]](docs/4-graph/src/Main.elm)
    Combining all the techniques to create the same dashboard as in _1._, but with much more code.
+
+(The examples can be found in the `docs` folder.)
 
 ## Structure
 
