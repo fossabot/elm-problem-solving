@@ -1,21 +1,9 @@
 # ![elm-problem-solving](elm-problem-solving.png)
 
-[![Github actions elm-test status](https://github.com/davidpomerenke/elm-problem-solving/workflows/elm-test/badge.svg)](https://github.com/davidpomerenke/elm-problem-solving/actions?query=workflow%3Aelm-test)
-
-Problem solving in [Elm](https://elm-lang.org/).
-
-## Related work
-
-- This module roughly follows the standard textbook [*Artificial Intelligence - A Modern Approach*](http://aima.cs.berkeley.edu/) (*AIMA*) by Stuart Russell and Peter Norvig. Their [aima-javascript](https://github.com/aimacode/aima-javascript) project also contains some visualizations.
-
-- [Guided implementations](https://www.redblobgames.com/pathfinding/a-star/implementation.html) for Python, C++, and C#.
-
-## Structure
-
-Problem
-Problem.Example
-Problem.Search
-Problem.Search.Visual
+- Use examples and templates of standard problems: Vacuum world, sliding puzzle, queens puzzle, Knuth conjecture, graph search, motion planning. Or formalize your own problem.
+- Apply powerful search algorithms to find the solution: Depth-first search, breadth-first search, uniform-cost search (Dijkstra's algorithm), greedy search, and best-first (A\*) search. 
+- Visualize the searched state space as a scatter plot, tree, tree map, or network graph; all live while searching. 
+- Use a low-code dashboard to get started.
 
 ## Documentation
 
@@ -23,8 +11,43 @@ _to be linked_
 
 ## Examples
 
-(These are from the `examples` folder. I plan to publish them as Ellies.)
+(These are from the `docs` folder. I plan to publish them as Ellies.)
 
-1. [Minimal example](examples/1-minimal-example)
-2. [Basic visualizations](examples/2-visual-example)
-3. [Graph visualization](examples/3-graph-example)
+1. [[Live]](https://davidpomerenke.github.io/elm-problem-solving/1-dashboard/index.html)
+   [[Code]](docs/1-dashboard/src/Main.elm)
+   Creating a powerful dashboard by just enumerating what you would like to include. 
+2. [[Live]](https://davidpomerenke.github.io/elm-problem-solving/2-minimal/index.html)
+   [[Code]](docs/2-minimal/src/Main.elm)
+   Live-searching for a problem solution, a minimal example.
+3. [[Live]](https://davidpomerenke.github.io/elm-problem-solving/3-visual/index.html)
+   [[Code]](docs/3-visual/src/Main.elm)
+   Visualizing the searched state space as a tree, tree map, or scatter plot.
+4. [[Live]](https://davidpomerenke.github.io/elm-problem-solving/4-graph/index.html)
+   [[Code]](docs/4-graph/src/Main.elm)
+   Visualizing the searched state space as a network graph. 
+5. [[Live]](https://davidpomerenke.github.io/elm-problem-solving/5-tooltip/index.html)
+   [[Code]](docs/5-tooltip/src/Main.elm)
+   Adding a tooltip with information about the individual states to the visuals.
+6. [[Live]](https://davidpomerenke.github.io/elm-problem-solving/4-graph/index.html)
+   [[Code]](docs/4-graph/src/Main.elm)
+   Combining all the techniques to create the same dashboard as in _1._, but with much more code.
+
+## Structure
+
+- Problem
+- Problem.Example
+- Problem.Search
+- Problem.Search.Visual
+- Problem.Search.Dashboard
+
+## Screenshots
+
+![Screenshots of 2 search visual dashboards.](Dashboards.png)
+
+## Related work
+
+- This module roughly follows the standard textbook [*Artificial Intelligence - A Modern Approach*](http://aima.cs.berkeley.edu/) (*AIMA*) by Stuart Russell and Peter Norvig. Their [aima-javascript](https://github.com/aimacode/aima-javascript) project also contains some visualizations.
+
+- [Guided implementations](https://www.redblobgames.com/pathfinding/a-star/implementation.html) of A\* search for Python, C++, and C#.
+
+[![Github actions elm-test status](https://github.com/davidpomerenke/elm-problem-solving/workflows/elm-test/badge.svg)](https://github.com/davidpomerenke/elm-problem-solving/actions?query=workflow%3Aelm-test)

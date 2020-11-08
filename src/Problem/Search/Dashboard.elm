@@ -11,7 +11,6 @@ import Html exposing (..)
 import Html.Attributes exposing (..)
 import List.Extra as List
 import Problem exposing (Problem)
-import Problem.Example
 import Problem.Search as Search exposing (Result(..))
 import Problem.Search.Visual as Visual
 import Problem.Search.Visual.Tooltip as Tooltip
@@ -21,6 +20,24 @@ import Task
 
 
 {-| Visual dashboard. We can use this as the `main` function in our application.
+
+A whole appliaction could thus just look like this:
+
+    module Main exposing (..)
+
+    import Problem.Example exposing (..)
+    import Problem.Search.Dashboard as Dashboard exposing (Search(..), Visual(..))
+
+    main =
+        Dashboard.document
+            { problem = mediumEightPuzzle
+            , problemStateToHtml = Just slidingPuzzleVisual
+            , searches = [ UniformCost, BestFirst, Greedy ]
+            , visuals = [ Scatter, Tree, TreeMap, Graph ]
+            }
+
+This is the complete [code](https://github.com/davidpomerenke/elm-problem-solving/blob/main/docs/1-dashboard/src/Main.elm) for the [first example](https://davidpomerenke.github.io/elm-problem-solving/1-dashboard/index.html).
+
 -}
 document :
     { problem : Problem a

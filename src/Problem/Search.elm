@@ -53,9 +53,9 @@ The functions above only initialize a search model. We can use one of the functi
 @docs Result, mapResult, resultWithDefault, resultHasState
 
 
-# Building your own visualizations
+# Internal infrastructure
 
-Before using these more low-level functions, check out the ready-made visualizations in the `Problem.Search.Visual` submodule.
+Use these for building you own visualizations. First, check out the ready-made visualizations in the `Problem.Search.Visual` submodule.
 
 @docs Node, expand, path, reversePathWithPosition, unestrangedChildren
 
@@ -76,6 +76,7 @@ import Problem exposing (Problem)
 
   - `Pending`: No solution has been found, but the search has not yet exhausted the state space and more search steps can be performed.
   - `Solution a`: A solution has been found
+  - `Failure`: The complete search space has been searched, but no solution could be found.
 
 -}
 type Result a
@@ -425,7 +426,7 @@ exhaust model =
         exhaust new
 
 
-{-| Searches through the search space until the boundary condition is no longer fulfilled. Returns a new search model. Could perhaps be used to implement IDA\*, but I have not attempted yet. **Experimental.**
+{-| Searches through the search space until the boundary condition is no longer fulfilled. Returns a new search model. Could perhaps be used to implement IDA\*, but I have not yet attempted that. __Experimental.__
 -}
 exhaustBoundary : (Node a -> Bool) -> Model a -> Model a
 exhaustBoundary boundary ({ strategy, queue } as model) =
