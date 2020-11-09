@@ -1,9 +1,9 @@
 # ![elm-problem-solving](elm-problem-solving.png)
 
-- Use examples and templates of standard problems: Vacuum world, sliding puzzle, queens puzzle, Knuth conjecture, graph search, motion planning. Or formalize your own problem.
-- Apply powerful search algorithms to find the solution: Depth-first search, breadth-first search, uniform-cost search (Dijkstra's algorithm), greedy search, and best-first (A\*) search. 
-- Visualize the searched state space as a scatter plot, tree, tree map, or network graph; all live while searching. 
-- Use a low-code dashboard to get started.
+- __Use examples and templates of standard problems: Vacuum world, sliding puzzle, queens puzzle, Knuth conjecture, graph search, motion planning. Or formalize your own problem.__
+- __Apply powerful search algorithms to find the solution: Depth-first search, breadth-first search, uniform-cost search (Dijkstra's algorithm), greedy search, and best-first (A\*) search.__
+- __Visualize the search state space as a scatter plot, tree, tree map, or network graph; live while searching.__
+- __Use a low-code dashboard to get started.__
 
 ## [Documentation](https://package.elm-lang.org/packages/davidpomerenke/elm-problem-solving/latest/Problem)
 
