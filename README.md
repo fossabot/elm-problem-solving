@@ -9,7 +9,7 @@
 
 ## Examples
 
-[Introductory example on Ellie.](https://ellie-app.com/btR6thN7Jcqa1)
+[Introductory example on Ellie.](https://ellie-app.com/bv2YzcWHG7ha1)
 
 1. [[Live]](https://davidpomerenke.github.io/elm-problem-solving/1-dashboard/index.html)
    [[Code]](docs/1-dashboard/src/Main.elm)
