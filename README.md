@@ -1,4 +1,4 @@
-# ![elm-problem-solving](elm-problem-solving.png)
+# ![elm-problem-solving](https://github.com/davidpomerenke/elm-problem-solving/blob/main/elm-problem-solving.png)
 
 - __Use examples and templates of standard problems: Vacuum world, sliding puzzle, queens puzzle, Knuth conjecture, graph search, motion planning. Or formalize your own problem.__
 - __Apply powerful search algorithms to find the solution: Depth-first search, breadth-first search, uniform-cost search (Dijkstra's algorithm), greedy search, and best-first (A\*) search.__
@@ -42,7 +42,7 @@
 
 ## Screenshots
 
-![Screenshots of 2 search visual dashboards.](Dashboards.png)
+![Screenshots of 2 search visual dashboards.](https://github.com/davidpomerenke/elm-problem-solving/blob/main/dashboards.png)
 
 ## Related work
 
