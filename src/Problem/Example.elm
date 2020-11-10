@@ -160,7 +160,7 @@ type alias SlidingPuzzle =
 
 A quadratic grid with n²-1 numbers. They are in a disturbed order and should be brought back to their natural order, by only moving around the tile with number 0. A (4²-1)-puzzle = 15-puzzle looks like this:
 
-![15-Puzzle](https://github.com/davidpomerenke/elm-problem-solving/blob/main/src/Problem/Example/15puzzle.png)
+![15-Puzzle](https://github.com/davidpomerenke/elm-problem-solving/main/src/Problem/Example/15puzzle.png)
 
 A sliding puzzle is represented internally as a simple list. The positions where a new line begins are determined by the square root of the length of the list.
 
@@ -315,7 +315,7 @@ type alias Graph comparable =
 
 {-| Map of cities in Romania. Contains a graph of the distances between all connected cities, and a graph of the straight line distance.
 
-![Romanian cities.](https://github.com/davidpomerenke/elm-problem-solving/blob/main/src/Problem/Example/Romania.png)
+![Romanian cities.](https://github.com/davidpomerenke/elm-problem-solving/main/src/Problem/Example/Romania.png)
 
 (Unfortunately, we only have data for the straight line distance between Bucharest and the other cities, and not mutually between the other cities; so we call it `bucharestDistance` instead of `straightLineDistance`.)
 

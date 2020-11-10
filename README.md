@@ -42,7 +42,7 @@
 
 ## Screenshots
 
-![Screenshots of 2 search visual dashboards.](https://github.com/davidpomerenke/elm-problem-solving/blob/main/dashboards.png)
+![Screenshots of 2 search visual dashboards.](https://github.com/davidpomerenke/elm-problem-solving/main/dashboards.png)
 
 ## Related work
 
