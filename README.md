@@ -43,6 +43,7 @@
 ## Screenshots
 
 ![Screenshots of 2 search visual dashboards.](https://github.com/davidpomerenke/elm-problem-solving/raw/main/dashboards.png)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdavidpomerenke%2Felm-problem-solving.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdavidpomerenke%2Felm-problem-solving?ref=badge_shield)
 
 ## Related work
 
@@ -51,3 +52,6 @@
 - [Guided implementations](https://www.redblobgames.com/pathfinding/a-star/implementation.html) of A\* search for Python, C++, and C#.
 
 [![Github actions elm-test status](https://github.com/davidpomerenke/elm-problem-solving/workflows/elm-test/badge.svg)](https://github.com/davidpomerenke/elm-problem-solving/actions?query=workflow%3Aelm-test)
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fdavidpomerenke%2Felm-problem-solving.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fdavidpomerenke%2Felm-problem-solving?ref=badge_large)
